@@ -255,20 +255,17 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
 .rtbl th{padding:9px 12px;text-align:right;font-size:10px;font-weight:600;color:var(--t-3);text-transform:uppercase;letter-spacing:.06em;background:var(--bg-2);border-bottom:1px solid var(--sep-l)}
 .rtbl th:first-child{text-align:left;padding-left:16px}
 .rtbl th.fcst-h{color:var(--violet)}
-.rtbl th.accord-h{color:var(--green)}
 .rtbl td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--sep-l);font:400 12px/1.4 var(--mono);color:var(--t-3);vertical-align:top}
 .rtbl td:first-child{text-align:left;font:500 13px/1 var(--f);color:var(--t-2);padding-left:16px;letter-spacing:-.01em}
 .rtbl tr:last-child td{border-bottom:none}
 .rtbl tr.total-row td{background:rgba(59,91,219,.05);font-weight:700;color:var(--t-1);border-top:1px solid rgba(59,91,219,.18)}
 .r{text-align:right!important}
 .neg{color:var(--red)!important}
-.recv{color:var(--green)!important}
 .pct-ok{color:var(--green)!important;font-weight:600}
 .pct-bad{color:var(--red)!important;font-weight:600}
 .pct-equal{color:var(--accent)!important;font-weight:600}
 .late-tag{display:block;font-size:9.5px;font-weight:700;color:var(--red);letter-spacing:.03em;margin-top:3px}
 .fcst-col{color:var(--violet)!important;font-style:italic}
-.accord-col{color:var(--green)!important}
 .subtotal-col{font-weight:600;color:var(--t-1)!important;border-left:2px solid var(--sep)!important}
 .gt-strip{border-radius:var(--r2);margin:0 20px 12px;padding:16px 18px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;box-shadow:var(--s2)}
 .gt-strip.confirmed{background:var(--accent)}
@@ -364,12 +361,10 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
   .rtbl col.c-acc{ width:6.5%!important; }
   .rtbl col.c-fcst{ width:6.5%!important; }
   .neg{ color:#C0392B!important; }
-  .recv{ color:#2E7D55!important; }
   .pct-ok{ color:#2E7D55!important; }
   .pct-bad{ color:#C0392B!important; }
   .pct-equal{ color:#3B5BDB!important; }
   .fcst-col{ color:#7C3AED!important; }
-  .accord-col{ color:#2E7D55!important; }
   .subtotal-col{ font-weight:700!important; background:#fafafa!important; }
   .late-tag{ font-size:6pt!important; color:#C0392B!important; }
   #page-rpt::after{ content:'Controle Financeiro do Décio — Impresso em ' attr(data-print-date); display:block; font-size:6pt; color:#999; text-align:right; padding-top:6pt; border-top:0.5px solid #ddd; margin-top:8pt; }
@@ -561,7 +556,6 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
   <div class="pg-title">Dashboard</div>
   <div id="dash-alerts" class="alert-bar" style="display:none"></div>
   <div class="kpi-row" id="kpi-row"></div>
-  <div id="accord-kpi-wrap"></div>
   <div id="fcst-kpi-wrap"></div>
   <div id="chart-area" style="margin-top:12px"></div>
   <div class="s-hdr"><span class="s-title">Recentes</span><span class="s-link" onclick="nav('txs')">Ver todas →</span></div>
@@ -581,7 +575,6 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
     <select id="fil-type" class="filter-sel" onchange="renderTxList()">
       <option value="">Todos os tipos</option>
       <option value="PAID">Pago</option>
-      <option value="RECEIVED">Recebido</option>
       <option value="FORECAST">◆ Previsão</option>
     </select>
     <select id="fil-cat" class="filter-sel" onchange="renderTxList()">
@@ -639,7 +632,6 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
         <span class="field-label">Tipo</span>
         <select id="f-type" onchange="onTypeChange()">
           <option value="PAID">Saída (pago)</option>
-          <option value="RECEIVED">Entrada (recebido)</option>
           <option value="FORECAST">◆ Previsão futura</option>
         </select>
       </div>
@@ -739,56 +731,7 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
 <!-- ░░ SETTINGS ░░ -->
 <div class="page" id="page-cfg">
   <div class="pg-title">Configurações</div>
-
-  <!-- Acordo Pai -->
-  <div class="form-section">
-    <div class="form-label">⚖️ Acordo com o Pai</div>
-    <div class="form-card">
-      <div class="field">
-        <span class="field-label">Tipo</span>
-        <select id="cfg-accord-type" onchange="onAccordTypeChange()">
-          <option value="pct">Percentual (%)</option>
-          <option value="fixed">Valor fixo (R$)</option>
-        </select>
-      </div>
-      <div class="field" id="cfg-accord-pct-row">
-        <span class="field-label">Percentual</span>
-        <input id="cfg-accord-pct" type="number" step="0.1" min="0" max="100" placeholder="50" style="max-width:80px">
-        <span style="font-size:15px;color:var(--t-3);margin-left:-8px">%</span>
-      </div>
-      <div class="field" id="cfg-accord-val-row" style="display:none">
-        <span class="field-label">Valor (R$)</span>
-        <input id="cfg-accord-val" type="number" step="0.01" placeholder="2000,00">
-      </div>
-    </div>
-    <div style="margin-top:10px"><button class="btn primary" onclick="saveAccordConfig()">Salvar Acordo</button></div>
-  </div>
-
-  <!-- Gerar Previsões -->
-  <div class="form-section">
-    <div class="form-label">🔮 Gerar Previsões Automáticas</div>
-    <div class="form-card" style="padding:16px">
-      <p style="font-size:13px;color:var(--t-2);line-height:1.65;margin-bottom:12px">Gera previsões de <strong>Mensalidade</strong> e <strong>Pensão</strong> para os meses restantes do ano letivo atual.</p>
-      <div class="field" style="margin:-16px -16px 12px;border-radius:0;background:var(--bg-2)">
-        <span class="field-label">Tipo</span>
-        <select id="gen-type" style="text-align:right">
-          <option value="both">Mensalidade + Pensão</option>
-          <option value="mensalidade">Apenas Mensalidade</option>
-          <option value="pensao">Apenas Pensão</option>
-        </select>
-      </div>
-      <div style="margin-bottom:12px">
-        <div class="form-label" style="margin-bottom:8px">Base de valor</div>
-        <div class="seg-ctrl">
-          <button class="seg-opt on" id="gen-base-last" onclick="setGenBase('last')">Último pago</button>
-          <button class="seg-opt" id="gen-base-avg" onclick="setGenBase('avg')">Média do ano</button>
-        </div>
-      </div>
-      <button class="btn violet" style="border-radius:var(--r2)" onclick="generateForecasts()">◆&nbsp; Gerar Previsões</button>
-    </div>
-  </div>
-
-  <!-- Backup -->
+<!-- Backup -->
   <div class="form-section">
     <div class="form-label">💾 Backup</div>
     <div class="form-card">
@@ -928,8 +871,7 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
           <span class="field-label">Tipo</span>
           <select id="conv-type">
             <option value="PAID">Saída (pago)</option>
-            <option value="RECEIVED">Entrada (recebido)</option>
-          </select>
+            </select>
         </div>
         <div class="field">
           <span class="field-label">Valor (R$)</span>
@@ -1086,15 +1028,14 @@ const dbDel   = (s,k) => new Promise((res,rej) => { const r=db.transaction(s,'re
 const dbClear = s     => new Promise((res,rej) => { const r=db.transaction(s,'readwrite').objectStore(s).clear(); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error); });
 
 /* ─── STATE ─── */
-const S = { year: new Date().getFullYear(), tab:'dash', cats:[], parties:[], editId:null, genBase:'last', accord:{type:'pct',pct:50,val:0}, fcstVisible:true, hiddenCats:new Set(), hiddenFcstCats:new Set(), hiddenFunding:new Set(), _pendingFileId:null, _existingFileId:null, _removeFile:false, _convFileId:null };
+const S = { year: new Date().getFullYear(), tab:'dash', cats:[], parties:[], editId:null, genBase:'last', fcstVisible:true, hiddenCats:new Set(), hiddenFcstCats:new Set(), _pendingFileId:null, _existingFileId:null, _removeFile:false, _convFileId:null };
 const MO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const MF = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const CAT_PAID  = ['mensalidade','matricula','material','uniforme','extra'];
-const CAT_RECV  = ['pensao'];
-const CAT_ORDER = [...CAT_PAID,'pensao'];
+const CAT_ORDER = [...CAT_PAID];
 const TODAY = new Date().toISOString().split('T')[0];
 /* Forecast chart uses lighter pastel versions */
-const FCST_COLORS = { mensalidade:'#818CF8', matricula:'#FB923C', material:'#2DD4BF', uniforme:'#A78BFA', extra:'#34D399', pensao:'#F87171' };
+const FCST_COLORS = { mensalidade:'#818CF8', matricula:'#FB923C', material:'#2DD4BF', uniforme:'#A78BFA', extra:'#34D399' };
 
 /* ─── HELPERS ─── */
 const brl    = v => Math.abs(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1106,20 +1047,15 @@ const isFuture = iso => iso && iso > TODAY;
 
 function toast(msg, ms=2800){ const t=$('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),ms); }
 function catInfo(k){ return S.cats.find(c=>c.key===k)||{key:k,label:k,color:'#8E8E93'}; }
-function catEmoji(k){ return {mensalidade:'🏫',matricula:'📝',material:'📚',uniforme:'👕',extra:'🎭',pensao:'💰'}[k]||'📌'; }
+function catEmoji(k){ return {mensalidade:'🏫',matricula:'📝',material:'📚',uniforme:'👕',extra:'🎭'}[k]||'📌'; }
 function closeSheet(id){ $(id).classList.remove('open'); }
 
 function partyLabel(tx){
   if(tx.partyId){ const p=S.parties.find(p=>Number(p.id)===Number(tx.partyId)); if(p) return (p.emoji?p.emoji+' ':'')+p.name; }
-  const m={Me:'👤 Décio',Father:'👨 Pai (Décio)',School:'🏫 Escola',Store:'🏪 Loja',Other:'👥 Outro'};
+  const m={Me:'👤 Décio',School:'🏫 Escola',Store:'🏪 Loja',Other:'👥 Outro'};
   return m[tx.party]||tx.party||'—';
 }
 
-function getAccordTarget(subtotal){
-  const a = S.accord;
-  if(a.type==='pct') return subtotal * (a.pct/100);
-  return a.val || 0;
-}
 
 /* ─── ALERTS: find overdue forecasts ─── */
 async function getOverdueForecasts(){
@@ -1199,13 +1135,12 @@ async function calcSummary(year){
   const rows = await dbAll('txs');
   const txs  = (year==='all'?rows:rows.filter(r=>r.academicYear===year)).filter(r=>r.type!=='FORECAST');
   const paid  = txs.filter(r=>r.type==='PAID').reduce((a,r)=>a+r.amount,0);
-  const recv  = txs.filter(r=>r.type==='RECEIVED').reduce((a,r)=>a+r.amount,0);
   const late  = txs.filter(r=>r.isLate).length;
   const byCat = {};
   txs.forEach(r=>{ byCat[r.categoryKey]=(byCat[r.categoryKey]||0)+r.amount; });
   const byMonth = Array.from({length:12},()=>({}));
   txs.forEach(r=>{ const m=r.academicMonth-1; byMonth[m][r.categoryKey]=(byMonth[m][r.categoryKey]||0)+r.amount; });
-  return {paid,recv,deficit:paid-recv,late,byCat,byMonth};
+  return {paid,deficit:paid,late,byCat,byMonth};
 }
 
 /* ─── CALC FORECAST ─── */
@@ -1223,26 +1158,6 @@ async function renderDash(){
   const [d,fc] = await Promise.all([calcSummary(S.year),calcForecast(S.year)]);
   const yrL = S.year==='all'?'Todos':S.year;
 
-  // Accord
-  const a = S.accord;
-  const subtotal = (d.byCat.mensalidade||0)+(d.byCat.matricula||0)+(d.byCat.material||0)+(d.byCat.extra||0);
-  const accordTarget = getAccordTarget(subtotal);
-  const accordReal   = d.recv;
-  const accordDiff   = accordReal - accordTarget;
-  const accordPct    = subtotal>0?(accordReal/subtotal*100).toFixed(1):0;
-  const agreedPct    = a.type==='pct'?a.pct:subtotal>0?(a.val/subtotal*100).toFixed(1):0;
-
-  $('kpi-row').innerHTML=`
-    <div class="kpi blue"><div class="kpi-label">Pago — ${yrL}</div><div class="kpi-value">${brlK(d.paid)}</div><div class="kpi-sub">${brlFmt(d.paid)}</div></div>
-    <div class="kpi green"><div class="kpi-label">Pensão — ${yrL}</div><div class="kpi-value">${brlK(d.recv)}</div><div class="kpi-sub">${d.late} com atraso</div></div>
-    <div class="kpi ${d.deficit>0?'red':'green'}"><div class="kpi-label">Déficit — ${yrL}</div><div class="kpi-value">${d.deficit>0?'–':''}${brlK(d.deficit)}</div><div class="kpi-sub">descoberto</div></div>`;
-
-  $('accord-kpi-wrap').innerHTML = accordTarget>0 ? `
-    <div style="padding:12px 20px 0"><div style="font-size:10px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.07em">⚖️ Acordo com o Pai</div></div>
-    <div class="kpi-row" style="padding-top:6px">
-      <div class="kpi green"><div class="kpi-label">Meta acordo</div><div class="kpi-value">${brlK(accordTarget)}</div><div class="kpi-sub">${a.type==='pct'?agreedPct+'% do subtotal':'Valor fixo acordado'}</div></div>
-      <div class="kpi ${accordDiff>=0?'green':'red'}"><div class="kpi-label">Desvio acordo</div><div class="kpi-value">${accordDiff>=0?'+':'-'}${brlK(Math.abs(accordDiff))}</div><div class="kpi-sub">${accordPct}% real vs ${agreedPct}% meta</div></div>
-    </div>` : '';
 
   const fw=$('fcst-kpi-wrap');
   if(fc.count>0){
@@ -1268,7 +1183,7 @@ async function renderDash(){
 function drawCharts(d,fc){
   const bc=d.byCat||{};
   const gt=Object.values(bc).reduce((a,v)=>a+v,0);
-  const def=d.paid-d.recv;
+  const def=d.paid;
   const hasFcst=fc&&fc.count>0;
 
   $('chart-area').innerHTML=`
@@ -1302,36 +1217,20 @@ function drawCharts(d,fc){
       </div>
     </div>`:''}`;
 
-  drawDonut1(def, d.recv, d.paid);
+  drawDonut1(def, d.paid);
   // Build donut2 respecting hidden cats
   drawDonut2(bc, gt);
   barChart('cv3',d);
   if(hasFcst) barForecast('cv4',fc);
 }
 
-function drawDonut1(def, recv, paid){
+function drawDonut1(def, paid){
   const cv=$('cv1'); if(!cv) return;
-  // Cache for re-render
-  cv._d1={def,recv,paid};
-
-  const slices=[
-    {key:'decio', v:S.hiddenFunding.has('decio')?0:def,  c:'#3B5BDB', label:'Décio & Bruna'},
-    {key:'pai',   v:S.hiddenFunding.has('pai')  ?0:recv, c:'#C0392B', label:'Pai'},
-  ];
-  const visPaid=slices.reduce((a,s)=>a+s.v,0);
-  const totalLabel=brlK(visPaid||paid).replace('R$\u202F','');
-  donut('cv1', slices, 'Total', totalLabel, 110);
-
+  cv._d1={def,paid};
+  const slices=[{v:def, c:'#3B5BDB', label:'Décio & Bruna'}];
+  donut('cv1', slices, 'Total', brlK(paid), 110);
   const leg=$('pie1-leg'); if(!leg) return;
-  leg.innerHTML=slices.map(s=>{
-    const hidden=S.hiddenFunding.has(s.key);
-    const pct=paid>0&&!hidden?Math.round(s.v/paid*100)+'%':'—';
-    return `<div class="leg-item leg-toggle${hidden?' leg-off':''}" onclick="toggleFunding('${s.key}')">
-      <div class="leg-swatch" style="background:${s.c}"></div>
-      <span>${s.label}</span>
-      <span class="leg-pct">${pct}</span>
-    </div>`;
-  }).join('');
+  leg.innerHTML=`<div class="leg-item"><div class="leg-swatch" style="background:#3B5BDB"></div><span>Décio &amp; Bruna</span><span class="leg-pct">${brlK(def)}</span></div>`;
 }
 
 function drawDonut2(bc, gt){
@@ -1374,11 +1273,6 @@ function donut(id,slices,lbl,val,SZ){
 }
 
 /* ─── CATEGORY TOGGLE IN CHARTS ─── */
-function toggleFunding(key){
-  if(S.hiddenFunding.has(key)) S.hiddenFunding.delete(key); else S.hiddenFunding.add(key);
-  const cv=$('cv1');
-  if(cv && cv._d1) drawDonut1(cv._d1.def, cv._d1.recv, cv._d1.paid);
-}
 
 function toggleCatDonut(k){
   // Toggle in hiddenCats (shared with bar chart)
@@ -1742,7 +1636,7 @@ async function openConvertSheet(id){
   $('conv-id').value=id;
   $('conv-date').value=TODAY;
   $('conv-val').value=r.amount;
-  $('conv-type').value=r.categoryKey==='pensao'?'RECEIVED':'PAID';
+  $('conv-type').value='PAID';
   $('conv-notes').value=r.notes||'';
   $('conv-tog').classList.remove('on');
   // Info banner
@@ -1987,7 +1881,7 @@ async function refreshPartySelect(){
   await loadParties();
   const sel=$('f-party'); if(!sel)return;
   const cur=sel.value; sel.innerHTML='';
-  [['Me','👤 Eu (legado)'],['Father','👨 Pai'],['School','🏫 Escola'],['Store','🏪 Loja'],['Other','👥 Outro']].forEach(([v,l])=>{ const o=document.createElement('option'); o.value=v; o.textContent=l; sel.appendChild(o); });
+  [['Me','👤 Eu (legado)'],['School','🏫 Escola'],['Store','🏪 Loja'],['Other','👥 Outro']].forEach(([v,l])=>{ const o=document.createElement('option'); o.value=v; o.textContent=l; sel.appendChild(o); });
   S.parties.forEach(p=>{ const o=document.createElement('option'); o.value=String(p.id); o.textContent=(p.emoji||'👤')+' '+p.name; sel.appendChild(o); });
   if(cur) sel.value=cur;
 }
@@ -2085,17 +1979,17 @@ async function deleteParty(){
 }
 
 /* ─── REPORT ─────────────────────────────────────────────────
-   Columns: Mês | Mensalidade | Matrícula | Material | Uniforme | Extra | SUBTOTAL | Pensão | Data Pgto | Diferença | %Pai | Acordo | ◆Prev.Pago | ◆Prev.Recv
+   Columns: Mês | Mensalidade | Matrícula | Material | Uniforme | Extra | SUBTOTAL | ◆Prev.Pago
 ─────────────────────────────────────────────────────────────── */
 async function renderReport(){
   const allRows=await dbAll('txs');
-  const accord=S.accord;
+    forecasts.filter(r=>r.type==='FORECAST').forEach(r=>{
   let years;
   if(S.year==='all') years=[...new Set(allRows.map(r=>r.academicYear))].filter(Boolean).sort((a,b)=>a-b);
   else years=[S.year];
   if(!years.length){$('rpt-content').innerHTML='<div class="empty-state"><div class="ic">📋</div>Sem dados</div>';return;}
 
-  let html='', gP=0, gR=0, gFcstP=0, gFcstR=0;
+  let html='', gP=0, gFcstP=0;
 
   for(const yr of years){
     const yrTxs=allRows.filter(r=>r.academicYear===yr);
@@ -2103,7 +1997,6 @@ async function renderReport(){
     const forecasts=yrTxs.filter(r=>r.type==='FORECAST');
 
     const byMonth={};      // paid cats per month
-    const pensaoByM={};    // recv per month
     const lateByM={};      // late flag per month
     const payDateByM={};   // latest payment date per month
     const fcstPaidByM={};  // forecast paid per month (per cat)
@@ -2114,50 +2007,29 @@ async function renderReport(){
       if(!byMonth[m]) byMonth[m]={mensalidade:0,matricula:0,material:0,uniforme:0,extra:0};
       if(byMonth[m][r.categoryKey]!==undefined) byMonth[m][r.categoryKey]+=r.amount;
     });
-    confirmed.filter(r=>r.categoryKey==='pensao'&&r.type==='RECEIVED').forEach(r=>{
-      const m=r.academicMonth;
-      pensaoByM[m]=(pensaoByM[m]||0)+r.amount;
-      if(r.isLate) lateByM[m]=true;
-      if(!payDateByM[m]||r.date>payDateByM[m]) payDateByM[m]=r.date;
-    });
-    forecasts.filter(r=>r.type==='FORECAST'&&r.categoryKey!=='pensao').forEach(r=>{
+    forecasts.filter(r=>r.type==='FORECAST').forEach(r=>{
       const m=r.academicMonth;
       if(!fcstPaidByM[m]) fcstPaidByM[m]={mensalidade:0,matricula:0,material:0,uniforme:0,extra:0};
       if(fcstPaidByM[m][r.categoryKey]!==undefined) fcstPaidByM[m][r.categoryKey]+=r.amount;
     });
-    forecasts.filter(r=>r.type==='FORECAST'&&r.categoryKey==='pensao').forEach(r=>{
-      const m=r.academicMonth;
-      fcstRecvByM[m]=(fcstRecvByM[m]||0)+r.amount;
-    });
 
     let rowsHtml='';
     let tot={mensalidade:0,matricula:0,material:0,uniforme:0,extra:0,sub:0,recv:0,diff:0};
-    let yrFcstP=0, yrFcstR=0;
+    let yrFcstP=0;
 
     for(let m=1;m<=12;m++){
       const cats=byMonth[m]||{};
-      const recv=pensaoByM[m]||0;
-      const late=lateByM[m]||false;
-      const payD=payDateByM[m];
-      const fcP=fcstPaidByM[m]||{};
-      const fcR=fcstRecvByM[m]||0;
-      const sub=(cats.mensalidade||0)+(cats.matricula||0)+(cats.material||0)+(cats.uniforme||0)+(cats.extra||0);
-      const diff=sub-recv;
-      const pct=sub>0?(recv/sub*100):0;
-      const accordTarget=getAccordTarget(sub);
-      const accordDiff=recv-accordTarget;
 
       if(S.year==='all'&&sub===0&&recv===0&&Object.values(fcP).every(v=>v===0)&&!fcR) continue;
 
       tot.mensalidade+=(cats.mensalidade||0); tot.matricula+=(cats.matricula||0);
       tot.material+=(cats.material||0); tot.uniforme+=(cats.uniforme||0);
-      tot.extra+=(cats.extra||0); tot.sub+=sub; tot.recv+=recv; tot.diff+=diff;
+      tot.extra+=(cats.extra||0); tot.sub+=sub;
       const fcPtot=Object.values(fcP).reduce((a,b)=>a+b,0);
-      yrFcstP+=fcPtot; yrFcstR+=fcR;
+      yrFcstP+=fcPtot;
       // per-cat forecast totals
-      if(!tot.fcst) tot.fcst={mensalidade:0,matricula:0,material:0,uniforme:0,extra:0,pensao:0};
+						if(!tot.fcst) tot.fcst={mensalidade:0,matricula:0,material:0,uniforme:0,extra:0};
       ['mensalidade','matricula','material','uniforme','extra'].forEach(k=>{ tot.fcst[k]+=(fcP[k]||0); });
-      tot.fcst.pensao+=fcR;
 
       const dateCell=recv>0?`${fmtD(payD||'')}${late?`<span class="late-tag">■ atraso</span>`:''}`:'—';
       let pctClass='';
@@ -2167,9 +2039,7 @@ async function renderReport(){
         else if(diff2<-0.5) pctClass='pct-bad';
         else pctClass='pct-equal';
       }
-      const pctCell=sub>0?`<span class="${pctClass}">${pct.toFixed(1)}%</span>`:'—';
-      const accordCell=accordTarget>0?`<span class="${recv>=accordTarget?'recv':'neg'}">${brl(accordTarget)}</span>`:'—';
-      const fc=v=>v?`<span class="fcst-col">≈${brl(v)}</span>`:`<span style="color:var(--t-5)">—</span>`;
+      const pctCell=sub>0?`<span class="${pctClass}">${pct.toFixed(1)}%</span>`:'—';      const fc=v=>v?`<span class="fcst-col">≈${brl(v)}</span>`:`<span style="color:var(--t-5)">—</span>`;
 
       rowsHtml+=`<tr>
         <td>${MF[m-1]}</td>
@@ -2182,9 +2052,7 @@ async function renderReport(){
         <td class="r recv">${recv?brl(recv):'—'}</td>
         <td class="r" style="min-width:100px">${dateCell}</td>
         <td class="r ${diff>0?'neg':'recv'}">${diff!==0?(diff>0?'–':'+')+brl(Math.abs(diff)):'—'}</td>
-        <td class="r">${pctCell}</td>
-        <td class="r accord-col">${accordCell}</td>
-        <td class="r fcst-group">${fc(fcP.mensalidade)}</td>
+        <td class="r">${pctCell}</td>        <td class="r fcst-group">${fc(fcP.mensalidade)}</td>
         <td class="r fcst-group">${fc(fcP.matricula)}</td>
         <td class="r fcst-group">${fc(fcP.material)}</td>
         <td class="r fcst-group">${fc(fcP.uniforme)}</td>
@@ -2194,28 +2062,23 @@ async function renderReport(){
       </tr>`;
     }
 
-    gP+=tot.sub; gR+=tot.recv; gFcstP+=yrFcstP; gFcstR+=yrFcstR;
-    const tPct=tot.sub>0?(tot.recv/tot.sub*100).toFixed(1)+'%':'—';
-    const tAccord=getAccordTarget(tot.sub);
+    gP+=tot.sub; gFcstP+=yrFcstP;
 
     html+=`<div class="rpt-card">
       <div class="rpt-yr-hdr"><h3>${yr}</h3><span>${brl(tot.sub)}</span></div>
       <div class="rpt-scroll"><table class="rtbl">
       <colgroup>
         <col class="c-mes"><col class="c-val"><col class="c-val"><col class="c-val"><col class="c-val"><col class="c-val">
-        <col class="c-sub"><col class="c-pens"><col class="c-date"><col class="c-diff"><col class="c-pct">
-        <col class="c-acc">
+        <col class="c-sub">
         <col class="c-fcst fcst-group"><col class="c-fcst fcst-group"><col class="c-fcst fcst-group"><col class="c-fcst fcst-group"><col class="c-fcst fcst-group">
-        <col class="c-fcst fcst-group"><col class="c-fcst fcst-group">
+        <col class="c-fcst fcst-group">
       </colgroup>
       <thead>
         <tr>
           <th rowspan="2">Mês</th><th rowspan="2">Mensalidade</th><th rowspan="2">Matrícula</th><th rowspan="2">Material</th><th rowspan="2">Uniforme</th><th rowspan="2">Extra</th>
           <th class="subtotal-col" rowspan="2" style="border-left:2px solid rgba(255,255,255,.2)">Subtotal</th>
-          <th rowspan="2">Pensão</th><th rowspan="2">Data Pgto</th><th rowspan="2">Diferença</th><th rowspan="2">% Pai</th>
-          <th class="accord-h" rowspan="2">Acordado</th>
-          <th class="fcst-h fcst-group" colspan="5" style="text-align:center;border-left:1px solid rgba(124,58,237,.2)">◆ Prev. Pago (por categoria)</th>
-          <th class="fcst-h fcst-group" colspan="2" style="text-align:center">◆ Prev. Totais</th>
+          <th class="fcst-h fcst-group" colspan="5" style="text-align:center;border-left:1px solid rgba(124,58,237,.2)">◆ Prev. (por categoria)</th>
+          <th class="fcst-h fcst-group" rowspan="2" style="text-align:center">◆ Prev. Total</th>
         </tr>
         <tr>
           <th class="fcst-h fcst-group" style="font-weight:500;border-left:1px solid rgba(124,58,237,.15)">Mensalidade</th>
@@ -2223,8 +2086,6 @@ async function renderReport(){
           <th class="fcst-h fcst-group" style="font-weight:500">Material</th>
           <th class="fcst-h fcst-group" style="font-weight:500">Uniforme</th>
           <th class="fcst-h fcst-group" style="font-weight:500">Extra</th>
-          <th class="fcst-h fcst-group" style="font-weight:700;border-left:1px solid rgba(124,58,237,.2)">Total Pago</th>
-          <th class="fcst-h fcst-group" style="font-weight:700">Pensão Recv.</th>
         </tr>
       </thead>
       <tbody>${rowsHtml}
@@ -2236,34 +2097,24 @@ async function renderReport(){
           <td class="r">${tot.uniforme?brl(tot.uniforme):'—'}</td>
           <td class="r">${tot.extra?brl(tot.extra):'—'}</td>
           <td class="r subtotal-col">${brl(tot.sub)}</td>
-          <td class="r recv">${brl(tot.recv)}</td><td class="r">—</td>
-          <td class="r neg">–${brl(Math.abs(tot.diff))}</td>
-          <td class="r ${tPct!=='—'?((tot.recv/tot.sub)>=(tAccord/tot.sub||.5)?'pct-ok':'pct-bad'):''}">${tPct}</td>
-          <td class="r accord-col">${tAccord?brl(tAccord):'—'}</td>
           <td class="r fcst-col fcst-group">${tot.fcst?.mensalidade?'≈'+brl(tot.fcst.mensalidade):'—'}</td>
           <td class="r fcst-col fcst-group">${tot.fcst?.matricula?'≈'+brl(tot.fcst.matricula):'—'}</td>
           <td class="r fcst-col fcst-group">${tot.fcst?.material?'≈'+brl(tot.fcst.material):'—'}</td>
           <td class="r fcst-col fcst-group">${tot.fcst?.uniforme?'≈'+brl(tot.fcst.uniforme):'—'}</td>
           <td class="r fcst-col fcst-group">${tot.fcst?.extra?'≈'+brl(tot.fcst.extra):'—'}</td>
           <td class="r fcst-col fcst-group" style="border-left:1px solid rgba(124,58,237,.15)">${yrFcstP?'≈'+brl(yrFcstP):'—'}</td>
-          <td class="r fcst-col fcst-group">${yrFcstR?'≈'+brl(yrFcstR):'—'}</td>
         </tr>
       </tbody></table></div>
     </div>`;
   }
 
-  const gD=gP-gR, gPct=gP>0?(gR/gP*100).toFixed(1):0;
   const gtHtml=`<div class="gt-strip confirmed">
     <div class="gt-cell"><div class="gt-label">Total Pago</div><div class="gt-value">${brl(gP)}</div></div>
-    <div class="gt-cell"><div class="gt-label">Pensão Recebida</div><div class="gt-value warn">${brl(gR)}</div></div>
-    <div class="gt-cell"><div class="gt-label">Déficit</div><div class="gt-value danger">–${brl(gD)}</div></div>
-    <div class="gt-cell"><div class="gt-label">Cobertura Pai</div><div class="gt-value warn">${gPct}%</div></div>
+    <div class="gt-cell"><div class="gt-label">◆ Prev. Total</div><div class="gt-value">${gFcstP?'≈'+brl(gFcstP):'—'}</div></div>
   </div>`;
-  const fcHtml=(gFcstP+gFcstR)>0?`<div class="gt-strip forecast">
+  const fcHtml=gFcstP>0?`<div class="gt-strip forecast">
     <div class="gt-cell"><div class="gt-label">◆ Prev. Pago</div><div class="gt-value">≈${brl(gFcstP)}</div></div>
-    <div class="gt-cell"><div class="gt-label">◆ Prev. Recebido</div><div class="gt-value">≈${brl(gFcstR)}</div></div>
-    <div class="gt-cell"><div class="gt-label">◆ Total Previsto</div><div class="gt-value">≈${brl(gFcstP+gFcstR)}</div></div>
-    <div class="gt-cell"><div class="gt-label">Lançamentos</div><div class="gt-value">${allRows.filter(r=>r.type==='FORECAST'&&(S.year==='all'||r.academicYear===S.year)).length}</div></div>
+    <div class="gt-cell"><div class="gt-label">Lançamentos Previstos</div><div class="gt-value">${allRows.filter(r=>r.type==='FORECAST'&&(S.year==='all'||r.academicYear===S.year)).length}</div></div>
   </div>`:'';
   $('rpt-content').innerHTML=gtHtml+fcHtml+html;
   // Reapply forecast column visibility state
@@ -2412,7 +2263,7 @@ async function exportCSV(){
   const rows=await dbAll('txs');
   const txs=rows.filter(r=>S.year==='all'||r.academicYear===S.year).sort((a,b)=>b.date.localeCompare(a.date));
   const hdr='Data,Tipo,Previsão,Categoria,Parte,Aluna,Valor,Atraso,Ano,Mes,Notas,Tags';
-  const lines=txs.map(r=>[r.date,r.type,r.type==='FORECAST'?'Sim':'Não',r.categoryKey,partyLabel(r),r.student||'',r.amount,r.isLate?'Sim':'Não',r.academicYear,r.academicMonth,`"${(r.notes||'').replace(/"/g,'""')}"`,r.tags||''].join(','));
+  const lines=txs.map(r=>[r.date,r.type,r.type==='FORECAST'?'Sim':'Não',r.categoryKey,r.amount,r.isLate?'Sim':'Não',r.academicYear,r.academicMonth,`"${(r.notes||'').replace(/"/g,'""')}"`,r.tags||''].join(','));
   const blob=new Blob(['\uFEFF'+[hdr,...lines].join('\r\n')],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url; a.download=`ledger-${S.year}.csv`;
@@ -2458,35 +2309,11 @@ async function renderCfg(){
   $('stat-files').textContent=aiFiles.length+' arquivo'+( aiFiles.length!==1?'s':'' );
 
   // Accord config UI
-  const a=S.accord;
-  $('cfg-accord-type').value=a.type||'pct';
-  $('cfg-accord-pct').value=a.pct||50;
-  $('cfg-accord-val').value=a.val||0;
-  onAccordTypeChange();
   populateCatSelects();
 }
 
-function onAccordTypeChange(){
-  const t=$('cfg-accord-type').value;
-  $('cfg-accord-pct-row').style.display=t==='pct'?'flex':'none';
-  $('cfg-accord-val-row').style.display=t==='fixed'?'flex':'none';
-}
 
-async function saveAccordConfig(){
-  const type=$('cfg-accord-type').value;
-  const pct=parseFloat($('cfg-accord-pct').value)||50;
-  const val=parseFloat($('cfg-accord-val').value)||0;
-  S.accord={type,pct,val};
-  await dbPut('cfg',{k:'accord',type,pct,val});
-  toast('✅ Acordo salvo!');
-  if(S.tab==='dash') renderDash();
-  if(S.tab==='rpt')  renderReport();
-}
 
-async function loadAccordConfig(){
-  const rec=await dbGet('cfg','accord');
-  if(rec) S.accord={type:rec.type||'pct',pct:rec.pct||50,val:rec.val||0};
-}
 
 /* ─── GENERATE FORECASTS ─── */
 let _genBase='last';
@@ -2496,213 +2323,9 @@ function setGenBase(v){
   $('gen-base-avg').classList.toggle('on',v==='avg');
 }
 
-async function generateForecasts(){
-  const genType=$('gen-type').value;
-  const now=new Date(); const curYear=now.getFullYear(); const curMonth=now.getMonth()+1;
-  const all=await dbAll('txs');
-  const yrTxs=all.filter(r=>r.academicYear===curYear);
-
-  async function getBaseValue(catKey){
-    const paid=yrTxs.filter(r=>r.categoryKey===catKey&&r.type!=='FORECAST'&&(catKey==='pensao'?r.type==='RECEIVED':r.type==='PAID'));
-    if(!paid.length) return null;
-    if(_genBase==='last'){
-      const sorted=paid.sort((a,b)=>b.date.localeCompare(a.date));
-      return sorted[0].amount;
-    }
-    return paid.reduce((s,r)=>s+r.amount,0)/paid.length;
-  }
 
   const cats=[];
   if(genType==='both'||genType==='mensalidade') cats.push({key:'mensalidade',type:'PAID'});
-  if(genType==='both'||genType==='pensao')     cats.push({key:'pensao',type:'RECEIVED'});
-
-  // Resolve party ids
-  const decio = S.parties.find(p=>p.name==='Décio e Bruna');
-  const father = S.parties.find(p=>p.name==='Pai')||null;
-
-  let created=0, skipped=0;
-  for(const {key,type} of cats){
-    const baseAmt=await getBaseValue(key);
-    if(!baseAmt){toast(`⚠️ Sem histórico para ${key}`);continue;}
-
-    // Party assignment: mensalidade → Décio e Bruna, pensão → Father legacy
-    const partyId = key==='pensao' ? (father?.id||null) : (decio?.id||null);
-    const partyStr = key==='pensao' ? (father?null:'Father') : (decio?null:'Me');
-
-    for(let m=curMonth+1;m<=12;m++){
-      const exists=all.find(r=>r.type==='FORECAST'&&r.categoryKey===key&&r.academicYear===curYear&&r.academicMonth===m);
-      if(exists){skipped++;continue;}
-      const date=`${curYear}-${String(m).padStart(2,'0')}-05`;
-      await dbPut('txs',{
-        amount:Math.round(baseAmt*100)/100, type:'FORECAST', categoryKey:key,
-        partyId, party: partyId ? null : partyStr,
-        date, academicYear:curYear, academicMonth:m,
-        isLate:false, student:'Ambas',
-        notes:`${catInfo(key).label} ${MF[m-1]}/${curYear} (previsão auto)`,
-        tags:`${key},forecast,auto`,
-        createdAt:new Date().toISOString(), updatedAt:new Date().toISOString()
-      });
-      created++;
-    }
-  }
-  toast(`◆ ${created} previsão(ões) criada(s)${skipped?`, ${skipped} já existia(m)`:''}`);
-  await initYearFilter();
-  if(S.tab==='dash') renderDash();
-  if(S.tab==='txs')  renderTxList();
-}
-
-function populateCatSelects(){
-  ['f-cat','fil-cat'].forEach(id=>{
-    const s=$(id); if(!s)return;
-    const cur=s.value;
-    s.innerHTML=id==='fil-cat'?'<option value="">Todas categorias</option>':'';
-    S.cats.forEach(c=>{ const o=document.createElement('option'); o.value=c.key; o.textContent=c.label; s.appendChild(o); });
-    if(cur) s.value=cur;
-  });
-}
-
-async function loadCats(){ S.cats=await dbAll('cats'); populateCatSelects(); }
-
-async function saveCat(){
-  const key=($('nc-key').value||'').trim().toLowerCase().replace(/\s+/g,'_');
-  const label=($('nc-label').value||'').trim();
-  const color=$('nc-color').value;
-  if(!key||!label){toast('⚠️ Preencha chave e nome');return;}
-  await dbPut('cats',{key,label,color,system:false});
-  toast('✅ Categoria criada!'); closeSheet('cat-sheet');
-  $('nc-key').value=''; $('nc-label').value='';
-  await loadCats(); renderCfg();
-}
-
-async function delCat(key){
-  if(!confirm(`Excluir categoria "${key}"?`))return;
-  await dbDel('cats',key); await loadCats(); renderCfg();
-}
-
-/* Live-preview color while dragging the picker */
-function previewCatColor(key, color){
-  const row = $('cat-row-'+key); if(!row) return;
-  const icon  = row.querySelector('.list-icon');
-  const swatch= row.querySelector('.list-icon div');
-  const sub   = row.querySelector('.tx-sub');
-  if(icon)  { icon.style.background=color+'1A'; icon.style.borderColor=color; }
-  if(swatch){ swatch.style.background=color; }
-  if(sub)   { sub.textContent=color; }
-}
-
-/* Persist color on picker close */
-async function saveCatColor(key, color){
-  const cat = S.cats.find(c=>c.key===key); if(!cat) return;
-  cat.color = color;
-  await dbPut('cats', cat);
-  await loadCats();
-  toast(`🎨 Cor de "${cat.label}" atualizada`);
-  // Refresh charts/dashboard if visible
-  if(S.tab==='dash') renderDash();
-  if(S.tab==='rpt')  renderReport();
-}
-
-async function clearAll(){
-  if(!confirm('Apagar TODOS os dados? Não pode ser desfeito.'))return;
-  await dbClear('txs'); await initYearFilter(); renderCfg(); toast('🗑 Dados removidos');
-}
-
-/* ─── JSON EXPORT / IMPORT ─── */
-async function exportJSON(){
-  const [txs,cats,parties]=[await dbAll('txs'),await dbAll('cats'),await dbAll('parties')];
-  const cfg=await dbGet('cfg','accord');
-  const payload={meta:{version:'5.0',app:'Controle Financeiro do Décio',exportedAt:new Date().toISOString()},config:{accord:cfg||{}},categories:cats,parties,transactions:txs};
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url; a.download=`financeiro-decio-${new Date().toISOString().slice(0,10)}.json`;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  toast('💾 Backup exportado!');
-}
-
-async function importJSON(file){
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=async e=>{
-    try{
-      const p=JSON.parse(e.target.result);
-      if(!Array.isArray(p.transactions)) throw new Error('"transactions" ausente');
-      if(!confirm(`Importar ${p.transactions.length} transações? Os dados atuais serão substituídos.`))return;
-      await dbClear('txs');
-      for(const tx of p.transactions) await dbPut('txs',tx);
-      if(Array.isArray(p.categories)) for(const c of p.categories) await dbPut('cats',c);
-      if(Array.isArray(p.parties))    for(const pt of p.parties)   await dbPut('parties',pt);
-      if(p.config?.accord) await dbPut('cfg',{k:'accord',...p.config.accord});
-      const msg=$('imp-msg');
-      msg.textContent=`✅ ${p.transactions.length} transações importadas!`;
-      msg.style.cssText='display:block;background:var(--green-l);color:var(--green);border-radius:var(--r);padding:12px 14px;font-size:13px;font-weight:500';
-      await loadAccordConfig(); await loadCats(); await loadParties(); await initYearFilter();
-      renderCfg(); toast('✅ Importação concluída!',3500);
-    }catch(err){
-      const msg=$('imp-msg');
-      msg.textContent='❌ Erro: '+err.message;
-      msg.style.cssText='display:block;background:var(--red-l);color:var(--red);border-radius:var(--r);padding:12px 14px;font-size:13px;font-weight:500';
-    }
-  };
-  reader.readAsText(file);
-}
-
-/* ─── SEED DATA ─────────────────────────────────────────────── */
-async function seedIfEmpty(){
-  const existing=await dbAll('txs'); if(existing.length>0) return;
-
-  const CATS=[
-    {key:'mensalidade',label:'Mensalidade',color:'#3B5BDB',system:true},
-    {key:'pensao',label:'Pensão Alimentícia',color:'#C0392B',system:true},
-    {key:'matricula',label:'Matrícula',color:'#C05C1A',system:true},
-    {key:'material',label:'Material',color:'#1A7F7A',system:true},
-    {key:'uniforme',label:'Uniforme',color:'#6B4FBB',system:true},
-    {key:'extra',label:'Extra',color:'#2E7D55',system:true},
-  ];
-  for(const c of CATS) await dbPut('cats',c);
-  await dbPut('cfg',{k:'accord',type:'pct',pct:50,val:0});
-
-  let id=1;
-  const mk=o=>({id:id++,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),student:'Ambas',...o});
-
-  // 2025 mensalidades
-  const m25=[4998.41,4998.41,4998.41,4998.41,4998.41,4998.41,4998.41,4998.41,4998.41,4998.41,4998.41,4998.40];
-  for(let i=0;i<12;i++) await dbPut('txs',mk({amount:m25[i],type:'PAID',categoryKey:'mensalidade',party:'Me',date:`2025-${String(i+1).padStart(2,'0')}-05`,academicYear:2025,academicMonth:i+1,isLate:false,notes:`Mensalidade ${MF[i]}/2025`,tags:'mensalidade'}));
-  await dbPut('txs',mk({amount:4256.88,type:'PAID',categoryKey:'matricula',party:'Me',date:'2025-01-05',academicYear:2025,academicMonth:1,isLate:false,notes:'Matrícula anual 2025',tags:'matricula'}));
-  for(const [m,d]of[[1,'2025-01-05'],[4,'2025-04-05'],[7,'2025-07-05'],[9,'2025-09-05']])
-    await dbPut('txs',mk({amount:724.50,type:'PAID',categoryKey:'material',party:'Me',date:d,academicYear:2025,academicMonth:m,isLate:false,notes:`Material ${MF[m-1]}/2025`,tags:'material'}));
-  await dbPut('txs',mk({amount:1084.23,type:'PAID',categoryKey:'extra',party:'Me',date:'2025-01-05',academicYear:2025,academicMonth:1,isLate:false,notes:'Extra Jan/2025',tags:'extra'}));
-
-  // 2025 pensão
-  const p25=[[1,'2025-01-05',2000,false],[2,'2025-02-05',2000,false],[3,'2025-03-05',2000,false],[4,'2025-04-05',2000,false],[5,'2025-05-06',1000,true],[6,'2025-06-05',2000,false],[7,'2025-07-03',1000,false],[7,'2025-07-17',1000,true],[8,'2025-08-05',2000,false],[9,'2025-09-05',2000,false],[10,'2025-10-04',2000,false],[11,'2025-11-05',2000,false],[11,'2025-11-22',1500,true],[12,'2025-12-05',3500,false]];
-  for(const[m,d,amt,late]of p25) await dbPut('txs',mk({amount:amt,type:'RECEIVED',categoryKey:'pensao',party:'Father',date:d,academicYear:2025,academicMonth:m,isLate:late,notes:`Pensão ${MF[m-1]}/2025`,tags:'pensao'}));
-
-  // 2026 confirmed
-  for(const[m,d]of[[1,'2026-01-05'],[2,'2026-02-05']])
-    await dbPut('txs',mk({amount:5666.85,type:'PAID',categoryKey:'mensalidade',party:'Me',date:d,academicYear:2026,academicMonth:m,isLate:false,notes:`Mensalidade ${MF[m-1]}/2026`,tags:'mensalidade'}));
-  // New: Lara mensalidade março (from uploaded PDF)
-  await dbPut('txs',mk({amount:2778.76,type:'PAID',categoryKey:'mensalidade',party:'Me',date:'2026-02-27',academicYear:2026,academicMonth:3,isLate:false,student:'Lara',notes:'Mensalidade Mar/2026 — Lara (PDF)',tags:'mensalidade'}));
-  await dbPut('txs',mk({amount:1491.29,type:'PAID',categoryKey:'matricula',party:'Me',date:'2026-01-05',academicYear:2026,academicMonth:1,isLate:false,notes:'Matrícula 2026',tags:'matricula'}));
-  await dbPut('txs',mk({amount:1047.33,type:'PAID',categoryKey:'material',party:'Me',date:'2026-01-05',academicYear:2026,academicMonth:1,isLate:false,notes:'Material Jan/2026',tags:'material'}));
-  await dbPut('txs',mk({amount:1503.41,type:'PAID',categoryKey:'extra',party:'Me',date:'2026-02-05',academicYear:2026,academicMonth:2,isLate:false,notes:'Excursão parcela 1 (entrada)',tags:'extra,excursao'}));
-  await dbPut('txs',mk({amount:2000,type:'RECEIVED',categoryKey:'pensao',party:'Father',date:'2026-01-12',academicYear:2026,academicMonth:1,isLate:true,notes:'Pensão Jan/2026 — com atraso',tags:'pensao'}));
-  await dbPut('txs',mk({amount:2500,type:'RECEIVED',categoryKey:'pensao',party:'Father',date:'2026-02-07',academicYear:2026,academicMonth:2,isLate:true,notes:'Pensão Fev/2026 — com atraso',tags:'pensao'}));
-
-  // 2026 FORECAST: Mensalidades Mar–Dez
-  for(let i=2;i<12;i++){
-    const m=i+1;
-    await dbPut('txs',mk({amount:5666.85,type:'FORECAST',categoryKey:'mensalidade',party:'Me',date:`2026-${String(m).padStart(2,'0')}-05`,academicYear:2026,academicMonth:m,isLate:false,notes:`Mensalidade ${MF[i]}/2026 (previsão)`,tags:'mensalidade,forecast'}));
-  }
-  // 2026 FORECAST: Pensão (2000/mês) — Pai — Mar–Dez
-  for(let i=2;i<12;i++){
-    const m=i+1;
-    await dbPut('txs',mk({amount:2000,type:'FORECAST',categoryKey:'pensao',party:'Father',date:`2026-${String(m).padStart(2,'0')}-10`,academicYear:2026,academicMonth:m,isLate:false,notes:`Pensão ${MF[i]}/2026 (previsão)`,tags:'pensao,forecast'}));
-  }
-  // 2026 FORECAST: Excursão Mar–Ago
-  for(let i=2;i<8;i++){
-    const m=i+1;
-    await dbPut('txs',mk({amount:429,type:'FORECAST',categoryKey:'extra',party:'Me',date:`2026-${String(m).padStart(2,'0')}-05`,academicYear:2026,academicMonth:m,isLate:false,notes:`Excursão ${MF[i]}/2026 (previsão)`,tags:'extra,excursao,forecast'}));
-  }
-}
 
 /* ─── SHEET CLOSE ON BG ─── */
 document.querySelectorAll('.sheet-bg').forEach(bg=>bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('open'); }));
@@ -2712,20 +2335,6 @@ document.querySelectorAll('.sheet-bg').forEach(bg=>bg.addEventListener('click',e
    depois reescreve TODOS os txs com party:'Me' para usar o
    partyId correto. Roda toda vez que o app abre — é idempotente.
 ─────────────────────────────────────────────────────────────── */
-async function migratePartyMe(){
-  // Ensure parties are loaded
-  await loadParties();
-
-  // Find or create "Décio e Bruna" party
-  let party = S.parties.find(p => p.name === 'Décio e Bruna');
-  if(!party){
-    const newId = await dbPut('parties', {
-      name: 'Décio e Bruna', emoji: '👨‍👩',
-      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
-    });
-    await loadParties();
-    party = S.parties.find(p => p.id === newId) || S.parties.find(p => p.name === 'Décio e Bruna');
-  }
   if(!party) return;
 
   // Rewrite every tx that still has party:'Me' and no partyId
@@ -2741,7 +2350,6 @@ async function migratePartyMe(){
   }
   if(toFix.length) console.log(`[migration] ${toFix.length} txs migrated → Décio e Bruna (id ${party.id})`);
 
-  // Also fix seed default party in generateForecasts references
   await loadParties();
 }
 
@@ -2800,8 +2408,6 @@ async function boot(){
   // App init (runs behind lock screen, ready when unlocked)
   await openDB();
   await seedIfEmpty();
-  await migratePartyMe();
-  await loadAccordConfig();
   await loadCats();
   await loadParties();
   await initYearFilter();
