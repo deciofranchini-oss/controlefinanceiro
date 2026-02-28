@@ -192,8 +192,12 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
 /* Toggle */
 .tog-field{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--sep-l);min-height:46px;cursor:pointer}
 .tog-label{font-size:15px;color:var(--t-2)}
+.status-seg{display:flex;gap:0;border-radius:var(--r);overflow:hidden;border:1.5px solid var(--sep)}
+.status-btn{flex:1;padding:10px 6px;border:none;background:var(--bg-2);font:500 13px/1 var(--f);color:var(--t-3);cursor:pointer;text-align:center;transition:all .15s}
+.status-btn.on-ok{background:var(--green);color:#fff}
+.status-btn.on-pend{background:var(--amber);color:#fff}
 .toggle{width:51px;height:31px;border-radius:16px;background:var(--t-5);position:relative;flex-shrink:0;transition:background .2s;cursor:pointer}
-.toggle.on{background:var(--green)}
+.toggle.on{background:var(--accent)}
 .toggle::after{content:'';position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:transform .22s cubic-bezier(.34,1.12,.64,1)}
 .toggle.on::after{transform:translateX(20px)}
 
@@ -666,9 +670,13 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
   <div class="form-section">
     <div class="form-label">Detalhes</div>
     <div class="form-card">
-      <div class="tog-field" onclick="document.getElementById('tog').classList.toggle('on')">
-        <span class="tog-label">Marcar como pendente / em atraso</span>
-        <div class="toggle" id="tog"></div>
+      <div class="field" style="flex-direction:column;align-items:stretch;gap:6px;padding:12px 16px">
+        <span class="field-label" style="margin-bottom:2px">Status</span>
+        <div class="status-seg" id="status-seg">
+          <button class="status-btn on-ok" id="sb-conf" onclick="setStatus('confirmed')">✅ Confirmado</button>
+          <button class="status-btn" id="sb-pend" onclick="setStatus('pending')">⏳ Pendente</button>
+        </div>
+        <input type="hidden" id="f-status" value="confirmed">
       </div>
       <div class="field tall"><span class="field-label">Notas</span><textarea id="f-notes" rows="2" placeholder="Observações…"></textarea></div>
       <div class="field"><span class="field-label">Tags</span><input id="f-tags" type="text" placeholder="opcional"></div>
@@ -693,7 +701,8 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
   </div>
   <div id="rpt-content"><div class="empty-state"><span class="spinner"></span></div></div>
   <div id="rpt-hint" style="padding:0 20px 20px;font-size:11px;color:var(--t-4);line-height:2">
-    <span style="color:var(--red)">■ atraso</span> — pendente / em atraso &nbsp;·&nbsp;
+    <span style="color:var(--amber)">⏳ Pendente</span> — aguardando confirmação &nbsp;·&nbsp;
+    <span style="color:var(--green)">✅ Confirmado</span> — pago/realizado &nbsp;·&nbsp;
     <span style="color:var(--violet)">◆ Previsão</span> — não entra nos totais
   </div>
 </div>
@@ -900,9 +909,13 @@ body{font-family:var(--f);font-size:16px;line-height:1.5;background:var(--bg);co
           <span class="field-label">Notas</span>
           <input id="conv-notes" type="text" placeholder="Opcional">
         </div>
-        <div class="field" style="align-items:center">
-          <span class="field-label">Atraso?</span>
-          <div id="conv-tog" class="toggle" onclick="this.classList.toggle('on')" style="flex-shrink:0"></div>
+        <div class="field" style="flex-direction:column;align-items:stretch;gap:6px;padding:12px 16px">
+          <span class="field-label" style="margin-bottom:2px">Status</span>
+          <div class="status-seg" id="conv-status-seg">
+            <button class="status-btn on-ok" id="csb-conf" onclick="setConvStatus('confirmed')">✅ Confirmado</button>
+            <button class="status-btn" id="csb-pend" onclick="setConvStatus('pending')">⏳ Pendente</button>
+          </div>
+          <input type="hidden" id="conv-status" value="confirmed">
         </div>
       </div>
 
@@ -1442,7 +1455,7 @@ function txHTML(r){
     </div>
     <div style="text-align:right;flex-shrink:0">
       <div class="tx-amount ${isFcst?'fcst':out?'out':'in'}">${isFcst?'≈':out?'–':'+'}${brl(r.amount)}</div>
-      ${(!isFcst&&r.isLate)?`<div class="tx-late">■ atraso</div>`:''}
+      ${(!isFcst&&r.isLate)?'<div class="tx-late">⏳ Pendente</div>':''}`
       ${isOverdue?`<div class="tx-alert">⚡ converter</div>`:''}
     </div>
   </div>`;
@@ -1515,7 +1528,8 @@ async function openTxSheet(id){
       ${isOverdue?`<div style="margin-top:8px;padding:6px 14px;background:var(--amber-l);border-radius:100px;display:inline-block;font-size:12px;font-weight:600;color:var(--amber)">⚡ Previsão vencida — converter</div>`:''}
     </div>
     <div style="margin:0 20px;background:var(--bg-2);border-radius:12px;overflow:hidden">
-      ${shRow('Data',r.isLate?`${fmtD(r.date)}<br><span style="font-size:10px;color:var(--red);font-weight:700">■ Em atraso / pendente</span>`:fmtD(r.date))}
+      ${shRow('Data',fmtD(r.date))}
+      ${r.isLate?shRow('Status','<span style="color:var(--amber);font-weight:600">⏳ Pendente</span>'):shRow('Status','<span style="color:var(--green);font-weight:600">✅ Confirmado</span>')}
       ${r.accountId?shRow('Conta',acctLabel(r)):''}
       ${shRow('Tipo',isFcst?'Previsão futura':out?'Pago (saída)':'Recebido')}
       ${shRow('Beneficiário',pLabel)}
@@ -1656,7 +1670,7 @@ async function openConvertSheet(id){
   $('conv-val').value=r.amount;
   $('conv-type').value='PAID';
   $('conv-notes').value=r.notes||'';
-  $('conv-tog').classList.remove('on');
+  setConvStatus('confirmed');
   // Info banner
   const ci=catInfo(r.categoryKey);
   $('conv-fcst-info').innerHTML=`◆ <b>${ci.label}</b> · ${fmtD(r.date)} · Prev. ≈${brl(r.amount)}`;
@@ -1678,7 +1692,7 @@ async function confirmConvert(){
     ...r,
     type:$('conv-type').value,
     date, amount,
-    isLate:$('conv-tog').classList.contains('on'),
+    isLate:$('conv-status').value==='pending',
     notes:$('conv-notes').value||r.notes,
     updatedAt:new Date().toISOString()
   };
@@ -1729,6 +1743,18 @@ function onTypeChange(){
   $('fcst-notice').classList.toggle('show',v==='FORECAST');
 }
 
+function setStatus(v){
+  $('f-status').value=v;
+  $('sb-conf').className='status-btn'+(v==='confirmed'?' on-ok':'');
+  $('sb-pend').className='status-btn'+(v==='pending'?' on-pend':'');
+}
+
+function setConvStatus(v){
+  $('conv-status').value=v;
+  $('csb-conf').className='status-btn'+(v==='confirmed'?' on-ok':'');
+  $('csb-pend').className='status-btn'+(v==='pending'?' on-pend':'');
+}
+
 function onDateChange(){
   const d=$('f-date').value;
   if(!d) return;
@@ -1760,7 +1786,7 @@ async function resetForm(){
   $('future-date-notice').style.display='none';
   $('del-btn').style.display='none';
   $('add-title').textContent='Nova Transação';
-  $('tog').classList.remove('on');
+  setStatus('confirmed');
 
   if(clone){
     $('f-val').value=clone.amount;
@@ -1768,7 +1794,7 @@ async function resetForm(){
     $('f-date').value=clone.date||TODAY;
     $('f-notes').value=clone.notes||'';
     $('f-tags').value=clone.tags||'';
-    if(clone.isLate) $('tog').classList.add('on');
+    setStatus(clone.isLate?'pending':'confirmed');
     await refreshPartySelect();
     await refreshAccountSelect();
     if(clone.categoryKey) $('f-cat').value=clone.categoryKey;
@@ -1795,7 +1821,7 @@ async function editTx(id){
   $('f-cat').value=r.categoryKey;
   $('f-date').value=r.date;
   $('f-notes').value=r.notes||''; $('f-tags').value=r.tags||'';
-  if(r.isLate) $('tog').classList.add('on');
+  setTimeout(()=>setStatus(r.isLate?'pending':'confirmed'),0);
   $('del-btn').style.display='flex';
   $('add-title').textContent='Editar Transação';
   await refreshPartySelect();
@@ -1851,7 +1877,7 @@ async function saveTx(){
     amount, type, categoryKey:$('f-cat').value,
     accountId, partyId, party:partyId?null:partyVal,
     date, academicYear:yr, academicMonth:mo,
-    isLate:$('tog').classList.contains('on'),
+    isLate:$('f-status').value==='pending',
     notes:$('f-notes').value, tags:$('f-tags').value,
     updatedAt:new Date().toISOString()
   };
@@ -2241,7 +2267,7 @@ async function exportCSV(){
   const rows=await dbAll('txs');
   const txs=rows.filter(r=>S.year==='all'||txYear(r)===S.year).sort((a,b)=>b.date.localeCompare(a.date));
   const hdr='Data,Tipo,Previsão,Categoria,Conta,Beneficiário,Valor,Pendente,Ano,Mês,Notas,Tags';
-  const lines=txs.map(r=>[r.date,r.type,r.type==='FORECAST'?'Sim':'Não',r.categoryKey,acctLabel(r),partyLabel(r),r.amount,r.isLate?'Sim':'Não',txYear(r),txMonth(r),`"${(r.notes||'').replace(/"/g,'""')}"`,r.tags||''].join(','));
+  const lines=txs.map(r=>[r.date,r.type,r.type==='FORECAST'?'Sim':'Não',r.categoryKey,acctLabel(r),partyLabel(r),r.amount,r.isLate?'Pendente':'Confirmado',txYear(r),txMonth(r),`"${(r.notes||'').replace(/"/g,'""')}"`,r.tags||''].join(','));
   const blob=new Blob(['\uFEFF'+[hdr,...lines].join('\r\n')],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url; a.download=`financeiro-decio-${S.year}.csv`;
@@ -2310,9 +2336,6 @@ async function seedIfEmpty(){
   const now = new Date();
   const yr = now.getFullYear();
   const mo = now.getMonth()+1;
-  const prev = mo===1?12:mo-1;
-  const prevYr = mo===1?yr-1:yr;
-  const d = (y,m,day) => `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
   // Categorias
   const cats = [
@@ -2339,31 +2362,7 @@ async function seedIfEmpty(){
   await dbPut('parties', mk({name:'Supermercado', emoji:'🛒'}));
   await dbPut('parties', mk({name:'iFood',         emoji:'🍕'}));
 
-  // Transações de exemplo
-  const txs = [
-    mk({amount:1850.00, type:'PAID',     categoryKey:'habitacao',    accountId:contaId,  date:d(prevYr,prev,5),   notes:'Aluguel',                 tags:'fixo'}),
-    mk({amount:380.00,  type:'PAID',     categoryKey:'alimentacao',  accountId:creditId, date:d(prevYr,prev,8),   notes:'Supermercado',            tags:'alimentacao'}),
-    mk({amount:155.00,  type:'PAID',     categoryKey:'saude',        accountId:creditId, date:d(prevYr,prev,10),  notes:'Farmácia',                tags:'saude'}),
-    mk({amount:89.90,   type:'PAID',     categoryKey:'servicos',     accountId:contaId,  date:d(prevYr,prev,15),  notes:'Netflix + Spotify',       tags:'streaming'}),
-    mk({amount:420.00,  type:'PAID',     categoryKey:'compras',      accountId:creditId, date:d(prevYr,prev,18),  notes:'Compras online',          tags:'vestuario'}),
-    mk({amount:210.00,  type:'PAID',     categoryKey:'criancas',     accountId:contaId,  date:d(prevYr,prev,20),  notes:'Material escolar',        tags:'escola'}),
-    mk({amount:67.50,   type:'PAID',     categoryKey:'tarifas',      accountId:contaId,  date:d(prevYr,prev,22),  notes:'Conta de luz',            tags:'energia'}),
-    mk({amount:145.00,  type:'PAID',     categoryKey:'lazer',        accountId:cashId,   date:d(prevYr,prev,25),  notes:'Cinema + jantar',         tags:'lazer'}),
-    mk({amount:1850.00, type:'PAID',     categoryKey:'habitacao',    accountId:contaId,  date:d(yr,mo,5),         notes:'Aluguel',                 tags:'fixo'}),
-    mk({amount:290.00,  type:'PAID',     categoryKey:'alimentacao',  accountId:creditId, date:d(yr,mo,7),         notes:'Supermercado semana 1',   tags:'alimentacao'}),
-    mk({amount:49.90,   type:'PAID',     categoryKey:'tarifas',      accountId:contaId,  date:d(yr,mo,10),        notes:'Internet fibra',          tags:'internet,fixo'}),
-    mk({amount:320.00,  type:'PAID',     categoryKey:'criancas',     accountId:creditId, date:d(yr,mo,12),        notes:'Escola — mensalidade',    tags:'escola,fixo'}),
-    mk({amount:85.00,   type:'PAID',     categoryKey:'saude',        accountId:creditId, date:d(yr,mo,14),        notes:'Consulta médica',         tags:'saude'}),
-    mk({amount:75.00,   type:'PAID',     categoryKey:'reembolsaveis',accountId:contaId,  date:d(yr,mo,15),        notes:'Refeição trabalho',       tags:'reembolso', isLate:true}),
-    mk({amount:1850.00, type:'FORECAST', categoryKey:'habitacao',    accountId:contaId,  date:d(yr,mo===12?1:mo+1,5),  notes:'Aluguel (previsão)',  tags:'fixo'}),
-    mk({amount:320.00,  type:'FORECAST', categoryKey:'criancas',     accountId:creditId, date:d(yr,mo===12?1:mo+1,10), notes:'Escola (previsão)',   tags:'escola,fixo'}),
-    mk({amount:800.00,  type:'FORECAST', categoryKey:'viagens',      accountId:creditId, date:d(yr,mo===12?1:mo+1,20), notes:'Viagem planejada',    tags:'ferias'}),
-  ];
-  for(const tx of txs){
-    tx.academicYear  = +tx.date.slice(0,4);
-    tx.academicMonth = +tx.date.slice(5,7);
-    await dbPut('txs', tx);
-  }
+  // Sem transações de exemplo — app começa em branco
 }
 
 /* ─── ACCOUNTS CRUD ─── */
