@@ -72,7 +72,7 @@ body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-hei
 .btn-icon:hover{border-color:var(--border2);color:var(--text2);background:var(--bg);}
 
 /* CONTENT */
-.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px;padding-bottom:max(24px,env(safe-area-inset-bottom));}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px;padding-bottom:max(24px,env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;height:0;}
 .page{display:none;}
 .page.active{display:block;}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
@@ -173,7 +173,7 @@ input[type="color"]{padding:4px;height:38px;cursor:pointer;}
 /* MODALS */
 .modal-overlay{position:fixed;inset:0;background:rgba(26,23,20,.4);display:flex;align-items:flex-end;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
 .modal-overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg) var(--r-lg) 0 0;width:100%;max-height:92dvh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:translateY(40px);transition:transform .28s cubic-bezier(.4,0,.2,1);}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg) var(--r-lg) 0 0;width:100%;max-height:92vh;max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:var(--shadow-lg);transform:translateY(40px);transition:transform .28s cubic-bezier(.4,0,.2,1);}
 .modal-overlay.open .modal{transform:translateY(0);}
 .modal-handle{width:36px;height:4px;background:var(--border2);border-radius:100px;margin:10px auto 0;}
 .modal-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--surface);z-index:1;}
@@ -231,7 +231,7 @@ input[type="color"]{padding:4px;height:38px;cursor:pointer;}
   .sidebar-overlay.open{opacity:1;pointer-events:all;}
   .bottom-nav{display:block;}.fab{display:flex;}.hamburger{display:flex;}
   #globalAddBtn{display:none;}
-  .content{padding:16px;padding-bottom:calc(var(--bottom-h) + 76px);}
+  .content{padding:16px;padding-bottom:calc(var(--bottom-h) + 80px + env(safe-area-inset-bottom));}
   .grid-4,.grid-3,.grid-2{grid-template-columns:1fr;}
   .account-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
   .stat-value{font-size:1.35rem;}
@@ -248,7 +248,7 @@ input[type="color"]{padding:4px;height:38px;cursor:pointer;}
 }
 @media(min-width:769px){
   .modal-overlay{align-items:center;}
-  .modal{border-radius:var(--r-lg);width:min(560px,96vw);max-height:90vh;}
+  .modal{border-radius:var(--r-lg);width:min(560px,96vw);max-height:90vh;max-height:90dvh;}
   .modal-handle{display:none;}
 }
 
@@ -261,8 +261,8 @@ input[type="color"]{padding:4px;height:38px;cursor:pointer;}
   position:absolute;left:0;right:0;
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--r-sm);box-shadow:var(--shadow);
-  z-index:500;max-height:220px;overflow-y:auto;
-  margin-top:2px;
+  z-index:1100;max-height:min(220px,40vh);overflow-y:auto;
+  -webkit-overflow-scrolling:touch;margin-top:2px;
 }
 .payee-opt{
   padding:10px 14px;cursor:pointer;font-size:.875rem;
@@ -336,6 +336,187 @@ input[type="color"]{padding:4px;height:38px;cursor:pointer;}
 .add-sub-btn{font-size:.7rem;color:var(--accent);border:1px solid rgba(42,96,73,.25);background:var(--accent-lt);border-radius:100px;padding:2px 8px;cursor:pointer;opacity:0;transition:opacity .15s;white-space:nowrap;font-family:var(--font-sans);}
 .category-tree li:hover .add-sub-btn{opacity:1;}
 .cat-sub-count{font-size:.65rem;color:var(--muted);background:var(--bg2);border-radius:100px;padding:1px 7px;border:1px solid var(--border);}
+
+/* ─── TX ACCOUNT GROUPS ─── */
+.tx-account-group { margin-bottom: 18px; }
+.tx-account-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  cursor: pointer; user-select: none;
+  border-bottom: none;
+}
+.tx-account-header:hover { background: var(--bg2); }
+.tx-account-name { font-weight: 600; font-size: .875rem; flex: 1; }
+.tx-account-totals { display: flex; gap: 8px; align-items: center; }
+.tx-account-toggle { color: var(--muted); font-size: .75rem; transition: transform .2s; display: inline-block; }
+.tx-account-toggle.collapsed { transform: rotate(-90deg); }
+.tx-account-body { border: 1px solid var(--border); border-radius: 0 0 var(--r-sm) var(--r-sm); overflow: hidden; }
+.tx-account-body.collapsed { display: none; }
+
+/* ─── VIEW MODE TOGGLE ─── */
+.view-toggle {
+  display: flex; gap: 2px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 3px;
+}
+.view-btn {
+  padding: 5px 10px; border-radius: 5px; border: none;
+  background: transparent; color: var(--muted);
+  font-size: .78rem; font-weight: 500; cursor: pointer;
+  transition: all .15s; font-family: var(--font-sans);
+  display: flex; align-items: center; gap: 4px;
+}
+.view-btn:hover { color: var(--text2); }
+.view-btn.active { background: var(--surface); color: var(--accent); box-shadow: var(--shadow-sm); }
+
+/* ─── CATEGORY SUGGESTION ─── */
+.cat-suggestion {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 5px; padding: 6px 10px;
+  background: var(--accent-lt); border: 1px solid rgba(42,96,73,.2);
+  border-radius: var(--r-sm); font-size: .78rem; cursor: pointer;
+  transition: background .15s;
+}
+.cat-suggestion:hover { background: #d4eae3; }
+.cat-suggestion-label { color: var(--muted); }
+.cat-suggestion-name { color: var(--accent); font-weight: 600; }
+
+/* ─── TX ACCOUNT GROUPS ─── */
+.tx-groups { display: flex; flex-direction: column; gap: 14px; }
+.tx-group-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-bottom: 2px solid var(--border2);
+  cursor: pointer; user-select: none;
+  position: sticky; top: 0; z-index: 2;
+}
+.tx-group-header:hover { background: var(--bg2); }
+.tx-group-icon { flex-shrink: 0; }
+.tx-group-name { font-weight: 600; font-size: .9rem; flex: 1; }
+.tx-group-totals { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.tx-group-toggle { font-size: .75rem; color: var(--muted); transition: transform .2s; line-height: 1; }
+.tx-group-body { display: block; }
+.tx-group-body.collapsed { display: none; }
+.tx-group-wrap { border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.tx-group-header { border-radius: var(--r) var(--r) 0 0; }
+
+/* view-mode toggle */
+.view-toggle { display:flex; gap:2px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r-sm); padding:3px; }
+.view-btn { padding:5px 10px; border-radius:5px; border:none; background:transparent; color:var(--muted); font-size:.78rem; font-weight:500; cursor:pointer; transition:all .15s; font-family:var(--font-sans); }
+.view-btn:hover { color:var(--text2); }
+.view-btn.active { background:var(--surface); color:var(--accent); box-shadow:var(--shadow-sm); }
+
+/* ─── CATEGORY SUGGESTION ─── */
+.cat-suggestion {
+  display:none; align-items:center; gap:8px;
+  margin-top:5px; padding:7px 10px;
+  background:var(--accent-lt); border:1px solid rgba(42,96,73,.2);
+  border-radius:var(--r-sm); font-size:.8rem; cursor:pointer;
+  transition:background .15s; animation: fadeIn .2s;
+}
+.cat-suggestion.visible { display:flex; }
+.cat-suggestion:hover { background:#cde8dc; }
+.cat-sug-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.cat-sug-label { color:var(--muted); }
+.cat-sug-name { color:var(--accent); font-weight:600; flex:1; }
+.cat-sug-dismiss { color:var(--muted); font-size:.9rem; opacity:.5; }
+.cat-sug-dismiss:hover { opacity:1; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
+
+/* ─── CATEGORY PICKER ─── */
+.cat-picker-wrap { position: relative; }
+.cat-picker-btn {
+  width: 100%; padding: 8px 12px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--r-sm); cursor: pointer; text-align: left;
+  font-family: var(--font-sans); font-size: .875rem; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+  transition: border-color .15s;
+}
+.cat-picker-btn:hover { border-color: var(--accent); }
+.cat-picker-btn.open { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-lt); }
+.cat-picker-caret { margin-left: auto; color: var(--muted); font-size: .7rem; transition: transform .2s; }
+.cat-picker-btn.open .cat-picker-caret { transform: rotate(180deg); }
+.cat-picker-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+.cat-picker-dropdown {
+  position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-sm); box-shadow: var(--shadow);
+  z-index: 1100; max-height: min(320px, 50vh); overflow-y: auto;
+  display: none; -webkit-overflow-scrolling: touch;
+}
+.cat-picker-dropdown.open { display: block; }
+
+.cat-group-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s; user-select: none;
+  position: sticky; top: 0; background: var(--surface2); z-index: 1;
+}
+.cat-group-header:hover { background: var(--bg2); }
+.cat-group-label { font-weight: 600; font-size: .85rem; flex: 1; color: var(--text2); }
+.cat-group-count { font-size: .65rem; color: var(--muted); background: var(--bg2); border: 1px solid var(--border); border-radius: 100px; padding: 1px 6px; }
+.cat-group-arrow { font-size: .65rem; color: var(--muted); transition: transform .18s; }
+.cat-group-arrow.open { transform: rotate(90deg); }
+.cat-group-select { /* "select this parent" button */
+  font-size: .68rem; color: var(--accent); border: 1px solid rgba(42,96,73,.25);
+  background: var(--accent-lt); border-radius: 100px; padding: 2px 7px;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  font-family: var(--font-sans);
+}
+.cat-group-select:hover { background: #cde8dc; }
+
+.cat-children { display: none; }
+.cat-children.open { display: block; }
+
+.cat-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px 8px 28px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  font-size: .85rem; transition: background .1s;
+  color: var(--text2);
+}
+.cat-option:last-child { border-bottom: none; }
+.cat-option:hover { background: var(--accent-lt); color: var(--accent); }
+.cat-option.selected { background: var(--accent-lt); color: var(--accent); font-weight: 600; }
+
+.cat-none-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  font-size: .85rem; color: var(--muted); transition: background .12s;
+}
+.cat-none-option:hover { background: var(--bg2); }
+
+/* ─── PAYEE GROUPS ─── */
+.payee-group-wrap { border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 14px; }
+.payee-group-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; cursor: pointer; user-select: none;
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.payee-group-header:hover { background: var(--bg2); }
+.payee-group-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.payee-group-title { font-weight: 700; font-size: .95rem; flex: 1; }
+.payee-group-meta { display: flex; gap: 6px; align-items: center; }
+.payee-group-arrow { font-size: .7rem; color: var(--muted); transition: transform .2s; }
+.payee-group-arrow.collapsed { transform: rotate(-90deg); }
+.payee-group-body { display: block; }
+.payee-group-body.collapsed { display: none; }
+.payee-summary-chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  font-size: .78rem; cursor: pointer; transition: box-shadow .15s;
+}
+.payee-summary-chip:hover { box-shadow: var(--shadow); }
 </style>
 </head>
 <body>
@@ -439,8 +620,13 @@ input[type="color"]{padding:4px;height:38px;cursor:pointer;}
         <select id="txType" onchange="filterTransactions()" style="max-width:140px">
           <option value="">Todos os tipos</option><option value="income">Receitas</option><option value="expense">Despesas</option><option value="transfer">Transferências</option>
         </select>
+        <div class="view-toggle">
+          <button class="view-btn active" id="viewBtnFlat" onclick="setTxView('flat')" title="Lista simples">☰ Lista</button>
+          <button class="view-btn" id="viewBtnGroup" onclick="setTxView('group')" title="Agrupado por conta">⊞ Por Conta</button>
+        </div>
       </div>
-      <div class="card">
+      <div id="txSummaryBar" style="display:none;gap:8px;flex-wrap:wrap;margin-bottom:10px"></div>
+      <div class="card" id="txFlatCard">
         <div class="card-header">
           <span class="card-title" id="txCount">Transações</span>
           <div style="display:flex;gap:5px"><span id="txTotalIncome" class="badge badge-green"></span><span id="txTotalExpense" class="badge badge-red"></span></div>
@@ -453,6 +639,7 @@ input[type="color"]{padding:4px;height:38px;cursor:pointer;}
         </div>
         <div id="txPagination" style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-top:1px solid var(--border);font-size:.78rem;color:var(--muted)"></div>
       </div>
+      <div id="txGroupContainer" style="display:none"></div>
     </div>
 
     <!-- ACCOUNTS -->
@@ -506,12 +693,16 @@ input[type="color"]{padding:4px;height:38px;cursor:pointer;}
           <input type="text" id="payeeSearch" placeholder="Buscar..." oninput="filterPayees()">
         </div>
         <select id="payeeTypeFilter" onchange="filterPayees()" style="max-width:180px">
-          <option value="">Todos os tipos</option><option value="beneficiario">Beneficiários</option><option value="fonte_pagadora">Fontes Pagadoras</option>
+          <option value="">Todos os tipos</option>
+          <option value="beneficiario">Beneficiários</option>
+          <option value="fonte_pagadora">Fontes Pagadoras</option>
+          <option value="ambos">Ambos</option>
         </select>
       </div>
-      <div class="card">
-        <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Tipo</th><th>Categoria Padrão</th><th>Qtd</th><th></th></tr></thead><tbody id="payeeBody"></tbody></table></div>
-      </div>
+      <!-- Payee group summary chips -->
+      <div id="payeeSummaryBar" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+      <!-- Grouped containers -->
+      <div id="payeeGroups"></div>
     </div>
 
   </div>
@@ -556,7 +747,24 @@ input[type="color"]{padding:4px;height:38px;cursor:pointer;}
           <div id="txPayeeDropdown" class="payee-dropdown" style="display:none"></div>
           <div id="txPayeeSimilarBanner" class="payee-similar-banner" style="display:none"></div>
         </div>
-        <div class="form-group" id="txCategoryGroup"><label>Categoria</label><select id="txCategoryId"><option value="">— Sem categoria —</option></select></div>
+        <div class="form-group" id="txCategoryGroup">
+          <label>Categoria</label>
+          <input type="hidden" id="txCategoryId">
+          <div class="cat-picker-wrap" id="catPickerWrap">
+            <button type="button" class="cat-picker-btn" id="catPickerBtn" onclick="toggleCatPicker()">
+              <span class="cat-picker-dot" id="catPickerDot" style="display:none"></span>
+              <span id="catPickerLabel" style="color:var(--muted)">— Sem categoria —</span>
+              <span class="cat-picker-caret">▼</span>
+            </button>
+            <div class="cat-picker-dropdown" id="catPickerDropdown"></div>
+          </div>
+          <div class="cat-suggestion" id="catSuggestion" onclick="applyCatSuggestion()">
+            <span class="cat-sug-dot" id="catSugDot"></span>
+            <span class="cat-sug-label">Última usada:</span>
+            <span class="cat-sug-name" id="catSugName"></span>
+            <span class="cat-sug-dismiss" onclick="event.stopPropagation();hideCatSuggestion()" title="Dispensar">✕</span>
+          </div>
+        </div>
         <div class="form-group full"><label>Observação</label><textarea id="txMemo" rows="2" placeholder="Memo, notas..."></textarea></div>
         <div class="form-group"><label>Tags (vírgula)</label><input type="text" id="txTags" placeholder="IR, Décio, ..."></div>
         <div class="form-group"><label>Nº Cheque</label><input type="text" id="txCheck" placeholder="Opcional"></div>
@@ -733,7 +941,7 @@ function tryAutoConnect(){
   }
 }
 
-let state={accounts:[],categories:[],payees:[],transactions:[],budgets:[],txPage:0,txPageSize:50,txTotal:0,txSortField:'date',txSortAsc:false,txFilter:{search:'',month:'',account:'',type:''},currentPage:'dashboard',chartInstances:{}};
+let state={accounts:[],categories:[],payees:[],transactions:[],budgets:[],txPage:0,txPageSize:50,txTotal:0,txSortField:'date',txSortAsc:false,txFilter:{search:'',month:'',account:'',type:''},txView:'flat',currentPage:'dashboard',chartInstances:{}};
 
 async function bootApp(){
   await Promise.all([loadAccounts(),loadCategories(),loadPayees()]);
@@ -877,14 +1085,96 @@ async function saveCategory(){
 async function deleteCategory(id){if(!confirm('Excluir esta categoria?'))return;const{error}=await sb.from('categories').delete().eq('id',id);if(error){toast(error.message,'error');return;}toast('Removida','success');await loadCategories();populateSelects();renderCategories();}
 
 async function loadPayees(){const{data,error}=await sb.from('payees').select('*, categories(name)').order('name');if(error){toast(error.message,'error');return;}state.payees=data||[];}
-function renderPayees(filter='',typeFilter=''){
-  const body=document.getElementById('payeeBody');let ps=state.payees;
-  if(filter)ps=ps.filter(p=>p.name.toLowerCase().includes(filter.toLowerCase()));
-  if(typeFilter)ps=ps.filter(p=>p.type===typeFilter);
-  if(!ps.length){body.innerHTML='<tr><td colspan="5" class="text-muted" style="text-align:center;padding:32px;font-size:.83rem">Nenhum registro</td></tr>';return;}
-  body.innerHTML=ps.map(p=>`<tr><td><strong>${esc(p.name)}</strong></td><td>${payeeTypeBadge(p.type)}</td><td class="text-muted">${p.categories?.name||'—'}</td><td class="text-muted">—</td><td style="display:flex;gap:5px;padding-top:9px"><button class="btn-icon" onclick="openPayeeModal('${p.id}')">✏️</button><button class="btn-icon" onclick="deletePayee('${p.id}')">🗑️</button></td></tr>`).join('');
-}
 function payeeTypeBadge(t){const m={beneficiario:'badge-blue',fonte_pagadora:'badge-green',ambos:'badge-amber'};const l={beneficiario:'Beneficiário',fonte_pagadora:'Fonte Pagadora',ambos:'Ambos'};return`<span class="badge ${m[t]||'badge-muted'}">${l[t]||t}</span>`;}
+
+function payeeRow(p) {
+  return `<tr>
+    <td><strong>${esc(p.name)}</strong>${p.notes?`<div style="font-size:.72rem;color:var(--muted);margin-top:1px">${esc(p.notes)}</div>`:''}</td>
+    <td class="text-muted" style="font-size:.82rem">${p.categories?.name||'—'}</td>
+    <td><div style="display:flex;gap:5px"><button class="btn-icon" onclick="openPayeeModal('${p.id}')">✏️</button><button class="btn-icon" onclick="deletePayee('${p.id}')">🗑️</button></div></td>
+  </tr>`;
+}
+
+const PAYEE_GROUP_DEF = [
+  { key:'beneficiario',    label:'Beneficiários',    icon:'💸', color:'var(--blue)',  colorLt:'var(--blue-lt)'  },
+  { key:'fonte_pagadora',  label:'Fontes Pagadoras',  icon:'💰', color:'var(--green)', colorLt:'var(--green-lt)' },
+  { key:'ambos',           label:'Ambos',             icon:'🔄', color:'var(--amber)', colorLt:'var(--amber-lt)' },
+];
+const payeeGroupState = { beneficiario: true, fonte_pagadora: true, ambos: true }; // true = expanded
+
+function renderPayees(filter='', typeFilter='') {
+  let ps = state.payees;
+  if(filter) ps = ps.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+  if(typeFilter) ps = ps.filter(p => p.type === typeFilter);
+
+  // Summary chips
+  const bar = document.getElementById('payeeSummaryBar');
+  if(bar) {
+    const all = typeFilter ? [] : PAYEE_GROUP_DEF.map(g => {
+      const cnt = ps.filter(p => p.type === g.key).length;
+      if(!cnt) return '';
+      return `<div class="payee-summary-chip" onclick="scrollPayeeGroup('${g.key}')" style="border-left:3px solid ${g.color}">
+        <span>${g.icon}</span>
+        <span style="font-weight:600;color:var(--text)">${g.label}</span>
+        <span class="badge" style="background:${g.colorLt};color:${g.color};border:1px solid ${g.color}30">${cnt}</span>
+      </div>`;
+    });
+    bar.innerHTML = all.join('');
+    bar.style.display = ps.length && !typeFilter ? 'flex' : 'none';
+  }
+
+  const container = document.getElementById('payeeGroups');
+  if(!container) return;
+
+  if(!ps.length) {
+    container.innerHTML = '<div class="card" style="text-align:center;padding:40px;color:var(--muted);font-size:.875rem">Nenhum beneficiário encontrado</div>';
+    return;
+  }
+
+  // When filtering by type, show a single flat group
+  const groups = typeFilter
+    ? [{ ...PAYEE_GROUP_DEF.find(g=>g.key===typeFilter)||{key:typeFilter,label:typeFilter,icon:'👤',color:'var(--accent)',colorLt:'var(--accent-lt)'}, items: ps }]
+    : PAYEE_GROUP_DEF.map(g => ({ ...g, items: ps.filter(p=>p.type===g.key) })).filter(g=>g.items.length>0);
+
+  container.innerHTML = groups.map(g => {
+    const expanded = payeeGroupState[g.key] !== false;
+    return `<div class="payee-group-wrap" id="payeeGroup-${g.key}">
+      <div class="payee-group-header" onclick="togglePayeeGroup('${g.key}')">
+        <div class="payee-group-icon" style="background:${g.colorLt}">${g.icon}</div>
+        <span class="payee-group-title">${g.label}</span>
+        <div class="payee-group-meta">
+          <span class="badge" style="background:${g.colorLt};color:${g.color};border:1px solid ${g.color}30;font-size:.75rem">${g.items.length} registro${g.items.length!==1?'s':''}</span>
+        </div>
+        <span class="payee-group-arrow${expanded?'':' collapsed'}">▼</span>
+      </div>
+      <div class="payee-group-body${expanded?'':' collapsed'}" id="payeeGroupBody-${g.key}">
+        <div class="table-wrap" style="margin:0">
+          <table style="border-radius:0">
+            <thead><tr><th>Nome</th><th>Categoria Padrão</th><th style="width:70px"></th></tr></thead>
+            <tbody>${g.items.map(p=>payeeRow(p)).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togglePayeeGroup(key) {
+  payeeGroupState[key] = !payeeGroupState[key];
+  const body = document.getElementById('payeeGroupBody-'+key);
+  const arrow = document.querySelector('#payeeGroup-'+key+' .payee-group-arrow');
+  if(body) body.classList.toggle('collapsed', !payeeGroupState[key]);
+  if(arrow) arrow.classList.toggle('collapsed', !payeeGroupState[key]);
+}
+
+function scrollPayeeGroup(key) {
+  const el = document.getElementById('payeeGroup-'+key);
+  if(!el) return;
+  // Ensure expanded
+  if(!payeeGroupState[key]) togglePayeeGroup(key);
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function filterPayees(){renderPayees(document.getElementById('payeeSearch').value,document.getElementById('payeeTypeFilter').value);}
 function openPayeeModal(id=''){
   const form={id:'',name:'',type:'beneficiario',default_category_id:'',notes:''};
@@ -904,39 +1194,154 @@ async function deletePayee(id){if(!confirm('Excluir?'))return;const{error}=await
 
 async function loadTransactions(){
   const f=state.txFilter;
-  let q=sb.from('transactions').select('*, accounts!account_id(name,currency), payees(name), categories(name,color)',{count:'exact'}).order(state.txSortField,{ascending:state.txSortAsc}).range(state.txPage*state.txPageSize,(state.txPage+1)*state.txPageSize-1);
+  const isGroup = state.txView === 'group';
+  let q=sb.from('transactions').select('*, accounts!transactions_account_id_fkey(name,currency), payees(name), categories(name,color)',{count:'exact'}).order(state.txSortField,{ascending:state.txSortAsc});
+  // Pagination only in flat view; grouped view loads all for the current filter set
+  if(!isGroup) q=q.range(state.txPage*state.txPageSize,(state.txPage+1)*state.txPageSize-1);
   if(f.month){const[y,m]=f.month.split('-');q=q.gte('date',`${y}-${m}-01`).lte('date',`${y}-${m}-31`);}
   if(f.account)q=q.eq('account_id',f.account);if(f.search)q=q.ilike('description','%'+f.search+'%');
   if(f.type==='income')q=q.gt('amount',0);else if(f.type==='expense')q=q.lt('amount',0);else if(f.type==='transfer')q=q.eq('is_transfer',true);
   const{data,count,error}=await q;if(error){toast(error.message,'error');return;}state.transactions=data||[];state.txTotal=count||0;renderTransactions();
 }
-function filterTransactions(){state.txFilter.search=document.getElementById('txSearch').value;state.txFilter.month=document.getElementById('txMonth').value;state.txFilter.account=document.getElementById('txAccount').value;state.txFilter.type=document.getElementById('txType').value;state.txPage=0;loadTransactions();}
+function filterTransactions(){
+  state.txFilter.search=document.getElementById('txSearch').value;
+  state.txFilter.month=document.getElementById('txMonth').value;
+  state.txFilter.account=document.getElementById('txAccount').value;
+  state.txFilter.type=document.getElementById('txType').value;
+  state.txPage=0;
+  if(state.txView==='flat') document.getElementById('txSummaryBar').style.display='none';
+  loadTransactions();
+}
 function sortTx(field){if(state.txSortField===field)state.txSortAsc=!state.txSortAsc;else{state.txSortField=field;state.txSortAsc=false;}loadTransactions();}
-function renderTransactions(){
-  const body=document.getElementById('txBody'),txs=state.transactions;
-  if(!txs.length){body.innerHTML='<tr><td colspan="7" class="text-muted" style="text-align:center;padding:32px;font-size:.83rem">Nenhuma transação encontrada</td></tr>';return;}
-  let income=0,expense=0;txs.forEach(t=>{if(t.amount>0)income+=t.amount;else expense+=t.amount;});
-  document.getElementById('txCount').textContent=`${state.txTotal} transações`;
-  document.getElementById('txTotalIncome').textContent=`+${fmt(income)}`;
-  document.getElementById('txTotalExpense').textContent=fmt(expense);
-  body.innerHTML=txs.map(t=>`<tr>
+function txRow(t, showAccount=true) {
+  return `<tr>
     <td class="text-muted" style="white-space:nowrap">${fmtDate(t.date)}</td>
-    <td><span class="badge badge-muted">${esc(t.accounts?.name||'—')}</span></td>
+    ${showAccount ? `<td><span class="badge badge-muted">${esc(t.accounts?.name||'—')}</span></td>` : ''}
     <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.description||'—')}</td>
     <td class="text-muted">${esc(t.payees?.name||'—')}</td>
     <td>${t.categories?`<span class="badge" style="background:${t.categories.color}18;color:${t.categories.color};border:1px solid ${t.categories.color}30">${esc(t.categories.name)}</span>`:'—'}</td>
     <td class="${t.amount>=0?'amount-pos':'amount-neg'}" style="white-space:nowrap">${fmt(t.amount)}</td>
     <td><div style="display:flex;gap:4px"><button class="btn-icon" onclick="editTransaction('${t.id}')">✏️</button><button class="btn-icon" onclick="deleteTransaction('${t.id}')">🗑️</button></div></td>
-  </tr>`).join('');
-  const total=state.txTotal,page=state.txPage,ps=state.txPageSize;
+  </tr>`;
+}
+
+function setTxView(v) {
+  state.txView = v;
+  document.getElementById('viewBtnFlat').classList.toggle('active', v==='flat');
+  document.getElementById('viewBtnGroup').classList.toggle('active', v==='group');
+  document.getElementById('txFlatCard').style.display = v==='flat' ? '' : 'none';
+  document.getElementById('txGroupContainer').style.display = v==='group' ? '' : 'none';
+  renderTransactions();
+}
+
+function renderTransactions(){
+  const txs = state.transactions;
+  let income=0, expense=0;
+  txs.forEach(t=>{if(t.amount>0)income+=t.amount; else expense+=t.amount;});
+  document.getElementById('txCount').textContent = `${state.txTotal} transações`;
+  document.getElementById('txTotalIncome').textContent = income ? `+${fmt(income)}` : '';
+  document.getElementById('txTotalExpense').textContent = expense ? fmt(expense) : '';
+
+  if(state.txView === 'group') {
+    renderTransactionsGrouped(txs);
+    return;
+  }
+
+  // ── FLAT VIEW ──
+  const body = document.getElementById('txBody');
+  if(!txs.length){body.innerHTML='<tr><td colspan="7" class="text-muted" style="text-align:center;padding:32px;font-size:.83rem">Nenhuma transação encontrada</td></tr>';return;}
+  body.innerHTML = txs.map(t => txRow(t, true)).join('');
+  const total=state.txTotal, page=state.txPage, ps=state.txPageSize;
   document.getElementById('txPagination').innerHTML=`<span>${page*ps+1}–${Math.min((page+1)*ps,total)} de ${total}</span><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" ${page===0?'disabled':''} onclick="changePage(-1)">‹ Anterior</button><button class="btn btn-ghost btn-sm" ${(page+1)*ps>=total?'disabled':''} onclick="changePage(1)">Próxima ›</button></div>`;
 }
+
+function renderTransactionsGrouped(txs) {
+  const container = document.getElementById('txGroupContainer');
+  if(!txs.length){container.innerHTML='<div class="card" style="text-align:center;padding:32px;color:var(--muted);font-size:.83rem">Nenhuma transação encontrada</div>';return;}
+
+  // Group by account
+  const groups = {};
+  txs.forEach(t => {
+    const key = t.account_id || '__none__';
+    if(!groups[key]) groups[key] = { account: t.accounts, txs: [], income: 0, expense: 0, balance: 0 };
+    groups[key].txs.push(t);
+    if(t.amount > 0) groups[key].income += t.amount;
+    else groups[key].expense += t.amount;
+    groups[key].balance += t.amount;
+  });
+
+  // Sort groups by account name
+  const sortedKeys = Object.keys(groups).sort((a,b) => {
+    const na = groups[a].account?.name || '';
+    const nb = groups[b].account?.name || '';
+    return na.localeCompare(nb);
+  });
+
+  // Summary bar
+  const summaryBar = document.getElementById('txSummaryBar');
+  summaryBar.style.display = 'flex';
+  summaryBar.innerHTML = sortedKeys.map(k => {
+    const g = groups[k];
+    const acct = state.accounts.find(a => a.id === k) || {};
+    const col = acct.color || 'var(--accent)';
+    const bal = g.balance;
+    return `<div onclick="document.getElementById('txGroup-${k}').scrollIntoView({behavior:'smooth',block:'start'})"
+      style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;transition:box-shadow .15s;font-size:.8rem"
+      onmouseover="this.style.boxShadow='var(--shadow)'" onmouseout="this.style.boxShadow=''">
+      ${renderIconEl(acct.icon, acct.color, 20)}
+      <span style="font-weight:600;color:var(--text)">${esc(g.account?.name||'Sem conta')}</span>
+      <span class="${bal>=0?'amount-pos':'amount-neg'}" style="font-weight:600;font-size:.85rem">${fmt(bal)}</span>
+    </div>`;
+  }).join('');
+
+  // Render each group
+  container.innerHTML = sortedKeys.map(k => {
+    const g = groups[k];
+    const acct = state.accounts.find(a => a.id === k) || {};
+    const col = acct.color || 'var(--accent)';
+    const colspan = 6;
+    return `<div class="tx-group-wrap" id="txGroup-${k}" style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px">
+      <div class="tx-group-header" onclick="toggleTxGroup('${k}')"
+        style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-bottom:2px solid ${col}30;cursor:pointer">
+        <div style="width:4px;height:32px;background:${col};border-radius:4px;flex-shrink:0"></div>
+        ${renderIconEl(acct.icon, acct.color, 28)}
+        <span style="font-weight:700;font-size:.95rem;flex:1">${esc(g.account?.name||'Sem conta')}</span>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          ${g.income ? `<span class="badge badge-green" style="font-size:.75rem">+${fmt(g.income)}</span>` : ''}
+          ${g.expense ? `<span class="badge badge-red" style="font-size:.75rem">${fmt(g.expense)}</span>` : ''}
+          <span class="badge" style="font-size:.78rem;font-weight:700;background:${g.balance>=0?'var(--green-lt)':'var(--red-lt)'};color:${g.balance>=0?'var(--green)':'var(--red)'}">
+            ${g.balance>=0?'=':''} ${fmt(g.balance)}
+          </span>
+          <span style="font-size:.7rem;color:var(--muted)">${g.txs.length} lanç.</span>
+        </div>
+        <span id="txGroupToggle-${k}" style="font-size:.7rem;color:var(--muted);transition:transform .2s">▼</span>
+      </div>
+      <div id="txGroupBody-${k}" class="tx-group-body">
+        <div class="table-wrap" style="margin:0">
+          <table style="border-radius:0">
+            <thead><tr><th onclick="sortTx('date')">Data ⇅</th><th>Descrição</th><th>Beneficiário</th><th>Categoria</th><th onclick="sortTx('amount')">Valor ⇅</th><th style="width:60px"></th></tr></thead>
+            <tbody>${g.txs.map(t => txRow(t, false)).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTxGroup(k) {
+  const body = document.getElementById('txGroupBody-'+k);
+  const arrow = document.getElementById('txGroupToggle-'+k);
+  const collapsed = body.style.display === 'none';
+  body.style.display = collapsed ? '' : 'none';
+  if(arrow) arrow.style.transform = collapsed ? '' : 'rotate(-90deg)';
+}
+
 function changePage(dir){state.txPage+=dir;loadTransactions();}
 function openTransactionModal(id=''){resetTxModal();document.getElementById('txDate').value=new Date().toISOString().slice(0,10);document.getElementById('txModalTitle').textContent='Nova Transação';if(id)editTransaction(id);else openModal('txModal');}
-function resetTxModal(){['txId','txDesc','txMemo','txTags','txCheck'].forEach(f=>document.getElementById(f).value='');document.getElementById('txAmount').value='';document.getElementById('txTypeField').value='expense';setTxType('expense');clearPayeeField();}
+function resetTxModal(){['txId','txDesc','txMemo','txTags','txCheck'].forEach(f=>document.getElementById(f).value='');document.getElementById('txAmount').value='';document.getElementById('txTypeField').value='expense';setTxType('expense');clearPayeeField();hideCatSuggestion();setCatPickerValue(null);}
 async function editTransaction(id){
   const{data,error}=await sb.from('transactions').select('*').eq('id',id).single();if(error){toast(error.message,'error');return;}
-  document.getElementById('txId').value=data.id;document.getElementById('txDate').value=data.date;document.getElementById('txAmount').value=Math.abs(data.amount);document.getElementById('txDesc').value=data.description||'';document.getElementById('txAccountId').value=data.account_id||'';document.getElementById('txCategoryId').value=data.category_id||'';document.getElementById('txMemo').value=data.memo||'';document.getElementById('txTags').value=(data.tags||[]).join(', ');document.getElementById('txCheck').value=data.check_number||'';setPayeeField(data.payee_id||null);
+  document.getElementById('txId').value=data.id;document.getElementById('txDate').value=data.date;document.getElementById('txAmount').value=Math.abs(data.amount);document.getElementById('txDesc').value=data.description||'';document.getElementById('txAccountId').value=data.account_id||'';setCatPickerValue(data.category_id||null);document.getElementById('txMemo').value=data.memo||'';document.getElementById('txTags').value=(data.tags||[]).join(', ');document.getElementById('txCheck').value=data.check_number||'';setPayeeField(data.payee_id||null);
   const type=data.is_transfer?'transfer':data.amount>=0?'income':'expense';setTxType(type);if(type==='transfer')document.getElementById('txTransferTo').value=data.transfer_to_account_id||'';
   document.getElementById('txModalTitle').textContent='Editar Transação';openModal('txModal');
 }
@@ -979,7 +1384,7 @@ async function loadDashboard(){
   const total=state.accounts.reduce((s,a)=>s+a.balance,0);
   document.getElementById('statTotal').textContent=fmt(total);document.getElementById('statIncome').textContent=fmt(income);document.getElementById('statExpenses').textContent=fmt(expense);
   const bal=income-expense,balEl=document.getElementById('statBalance');balEl.textContent=fmt(bal);balEl.className='stat-value '+(bal>=0?'text-green':'text-red');
-  const{data:recent}=await sb.from('transactions').select('*, accounts!account_id(name), categories(name,color)').order('date',{ascending:false}).limit(10);
+  const{data:recent}=await sb.from('transactions').select('*, accounts!transactions_account_id_fkey(name), categories(name,color)').order('date',{ascending:false}).limit(10);
   const body=document.getElementById('recentTxBody');
   if(!recent?.length){body.innerHTML='<tr><td colspan="4" class="text-muted" style="text-align:center;padding:24px;font-size:.83rem">Sem transações</td></tr>';}
   else body.innerHTML=(recent||[]).map(t=>`<tr><td class="text-muted" style="white-space:nowrap">${fmtDate(t.date)}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.description||'—')}</td><td>${t.categories?`<span class="badge" style="background:${t.categories.color}18;color:${t.categories.color};border:1px solid ${t.categories.color}28">${esc(t.categories.name)}</span>`:'—'}</td><td class="${t.amount>=0?'amount-pos':'amount-neg'}" style="white-space:nowrap">${fmt(t.amount)}</td></tr>`).join('');
@@ -1022,7 +1427,7 @@ function populateSelects(){
   ['txAccountId','txTransferTo'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">Selecione a conta</option>'+aOpts;});
   const txAF=document.getElementById('txAccount');if(txAF)txAF.innerHTML='<option value="">Todas as contas</option>'+aOpts;
   // payee autocomplete uses state.payees directly - no select to populate
-  const cEl=document.getElementById('txCategoryId');if(cEl)cEl.innerHTML='<option value="">— Sem categoria —</option>'+state.categories.map(c=>`<option value="${c.id}">${c.icon||''} ${esc(c.name)}</option>`).join('');
+  buildCatPicker(); // hierarchical picker replaces flat select
   const pCat=document.getElementById('payeeCategory');if(pCat)pCat.innerHTML='<option value="">— Nenhuma —</option>'+state.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
 }
 
@@ -1082,6 +1487,48 @@ function selectPayee(id, name) {
   payeeAC.selectedName = name;
   hidePayeeDropdown();
   hidePayeeSimilar();
+  // Suggest last-used category for this payee
+  suggestCategoryForPayee(id);
+}
+
+async function suggestCategoryForPayee(payeeId) {
+  if(!payeeId) { hideCatSuggestion(); return; }
+  // Check if category already selected (editing mode)
+  const currentCat = document.getElementById('txCategoryId').value;
+  if(currentCat) { hideCatSuggestion(); return; }
+  // Query last transaction with this payee that has a category
+  const { data } = await sb.from('transactions')
+    .select('category_id, categories(name,color)')
+    .eq('payee_id', payeeId)
+    .not('category_id', 'is', null)
+    .order('date', { ascending: false })
+    .limit(1)
+    .single();
+  if(!data?.category_id) { hideCatSuggestion(); return; }
+  showCatSuggestion(data.category_id, data.categories?.name, data.categories?.color);
+}
+
+function showCatSuggestion(catId, catName, catColor) {
+  const el = document.getElementById('catSuggestion');
+  const dot = document.getElementById('catSugDot');
+  const name = document.getElementById('catSugName');
+  if(!el || !catId) return;
+  dot.style.background = catColor || 'var(--accent)';
+  name.textContent = catName || 'Categoria';
+  el._catId = catId;
+  el.classList.add('visible');
+}
+
+function hideCatSuggestion() {
+  const el = document.getElementById('catSuggestion');
+  if(el) el.classList.remove('visible');
+}
+
+function applyCatSuggestion() {
+  const el = document.getElementById('catSuggestion');
+  if(!el?._catId) return;
+  setCatPickerValue(el._catId);
+  hideCatSuggestion();
 }
 
 function onPayeeInput(val) {
@@ -1379,6 +1826,157 @@ function syncIconPickerToValue(iconKey, color) {
   }
   const preview = document.getElementById('accountIconPreview');
   if(preview) preview.innerHTML = renderIconEl(iconKey, color, 28);
+}
+
+
+/* ═══════════════════════════════════════
+   HIERARCHICAL CATEGORY PICKER
+═══════════════════════════════════════ */
+let catPickerOpen = false;
+
+function buildCatPicker() {
+  const dd = document.getElementById('catPickerDropdown');
+  if (!dd) return;
+
+  const parents = state.categories
+    .filter(c => !c.parent_id)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  let html = `<div class="cat-none-option" onclick="setCatPickerValue(null)">
+    <span style="width:10px;height:10px;border-radius:50%;background:var(--border);display:inline-block;flex-shrink:0"></span>
+    <span style="color:var(--muted)">— Sem categoria —</span>
+  </div>`;
+
+  parents.forEach(p => {
+    const children = state.categories
+      .filter(c => c.parent_id === p.id)
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    const hasChildren = children.length > 0;
+    const color = p.color || '#8c8278';
+    const icon = p.icon || '📦';
+    const groupId = 'catGroup-' + p.id;
+
+    html += `<div class="cat-group-header" id="catGH-${p.id}">
+      <span style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></span>
+      <span style="font-size:.9rem;flex-shrink:0">${icon}</span>
+      <span class="cat-group-label">${esc(p.name)}</span>
+      <span class="cat-group-select" onclick="event.stopPropagation();setCatPickerValue('${p.id}')" title="Selecionar esta categoria">usar</span>
+      ${hasChildren ? `<span class="cat-group-count">${children.length}</span>
+      <span class="cat-group-arrow" id="catArr-${p.id}">▶</span>` : ''}
+    </div>`;
+
+    if (hasChildren) {
+      // make the header toggle children on click
+      html += `<div class="cat-children" id="${groupId}">`;
+      children.forEach(c => {
+        const cc = c.color || color;
+        html += `<div class="cat-option" id="catOpt-${c.id}" onclick="setCatPickerValue('${c.id}')">
+          <span class="cat-picker-dot" style="background:${cc}"></span>
+          <span style="font-size:.8rem">${c.icon||'▸'}</span>
+          <span>${esc(c.name)}</span>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+  });
+
+  dd.innerHTML = html;
+
+  // Attach toggle handlers to group headers that have children
+  parents.forEach(p => {
+    const children = state.categories.filter(c => c.parent_id === p.id);
+    if (!children.length) return;
+    const gh = document.getElementById('catGH-' + p.id);
+    if (gh) gh.addEventListener('click', () => toggleCatGroup(p.id));
+  });
+}
+
+function toggleCatGroup(parentId) {
+  const group = document.getElementById('catGroup-' + parentId);
+  const arrow = document.getElementById('catArr-' + parentId);
+  if (!group) return;
+  const isOpen = group.classList.toggle('open');
+  if (arrow) arrow.classList.toggle('open', isOpen);
+}
+
+function toggleCatPicker() {
+  const dd = document.getElementById('catPickerDropdown');
+  const btn = document.getElementById('catPickerBtn');
+  if (!dd || !btn) return;
+  catPickerOpen = !catPickerOpen;
+  dd.classList.toggle('open', catPickerOpen);
+  btn.classList.toggle('open', catPickerOpen);
+  if (catPickerOpen) {
+    // Auto-expand the group containing the currently selected category
+    const currentId = document.getElementById('txCategoryId').value;
+    if (currentId) {
+      const cat = state.categories.find(c => c.id === currentId);
+      if (cat?.parent_id) {
+        const group = document.getElementById('catGroup-' + cat.parent_id);
+        const arrow = document.getElementById('catArr-' + cat.parent_id);
+        if (group && !group.classList.contains('open')) {
+          group.classList.add('open');
+          if (arrow) arrow.classList.add('open');
+        }
+      }
+    }
+    // Close picker when clicking outside
+    setTimeout(() => {
+      document.addEventListener('click', closeCatPickerOutside, { once: true });
+    }, 10);
+  }
+}
+
+function closeCatPickerOutside(e) {
+  const wrap = document.getElementById('catPickerWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    closeCatPicker();
+  } else if (catPickerOpen) {
+    // Re-attach listener if still open
+    setTimeout(() => {
+      document.addEventListener('click', closeCatPickerOutside, { once: true });
+    }, 10);
+  }
+}
+
+function closeCatPicker() {
+  catPickerOpen = false;
+  const dd = document.getElementById('catPickerDropdown');
+  const btn = document.getElementById('catPickerBtn');
+  if (dd) dd.classList.remove('open');
+  if (btn) btn.classList.remove('open');
+}
+
+function setCatPickerValue(catId) {
+  // Update hidden input
+  const input = document.getElementById('txCategoryId');
+  if (input) input.value = catId || '';
+
+  // Update button label
+  const label = document.getElementById('catPickerLabel');
+  const dot = document.getElementById('catPickerDot');
+
+  if (!catId) {
+    if (label) { label.textContent = '— Sem categoria —'; label.style.color = 'var(--muted)'; }
+    if (dot) dot.style.display = 'none';
+  } else {
+    const cat = state.categories.find(c => c.id === catId);
+    if (cat && label) {
+      // Show parent > child breadcrumb if it's a subcategory
+      const parent = cat.parent_id ? state.categories.find(c => c.id === cat.parent_id) : null;
+      label.textContent = parent ? `${parent.icon||'📦'} ${parent.name}  ›  ${cat.icon||'▸'} ${cat.name}` : `${cat.icon||'📦'} ${cat.name}`;
+      label.style.color = 'var(--text)';
+    }
+    if (dot && cat) { dot.style.background = cat.color || 'var(--accent)'; dot.style.display = ''; }
+  }
+
+  // Highlight selected option
+  document.querySelectorAll('.cat-option').forEach(el => {
+    el.classList.toggle('selected', el.id === 'catOpt-' + catId);
+  });
+
+  closeCatPicker();
 }
 
 tryAutoConnect();
