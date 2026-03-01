@@ -7034,21 +7034,58 @@ function showClearDatabasePinConfirm() {
 async function executeClearDatabase() {
   const btn = document.querySelector('[onclick="confirmClearDatabase()"]');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Limpando...'; }
+
+  // Supabase/PostgREST doesn't allow DELETE without a filter.
+  // Also, not all tables have `created_at`, so we use a safe "neq(id, dummy)" filter.
+  const DUMMY_UUID = '00000000-0000-0000-0000-000000000000';
+
   try {
-    for (const t of ['transactions','budgets','payees','categories','accounts']) {
-      await sb.from(t).delete().gte('created_at','2000-01-01').catch(() => {});
+    if (!sb || typeof sb.from !== 'function') {
+      throw new Error('Supabase não está conectado. Vá em Configurações e conecte novamente.');
     }
+
+    // Delete in dependency order (children -> parents) to avoid FK constraint errors.
+    const tablesInOrder = [
+      'scheduled_occurrences',
+      'scheduled_transactions',
+      'transactions',
+      'budgets',
+      'payees',
+      'categories',
+      'accounts'
+    ];
+
+    const cleared = [];
+    for (const t of tablesInOrder) {
+      const { error } = await sb.from(t).delete().neq('id', DUMMY_UUID);
+      if (error) {
+        // If the table doesn't exist in this project, skip it gracefully.
+        const msg = (error.message || '').toLowerCase();
+        if (msg.includes('does not exist') || msg.includes('relation') && msg.includes('does not exist')) {
+          continue;
+        }
+        throw new Error(`Falha ao apagar "${t}": ${error.message}`);
+      }
+      cleared.push(t);
+    }
+
+    // Reset in-memory state
     state.accounts = []; state.categories = []; state.payees = [];
     state.transactions = []; state.budgets = [];
+    if (state.scheduled) state.scheduled = [];
+
     populateSelects();
-    toast('✓ Base de dados limpa!', 'success');
+    toast('✓ Base de dados limpa!' + (cleared.length ? ` (${cleared.length} tabelas)` : ''), 'success');
     navigate('dashboard');
   } catch(e) {
-    toast('Erro: ' + e.message, 'error');
+    toast('Erro ao limpar dados: ' + (e?.message || e), 'error');
+    console.error(e);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = '⚠️ Limpar Tudo'; }
   }
 }
+
+
 
 
 /* ══════════════════════════════════════════════════════════════════
