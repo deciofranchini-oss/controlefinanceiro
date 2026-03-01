@@ -1066,6 +1066,118 @@ canvas { cursor: default; }
 }
 .import-options-bar label { font-size:.8rem; color:var(--text2); font-weight:500; }
 
+/* ════════ COL TEMPLATE MAPPER ════════ */
+.import-wizard-steps {
+  display:flex; align-items:center; gap:0; margin-bottom:20px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:14px 20px; flex-wrap:wrap; gap:8px;
+}
+.import-wizard-step {
+  display:flex; align-items:center; gap:8px; font-size:.8rem;
+  color:var(--muted); font-weight:500;
+}
+.import-wizard-step.active { color:var(--accent); font-weight:700; }
+.import-wizard-step.done   { color:var(--green); }
+.import-wizard-step-num {
+  width:24px; height:24px; border-radius:50%; font-size:.72rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  border:2px solid currentColor; flex-shrink:0;
+}
+.import-wizard-sep { color:var(--border); font-size:1.1rem; margin:0 4px; }
+
+/* Column template mapper */
+.col-mapper-screen {
+  display:none; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:20px; margin-bottom:12px;
+}
+.col-mapper-title {
+  font-size:.95rem; font-weight:700; color:var(--text1); margin-bottom:4px;
+}
+.col-mapper-sub {
+  font-size:.8rem; color:var(--muted); margin-bottom:16px;
+}
+.col-mapper-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  margin-bottom:16px;
+}
+@media(max-width:640px){ .col-mapper-grid { grid-template-columns:1fr; } }
+.col-mapper-row {
+  display:flex; align-items:center; gap:10px;
+  background:var(--bg2); border-radius:var(--r-sm); padding:10px 12px;
+}
+.col-mapper-label {
+  font-size:.78rem; font-weight:600; color:var(--text2); width:110px; flex-shrink:0;
+}
+.col-mapper-label span {
+  color:var(--red); font-size:.65rem; vertical-align:super;
+}
+.col-mapper-select {
+  flex:1; font-size:.8rem; padding:5px 8px;
+  border:1.5px solid var(--border); border-radius:var(--r-sm);
+  background:var(--surface); color:var(--text1); font-family:var(--font-sans);
+}
+.col-mapper-select:focus { outline:none; border-color:var(--accent); }
+
+/* Sample preview table */
+.col-preview-wrap {
+  overflow-x:auto; border:1px solid var(--border); border-radius:var(--r-sm);
+  margin-bottom:14px; max-height:200px; overflow-y:auto;
+}
+.col-preview-table {
+  border-collapse:collapse; font-size:.73rem; width:100%; white-space:nowrap;
+}
+.col-preview-table th {
+  background:var(--bg2); border-bottom:1px solid var(--border);
+  padding:6px 10px; text-align:left; font-weight:600; color:var(--text2);
+  position:sticky; top:0; z-index:1;
+}
+.col-preview-table td {
+  border-bottom:1px solid var(--border); padding:5px 10px; color:var(--text1);
+  max-width:200px; overflow:hidden; text-overflow:ellipsis;
+}
+.col-preview-table tr:last-child td { border-bottom:none; }
+.col-preview-table th.col-mapped { background:var(--accent-lt); color:var(--accent); }
+
+/* Source preset chips */
+.source-chips {
+  display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;
+}
+.source-chip {
+  padding:6px 14px; border-radius:100px; font-size:.78rem; font-weight:600;
+  border:1.5px solid var(--border); cursor:pointer; transition:all .15s;
+  background:var(--surface); color:var(--text2);
+}
+.source-chip:hover { border-color:var(--accent); color:var(--accent); }
+.source-chip.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+/* Dedup/mode bar */
+.import-mode-bar {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:var(--r-sm); padding:10px 14px; margin-bottom:12px;
+  font-size:.8rem;
+}
+.import-mode-bar label { display:flex; align-items:center; gap:5px; cursor:pointer; }
+
+/* map-badge */
+.map-badge-new    { display:inline-block;padding:1px 8px;border-radius:4px;font-size:.68rem;font-weight:700;background:var(--green-lt);color:var(--green); }
+.map-badge-exists { display:inline-block;padding:1px 8px;border-radius:4px;font-size:.68rem;font-weight:700;background:var(--bg2);color:var(--muted); }
+.map-select { font-size:.78rem;padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text1);font-family:var(--font-sans); }
+.map-count  { font-size:.7rem;font-weight:600;color:var(--muted); }
+
+/* field-map tabs */
+.field-map-screen {
+  display:none; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:20px; margin-bottom:12px;
+}
+.field-map-title { font-size:.95rem;font-weight:700;color:var(--text1);margin-bottom:4px; }
+.field-map-sub   { font-size:.8rem;color:var(--muted);margin-bottom:14px; }
+.field-map-tabs  { display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px; }
+.field-map-tab   { padding:5px 14px;border-radius:100px;font-size:.78rem;font-weight:600;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;background:var(--surface);color:var(--muted); }
+.field-map-tab.active { background:var(--accent);color:#fff;border-color:var(--accent); }
+.field-map-panel { display:none; }
+.field-map-panel.active { display:block; }
+
 /* ════════ AUTH / LOGIN ════════ */
 .auth-screen {
   position:fixed;inset:0;z-index:9000;
@@ -1749,49 +1861,131 @@ canvas { cursor: default; }
     <!-- IMPORT / BACKUP PAGE -->
     <div class="page" id="page-import">
 
-      <!-- Section selector cards -->
-      <div class="import-section-grid" id="importSectionGrid">
-        <div class="import-section-card active" id="isc-all" onclick="selectImportSection('all')">
-          <div class="import-sc-icon">📦</div>
-          <div class="import-sc-title">Importação Completa</div>
-          <div class="import-sc-sub">Contas + Categorias + Beneficiários + Transações</div>
+      <!-- ══ WIZARD STEPS ══ -->
+      <div class="import-wizard-steps" id="importWizardSteps">
+        <div class="import-wizard-step active" id="wizStep1">
+          <div class="import-wizard-step-num">1</div>
+          <span>Arquivo &amp; Fonte</span>
         </div>
-        <div class="import-section-card disabled" id="isc-accounts" onclick="selectImportSection('accounts')">
-          <div class="import-sc-icon">🏦</div>
-          <div class="import-sc-title">Só Contas</div>
-          <div class="import-sc-sub">Criar contas do arquivo</div>
+        <span class="import-wizard-sep">›</span>
+        <div class="import-wizard-step" id="wizStep2">
+          <div class="import-wizard-step-num">2</div>
+          <span>Mapeamento de Colunas</span>
         </div>
-        <div class="import-section-card disabled" id="isc-categories" onclick="selectImportSection('categories')">
-          <div class="import-sc-icon">🏷️</div>
-          <div class="import-sc-title">Só Categorias</div>
-          <div class="import-sc-sub">Criar categorias e subcategorias</div>
-        </div>
-        <div class="import-section-card disabled" id="isc-payees" onclick="selectImportSection('payees')">
-          <div class="import-sc-icon">👤</div>
-          <div class="import-sc-title">Só Beneficiários</div>
-          <div class="import-sc-sub">Importar beneficiários</div>
-        </div>
-        <div class="import-section-card disabled" id="isc-transactions" onclick="selectImportSection('transactions')">
-          <div class="import-sc-icon">💳</div>
-          <div class="import-sc-title">Só Transações</div>
-          <div class="import-sc-sub">Importar histórico</div>
+        <span class="import-wizard-sep">›</span>
+        <div class="import-wizard-step" id="wizStep3">
+          <div class="import-wizard-step-num">3</div>
+          <span>Revisão &amp; Importar</span>
         </div>
       </div>
 
-      <!-- File drop zone -->
-      <div class="import-drop-zone" id="importDropZone"
-           ondragover="importDragOver(event)" ondragleave="importDragLeave(event)" ondrop="importDrop(event)">
-        <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv" onchange="importFileSelected(event)">
-        <div class="import-drop-icon">📂</div>
-        <div class="import-drop-title" id="importDropTitle">Arraste o arquivo MoneyWiz (.csv ou .xlsx) ou clique para selecionar</div>
-        <div class="import-drop-sub" id="importDropSub">Arquivo exportado do MoneyWiz (CSV ou Excel)</div>
+      <!-- ══ STEP 1: File + Source ══ -->
+      <div id="importStep1">
+        <!-- Section selector cards -->
+        <div class="import-section-grid" id="importSectionGrid">
+          <div class="import-section-card active" id="isc-all" onclick="selectImportSection('all')">
+            <div class="import-sc-icon">📦</div>
+            <div class="import-sc-title">Importação Completa</div>
+            <div class="import-sc-sub">Contas + Categorias + Beneficiários + Transações</div>
+          </div>
+          <div class="import-section-card disabled" id="isc-accounts" onclick="selectImportSection('accounts')">
+            <div class="import-sc-icon">🏦</div>
+            <div class="import-sc-title">Só Contas</div>
+            <div class="import-sc-sub">Criar contas do arquivo</div>
+          </div>
+          <div class="import-section-card disabled" id="isc-categories" onclick="selectImportSection('categories')">
+            <div class="import-sc-icon">🏷️</div>
+            <div class="import-sc-title">Só Categorias</div>
+            <div class="import-sc-sub">Criar categorias e subcategorias</div>
+          </div>
+          <div class="import-section-card disabled" id="isc-payees" onclick="selectImportSection('payees')">
+            <div class="import-sc-icon">👤</div>
+            <div class="import-sc-title">Só Beneficiários</div>
+            <div class="import-sc-sub">Importar beneficiários</div>
+          </div>
+          <div class="import-section-card disabled" id="isc-transactions" onclick="selectImportSection('transactions')">
+            <div class="import-sc-icon">💳</div>
+            <div class="import-sc-title">Só Transações</div>
+            <div class="import-sc-sub">Importar histórico</div>
+          </div>
+        </div>
+
+        <!-- Source preset chips -->
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Formato do arquivo</div>
+        <div class="source-chips" id="sourceChips">
+          <div class="source-chip active" onclick="selectSourcePreset('moneywiz')" id="chip-moneywiz">MoneyWiz</div>
+          <div class="source-chip" onclick="selectSourcePreset('generic')" id="chip-generic">CSV Genérico</div>
+          <div class="source-chip" onclick="selectSourcePreset('ofx')" id="chip-ofx">Extrato Bancário (OFX/CSV)</div>
+          <div class="source-chip" onclick="selectSourcePreset('nubank')" id="chip-nubank">Nubank</div>
+          <div class="source-chip" onclick="selectSourcePreset('inter')" id="chip-inter">Banco Inter</div>
+          <div class="source-chip" onclick="selectSourcePreset('itau')" id="chip-itau">Itaú</div>
+          <div class="source-chip" onclick="selectSourcePreset('xp')" id="chip-xp">XP / Rico</div>
+        </div>
+
+        <!-- File drop zone -->
+        <div class="import-drop-zone" id="importDropZone"
+             ondragover="importDragOver(event)" ondragleave="importDragLeave(event)" ondrop="importDrop(event)">
+          <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv,.ofx" onchange="importFileSelected(event)">
+          <div class="import-drop-icon">📂</div>
+          <div class="import-drop-title" id="importDropTitle">Arraste o arquivo ou clique para selecionar</div>
+          <div class="import-drop-sub" id="importDropSub">Suporta CSV, XLSX, XLS — qualquer formato</div>
+        </div>
       </div>
 
+      <!-- ══ STEP 2: Column Template Mapper ══ -->
+      <div class="col-mapper-screen" id="colMapperScreen">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <div>
+            <div class="col-mapper-title">🗂️ Mapeamento de Colunas</div>
+            <div class="col-mapper-sub">Diga ao FinTrack qual coluna do seu arquivo corresponde a cada campo. Os primeiros dados são mostrados abaixo como referência.</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="cancelImport()">✕ Cancelar</button>
+        </div>
 
-      <!-- ══ FIELD MAPPING SCREEN ══ -->
+        <!-- Raw file preview -->
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Prévia do arquivo <span id="colPreviewInfo" style="font-weight:400;text-transform:none"></span></div>
+        <div class="col-preview-wrap">
+          <table class="col-preview-table" id="colPreviewTable">
+            <thead id="colPreviewHead"></thead>
+            <tbody id="colPreviewBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Field → Column selectors -->
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 0 8px">Mapeamento de campos</div>
+        <div class="col-mapper-grid" id="colMapperGrid">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Dedup + mode options -->
+        <div class="import-mode-bar" id="importModeBar">
+          <span style="font-weight:700;color:var(--text2)">Duplicatas:</span>
+          <label><input type="radio" name="importMode" value="new" checked> Apenas novas</label>
+          <label><input type="radio" name="importMode" value="update"> Atualizar existentes</label>
+          <label><input type="radio" name="importMode" value="all"> Re-importar todas</label>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+            <label style="font-size:.78rem;color:var(--muted)">Conta destino:</label>
+            <select id="importAccountFilter" style="font-size:.8rem;max-width:180px">
+              <option value="">— Detectar automaticamente —</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+          <button class="btn btn-ghost" onclick="goToStep(1)">← Voltar</button>
+          <button class="btn btn-primary" onclick="proceedFromColMapper()" id="applyColMapBtn">Analisar &amp; Prévia →</button>
+        </div>
+      </div>
+
+      <!-- ══ STEP 2b: Entity Review (Contas/Cats/Payees) ══ -->
       <div class="field-map-screen" id="fieldMapScreen">
-        <div class="field-map-title">🔄 Equivalência de Campos — Revisão antes de Importar</div>
-        <div class="field-map-sub">Revise como cada item do MoneyWiz será importado. <span style="color:var(--green);font-weight:600">Novo</span> = será criado. <span style="color:var(--muted);font-weight:600">Existente</span> = já existe no FinTrack.</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <div>
+            <div class="field-map-title">🔄 Revisão de Entidades</div>
+            <div class="field-map-sub">Revise contas, categorias e beneficiários antes de importar. <span style="color:var(--green);font-weight:600">Novo</span> = será criado. <span style="color:var(--muted);font-weight:600">Existente</span> = já existe.</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="cancelImport()">✕ Cancelar</button>
+        </div>
         <div class="field-map-tabs">
           <button class="field-map-tab active" onclick="showFieldMapTab('accounts')">🏦 Contas <span id="fmTabAccBadge" class="map-count"></span></button>
           <button class="field-map-tab" onclick="showFieldMapTab('categories')">🏷️ Categorias <span id="fmTabCatBadge" class="map-count"></span></button>
@@ -1799,55 +1993,36 @@ canvas { cursor: default; }
           <button class="field-map-tab" onclick="showFieldMapTab('transfers')">🔄 Transferências <span id="fmTabXferBadge" class="map-count"></span></button>
         </div>
         <div class="field-map-panel active" id="fmpanel-accounts">
-          <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Contas encontradas no arquivo. Mapeie para uma conta existente ou deixe em branco para criar automaticamente.</p>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Contas encontradas. Mapeie para uma conta existente ou deixe para criar automaticamente.</p>
           <div class="table-wrap"><table class="distinct-table"><thead><tr>
-            <th>Conta no MoneyWiz</th><th>Transações</th><th>Saldo Final</th><th>Status</th><th>Mapear para →</th>
+            <th>Conta</th><th>Transações</th><th>Saldo Final</th><th>Status</th><th>Mapear para →</th>
           </tr></thead><tbody id="fmAccountsBody"></tbody></table></div>
         </div>
         <div class="field-map-panel" id="fmpanel-categories">
-          <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Categorias com hierarquia (► = pai › filho). Subcategorias criadas automaticamente.</p>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Categorias com hierarquia. Subcategorias criadas automaticamente.</p>
           <div class="table-wrap" style="max-height:320px;overflow-y:auto"><table class="distinct-table"><thead><tr>
-            <th>Categoria (MoneyWiz)</th><th>Tipo</th><th>Transações</th><th>Status</th>
+            <th>Categoria</th><th>Tipo</th><th>Transações</th><th>Status</th>
           </tr></thead><tbody id="fmCategoriesBody"></tbody></table></div>
         </div>
         <div class="field-map-panel" id="fmpanel-payees">
-          <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Beneficiários únicos encontrados no arquivo.</p>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Beneficiários únicos encontrados.</p>
           <div class="table-wrap" style="max-height:300px;overflow-y:auto"><table class="distinct-table"><thead><tr>
-            <th>Beneficiário (MoneyWiz)</th><th>Transações</th><th>Status</th>
+            <th>Beneficiário</th><th>Transações</th><th>Status</th>
           </tr></thead><tbody id="fmPayeesBody"></tbody></table></div>
         </div>
         <div class="field-map-panel" id="fmpanel-transfers">
-          <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Contas de destino mencionadas em transferências — mapeie para contas existentes.</p>
+          <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Contas de destino em transferências.</p>
           <div class="table-wrap"><table class="distinct-table"><thead><tr>
-            <th>Conta Destino (MoneyWiz)</th><th>Transferências</th><th>Status</th><th>Mapear para →</th>
+            <th>Conta Destino</th><th>Transferências</th><th>Status</th><th>Mapear para →</th>
           </tr></thead><tbody id="fmTransfersBody"></tbody></table></div>
         </div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
-          <button class="btn btn-ghost" onclick="cancelImport()">✕ Cancelar</button>
-          <button class="btn btn-primary" onclick="proceedFromFieldMap()" id="proceedImportBtn">Continuar Importação →</button>
+          <button class="btn btn-ghost" onclick="goToStep(2)">← Voltar</button>
+          <button class="btn btn-primary" onclick="proceedFromFieldMap()" id="proceedImportBtn">Continuar →</button>
         </div>
       </div>
 
-      <!-- Transaction options bar -->
-      <div class="import-options-bar" id="importTxOptions" style="display:none">
-        <span style="font-size:.8rem;font-weight:600;color:var(--text2)">Modo:</span>
-        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:.8rem">
-          <input type="radio" name="importMode" value="new" checked> Apenas novas
-        </label>
-        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:.8rem">
-          <input type="radio" name="importMode" value="update"> Atualizar + novas
-        </label>
-        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:.8rem">
-          <input type="radio" name="importMode" value="all"> Todas (re-importar)
-        </label>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
-          <label style="font-size:.78rem;color:var(--muted)">Conta:</label>
-          <select id="importAccountFilter" style="font-size:.8rem;max-width:180px">
-            <option value="">Todas</option>
-          </select>
-        </div>
-      </div>
-
+      <!-- ══ STEP 3: Progress + Staging ══ -->
       <!-- Progress -->
       <div class="import-progress" id="importProgress" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center">
@@ -6206,124 +6381,500 @@ function loadSettings() {
 
 
 /* ══════════════════════════════════════════════════════════════════
-   IMPORT ENGINE — MoneyWiz XLSX + Backup/Restore + Clear DB
+   IMPORT ENGINE v2 — Column-Template Based Import
+   Supports: MoneyWiz, Nubank, Inter, Itaú, XP, Generic CSV/XLSX
 ══════════════════════════════════════════════════════════════════ */
+
+/* ─── State ─── */
 let importState = {
-  section: 'all', parsedData: null, fileLoaded: false,
+  section: 'all',
+  sourcePreset: 'moneywiz',
+  rawRows: [],        // all rows from file (array of arrays)
+  headers: [],        // detected header row
+  headerRowIdx: 0,    // which row index is the header
+  parsedData: null,   // { accounts, categories, payees, transactions, transferAccounts }
+  fileLoaded: false,
+  colMap: {},         // field → column index mapping  e.g. { date:2, amount:5, ... }
   staging: { accounts:[], categories:[], payees:[], transactions:[] },
-  activeTab: null,
 };
 
-/* ── Section selector ── */
+/* ─── Source presets: define expected column names per source ─── */
+const SOURCE_PRESETS = {
+  moneywiz: {
+    label: 'MoneyWiz',
+    // MoneyWiz has a complex multi-level structure — handled by dedicated parser
+    isMoneywiz: true,
+    fields: { account:'Conta', transfer_account:'Transferências', description:'Descrição',
+              payee:'Beneficiário', category:'Categoria', date:'Data', time:'Hora',
+              memo:'Memorando', amount:'Valor', currency:'Moeda', tags:'Tags',
+              balance:'Saldo' },
+  },
+  generic: {
+    label: 'CSV Genérico',
+    fields: { date:'Data', description:'Descrição', amount:'Valor', account:'Conta',
+              category:'Categoria', payee:'Beneficiário', memo:'Memo', currency:'Moeda' },
+  },
+  nubank: {
+    label: 'Nubank',
+    fields: { date:'date', description:'title', amount:'amount', account:null, category:'category' },
+    accountName: 'Nubank',
+    amountInvert: true,   // Nubank: positive = expense
+  },
+  inter: {
+    label: 'Banco Inter',
+    fields: { date:'Data Lançamento', description:'Histórico', amount:'Valor',
+              type_col:'Tipo Transação' },
+    accountName: 'Banco Inter',
+  },
+  itau: {
+    label: 'Itaú',
+    fields: { date:'Data', description:'Descrição', amount:'Valor' },
+    accountName: 'Itaú',
+    skipUntil: 'Data',
+  },
+  xp: {
+    label: 'XP / Rico',
+    fields: { date:'Data', description:'Descrição / Produto', amount:'Movimentação',
+              type_col:'Tipo' },
+    accountName: 'XP Investimentos',
+  },
+  ofx: {
+    label: 'Extrato Bancário',
+    fields: { date:'DTPOSTED', description:'MEMO', amount:'TRNAMT' },
+  },
+};
+
+/* ─── FinTrack fields that can be mapped ─── */
+const FINTRACK_FIELDS = [
+  { key:'date',             label:'Data',              required:true,  hint:'Ex: 01/01/2024' },
+  { key:'amount',           label:'Valor',             required:true,  hint:'Ex: -150,00 ou 1234.56' },
+  { key:'description',      label:'Descrição',         required:false, hint:'Título da transação' },
+  { key:'account',          label:'Conta',             required:false, hint:'Nome da conta bancária' },
+  { key:'category',         label:'Categoria',         required:false, hint:'Categoria / subcategoria' },
+  { key:'payee',            label:'Beneficiário',      required:false, hint:'Nome do recebedor/pagador' },
+  { key:'memo',             label:'Memo/Obs',          required:false, hint:'Observações adicionais' },
+  { key:'currency',         label:'Moeda',             required:false, hint:'BRL, USD...' },
+  { key:'transfer_account', label:'Transferência para',required:false, hint:'Conta de destino' },
+  { key:'amount_credit',    label:'Valor Crédito',     required:false, hint:'Coluna separada de crédito' },
+  { key:'amount_debit',     label:'Valor Débito',      required:false, hint:'Coluna separada de débito' },
+  { key:'type_col',         label:'Tipo (C/D)',        required:false, hint:'Coluna indicando débito/crédito' },
+  { key:'tags',             label:'Tags',              required:false, hint:'Etiquetas' },
+];
+
+/* ─── Wizard navigation ─── */
+function goToStep(n) {
+  const steps = [null, 'importStep1', 'colMapperScreen', 'importStagingArea'];
+  ['importStep1','colMapperScreen','fieldMapScreen','importProgress','importStagingArea'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.import-wizard-step').forEach((el,i) => {
+    el.classList.remove('active','done');
+    if (i+1 < n) el.classList.add('done');
+    else if (i+1 === n) el.classList.add('active');
+  });
+  if (n === 1) {
+    document.getElementById('importStep1').style.display = '';
+  } else if (n === 2) {
+    document.getElementById('colMapperScreen').style.display = '';
+  } else if (n === 3) {
+    document.getElementById('importProgress').style.display = '';
+    document.getElementById('importStagingArea').style.display = '';
+  }
+}
+
+/* ─── Section selector ─── */
 function selectImportSection(sec) {
   importState.section = sec;
   document.querySelectorAll('.import-section-card').forEach(el => el.classList.remove('active'));
   document.getElementById('isc-' + sec)?.classList.add('active');
-  document.getElementById('importTxOptions').style.display =
-    (sec === 'transactions' || sec === 'all') ? '' : 'none';
-  if (importState.fileLoaded) analyzeAndStage();
 }
 
+/* ─── Source preset selector ─── */
+function selectSourcePreset(preset) {
+  importState.sourcePreset = preset;
+  document.querySelectorAll('.source-chip').forEach(el => el.classList.remove('active'));
+  document.getElementById('chip-' + preset)?.classList.add('active');
+  // If file already loaded, re-render column mapper
+  if (importState.fileLoaded) buildColMapperUI();
+}
+
+/* ─── File drag & drop ─── */
 function importDragOver(e)  { e.preventDefault(); document.getElementById('importDropZone').classList.add('dragover'); }
 function importDragLeave()  { document.getElementById('importDropZone').classList.remove('dragover'); }
-function importDrop(e) {
-  e.preventDefault(); importDragLeave();
-  const f = e.dataTransfer.files[0]; if (f) loadImportFile(f);
-}
+function importDrop(e) { e.preventDefault(); importDragLeave(); const f = e.dataTransfer.files[0]; if (f) loadImportFile(f); }
 function importFileSelected(e) { const f = e.target.files[0]; if (f) loadImportFile(f); }
 
 function initImportPage() {
   const sel = document.getElementById('importAccountFilter');
-  if (sel) sel.innerHTML = '<option value="">Todas</option>' +
-    state.accounts.map(a => `<option value="${esc(a.name)}">${esc(a.name)}</option>`).join('');
+  if (sel) {
+    sel.innerHTML = '<option value="">— Detectar automaticamente —</option>' +
+      state.accounts.map(a => `<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
+  }
   ['accounts','categories','payees','transactions'].forEach(s =>
     document.getElementById('isc-' + s)?.classList.remove('disabled'));
 }
 
-/* ── Load file ── */
+/* ─── Load & parse raw file ─── */
 async function loadImportFile(file) {
   showImportProgress('Lendo arquivo...');
   importLogMsg('info', `📂 ${file.name} (${(file.size/1024).toFixed(0)} KB)`);
   try {
     let rows;
-    const isCsv = file.name.toLowerCase().endsWith('.csv') || file.type === 'text/csv';
+    const ext = file.name.toLowerCase();
+    const isCsv = ext.endsWith('.csv') || file.type === 'text/csv';
     if (isCsv) {
-      // Parse CSV (MoneyWiz exports as CSV with sep=, header)
       const text = await file.text();
       rows = parseCsvToRows(text);
       importLogMsg('ok', `✓ ${rows.length} linhas (CSV)`);
     } else {
-      // XLSX
       const buf = await file.arrayBuffer();
-      const wb  = XLSX.read(buf, { type:'array', raw:true });
+      const wb  = XLSX.read(buf, { type:'array', raw:false });
       const wsn = wb.SheetNames.includes('report') ? 'report' : wb.SheetNames[0];
       rows = XLSX.utils.sheet_to_json(wb.Sheets[wsn], { header:1, defval:null, raw:false });
       importLogMsg('ok', `✓ ${rows.length} linhas — aba "${wsn}"`);
     }
-    setImportProgress(15, 'Parseando...');
-    importState.parsedData = parseMoneyWizRows(rows);
+    importState.rawRows = rows;
     importState.fileLoaded = true;
-    const d = importState.parsedData;
-    importLogMsg('ok', `✓ ${d.accounts.length} contas · ${d.categories.size} cats · ${d.payees.size} beneficiários · ${d.transactions.length} transações`);
+
     document.getElementById('importDropTitle').textContent = '✓ ' + file.name;
-    document.getElementById('importDropSub').textContent =
-      `${d.accounts.length} contas · ${d.transactions.length} transações · ${d.categories.size} categorias`;
-    setImportProgress(100, '✓ Arquivo lido — revise a equivalência de campos abaixo');
-    // Show field mapping screen instead of going directly to staging
-    showFieldMapScreen(d);
+    document.getElementById('importDropSub').textContent = `${rows.length} linhas carregadas`;
+    document.getElementById('importProgress').style.display = 'none';
+
+    // Detect header row and go to Step 2
+    detectHeaderRow();
+    buildColMapperUI();
+    goToStep(2);
   } catch(err) {
     importLogMsg('err', '✗ ' + err.message); console.error(err);
   }
 }
 
-/* ── CSV Parser ── */
+/* ─── CSV Parser ─── */
 function parseCsvToRows(text) {
-  // Handle MoneyWiz CSV format: first line is "sep=," then header then data
   const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
   const rows = [];
   let startLine = 0;
-  // Skip "sep=X" line if present
   if (lines[0] && lines[0].startsWith('sep=')) startLine = 1;
   for (let i = startLine; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) { rows.push([]); continue; }
-    const row = parseCsvLine(line);
-    rows.push(row);
+    const line = lines[i];
+    if (!line.trim()) { rows.push([]); continue; }
+    rows.push(parseCsvLine(line));
   }
   return rows;
 }
 function parseCsvLine(line) {
-  const result = [];
-  let cur = '', inQuote = false;
+  const result = []; let cur = '', inQ = false;
   for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQuote && line[i+1] === '"') { cur += '"'; i++; }
-      else inQuote = !inQuote;
-    } else if (ch === ',' && !inQuote) {
-      result.push(cur || null); cur = '';
-    } else {
-      cur += ch;
-    }
+    const c = line[i];
+    if (c === '"') { if (inQ && line[i+1]==='"') { cur+='"'; i++; } else inQ=!inQ; }
+    else if (c === ',' && !inQ) { result.push(cur||null); cur=''; }
+    else cur += c;
   }
-  result.push(cur || null);
+  result.push(cur||null);
   return result;
 }
 
-/* ── Parser ── */
+/* ─── Detect header row ─── */
+function detectHeaderRow() {
+  const rows = importState.rawRows;
+  const preset = SOURCE_PRESETS[importState.sourcePreset] || SOURCE_PRESETS.generic;
+  // Try to find header by looking for a row that has many non-null string cells
+  let bestIdx = 0, bestScore = 0;
+  for (let i = 0; i < Math.min(rows.length, 10); i++) {
+    const r = rows[i];
+    if (!r || r.length < 2) continue;
+    const score = r.filter(c => c && typeof c === 'string' && c.length > 0 && c.length < 80 && !/^\d+[\.,]?\d*$/.test(c.trim())).length;
+    if (score > bestScore) { bestScore = score; bestIdx = i; }
+  }
+  importState.headerRowIdx = bestIdx;
+  importState.headers = (rows[bestIdx] || []).map(c => c ? String(c).trim() : '');
+}
+
+/* ─── Auto-match columns to fields based on preset hints ─── */
+function autoMatchColumns(headers, preset) {
+  const colMap = {};
+  const hLow = headers.map(h => h ? h.toLowerCase().replace(/\s+/g,' ').trim() : '');
+  const fields = preset.fields || {};
+
+  // Build reverse index: fintrack field → expected column name from preset
+  for (const [ftField, presetColName] of Object.entries(fields)) {
+    if (!presetColName) continue;
+    const target = presetColName.toLowerCase().replace(/\s+/g,' ').trim();
+    // Try exact match, then partial match
+    let idx = hLow.findIndex(h => h === target);
+    if (idx === -1) idx = hLow.findIndex(h => h.includes(target) || target.includes(h));
+    if (idx >= 0) colMap[ftField] = idx;
+  }
+
+  // Generic fallbacks if nothing matched
+  const tryMatch = (ftField, keywords) => {
+    if (colMap[ftField] !== undefined) return;
+    for (const kw of keywords) {
+      const idx = hLow.findIndex(h => h.includes(kw));
+      if (idx >= 0) { colMap[ftField] = idx; return; }
+    }
+  };
+  tryMatch('date',        ['data','date','dt ','dtpost','venciment']);
+  tryMatch('description', ['descri','histór','memo','título','title','narrat','name','product']);
+  tryMatch('amount',      ['valor','amount','vlr','montant','moviment','trnamt']);
+  tryMatch('account',     ['conta','account','banco']);
+  tryMatch('category',    ['categ','classif','grupo']);
+  tryMatch('payee',       ['benefi','payee','credor','devedor','favorec']);
+  tryMatch('memo',        ['obs','memo','complem','detalhe','note']);
+  tryMatch('currency',    ['moeda','currency','curr']);
+  tryMatch('transfer_account', ['transfer','transf','destino']);
+  tryMatch('amount_credit',    ['crédito','credit','entrada','recei','créd']);
+  tryMatch('amount_debit',     ['débito','debit','saída','déb']);
+  tryMatch('type_col',         ['tipo','type','naturez','d/c','dc']);
+  tryMatch('tags',             ['tag','etiqueta','label']);
+
+  return colMap;
+}
+
+/* ─── Build Column Mapper UI ─── */
+function buildColMapperUI() {
+  const preset = SOURCE_PRESETS[importState.sourcePreset] || SOURCE_PRESETS.generic;
+  const headers = importState.headers;
+  const rows = importState.rawRows;
+  const headerIdx = importState.headerRowIdx;
+
+  // Auto-match
+  importState.colMap = autoMatchColumns(headers, preset);
+
+  // Preview table (header + 5 data rows)
+  const previewRows = rows.slice(headerIdx, headerIdx + 6);
+  const colCount = Math.max(...previewRows.map(r => r ? r.length : 0));
+  document.getElementById('colPreviewInfo').textContent =
+    `(${rows.length} linhas, ${headers.length} colunas — linha ${headerIdx+1} é o cabeçalho)`;
+
+  let headHtml = '<tr>', bodyHtml = '';
+  for (let c = 0; c < colCount; c++) {
+    const h = headers[c] || `Col ${c+1}`;
+    const mapped = Object.values(importState.colMap).includes(c);
+    headHtml += `<th class="${mapped?'col-mapped':''}" id="previewTh-${c}">${esc(h)}</th>`;
+  }
+  headHtml += '</tr>';
+  previewRows.slice(1).forEach(r => {
+    if (!r || r.every(c => !c)) return;
+    bodyHtml += '<tr>';
+    for (let c = 0; c < colCount; c++) {
+      const v = r[c];
+      bodyHtml += `<td>${v !== null && v !== undefined ? esc(String(v).slice(0,60)) : '<span style="color:var(--muted)">—</span>'}</td>`;
+    }
+    bodyHtml += '</tr>';
+  });
+  document.getElementById('colPreviewHead').innerHTML = headHtml;
+  document.getElementById('colPreviewBody').innerHTML = bodyHtml;
+
+  // Column options for selects
+  const noneOpt = '<option value="">— Não usar —</option>';
+  const colOpts = headers.map((h,i) =>
+    `<option value="${i}">${esc(h || `Col ${i+1}`)}</option>`).join('');
+
+  // Render field selectors
+  const grid = document.getElementById('colMapperGrid');
+  grid.innerHTML = FINTRACK_FIELDS.map(f => {
+    const val = importState.colMap[f.key] !== undefined ? importState.colMap[f.key] : '';
+    const reqMark = f.required ? '<span>*</span>' : '';
+    return `<div class="col-mapper-row">
+      <div class="col-mapper-label">${f.label}${reqMark}<br>
+        <span style="font-size:.65rem;font-weight:400;color:var(--muted)">${f.hint}</span>
+      </div>
+      <select class="col-mapper-select" id="colsel-${f.key}"
+              onchange="onColSelChange('${f.key}',this.value)">
+        ${noneOpt}${colOpts.replace(`value="${val}"`, `value="${val}" selected`)}
+      </select>
+    </div>`;
+  }).join('');
+
+  // MoneyWiz info banner
+  if (preset.isMoneywiz) {
+    const existing = document.getElementById('mwInfoBanner');
+    if (!existing) {
+      const info = document.createElement('div');
+      info.id = 'mwInfoBanner';
+      info.style.cssText = 'background:var(--accent-lt);border:1px solid var(--accent);border-radius:var(--r-sm);padding:10px 14px;font-size:.8rem;color:var(--accent);margin-bottom:12px';
+      info.innerHTML = '💡 <strong>MoneyWiz detectado.</strong> O mapeamento está pré-configurado. Os campos foram detectados automaticamente — revise e ajuste se necessário.';
+      document.getElementById('colMapperGrid').before(info);
+    }
+  }
+
+  updatePreviewHighlights();
+}
+
+function onColSelChange(field, val) {
+  if (val === '') delete importState.colMap[field];
+  else importState.colMap[field] = parseInt(val);
+  updatePreviewHighlights();
+}
+
+function updatePreviewHighlights() {
+  const mappedCols = new Set(Object.values(importState.colMap));
+  document.querySelectorAll('[id^="previewTh-"]').forEach(th => {
+    const idx = parseInt(th.id.replace('previewTh-',''));
+    th.classList.toggle('col-mapped', mappedCols.has(idx));
+  });
+}
+
+/* ─── Proceed from Column Mapper → Entity Review ─── */
+async function proceedFromColMapper() {
+  const sec = importState.section;
+  const colMap = importState.colMap;
+
+  // Validate required fields for transaction imports
+  if (sec === 'all' || sec === 'transactions') {
+    if (colMap.date === undefined) { toast('Mapeie a coluna "Data" antes de continuar.','warning'); return; }
+    if (colMap.amount === undefined && colMap.amount_credit === undefined && colMap.amount_debit === undefined) {
+      toast('Mapeie pelo menos uma coluna de "Valor" antes de continuar.','warning'); return;
+    }
+  }
+
+  showImportProgress('Parseando transações...');
+  goToStep(3);
+  document.getElementById('importStagingArea').style.display = 'none';
+
+  try {
+    const preset = SOURCE_PRESETS[importState.sourcePreset] || SOURCE_PRESETS.generic;
+    let parsedData;
+
+    if (preset.isMoneywiz) {
+      // Use existing MoneyWiz structural parser
+      parsedData = parseMoneyWizRows(importState.rawRows);
+    } else {
+      // Generic column-based parser
+      parsedData = parseGenericRows(importState.rawRows, importState.headerRowIdx, importState.colMap, preset);
+    }
+
+    importState.parsedData = parsedData;
+    importLogMsg('ok', `✓ ${parsedData.accounts.length} contas · ${parsedData.categories.size} cats · ${parsedData.payees.size} beneficiários · ${parsedData.transactions.length} transações`);
+    setImportProgress(50, 'Preparando revisão de entidades...');
+
+    // Show entity review screen (step 2b) before staging
+    showFieldMapScreen(parsedData);
+    // Hide progress bar temporarily
+    document.getElementById('importProgress').style.display = 'none';
+    // Show fieldmap screen
+    const fms = document.getElementById('fieldMapScreen');
+    if (fms) fms.style.display = '';
+    document.getElementById('importStagingArea').style.display = 'none';
+    // Update wizard step indicators but keep UI visible
+    document.querySelectorAll('.import-wizard-step').forEach((el,i) => {
+      el.classList.remove('active','done');
+      if (i < 1) el.classList.add('done');
+      else if (i === 1) el.classList.add('active');
+    });
+
+  } catch(err) {
+    importLogMsg('err', '✗ ' + err.message); console.error(err);
+  }
+}
+
+/* ─── Generic row parser ─── */
+function parseGenericRows(rows, headerIdx, colMap, preset) {
+  const accounts = [], categories = new Set(), payees = new Set(), transactions = [];
+  const transferAccounts = new Set();
+  const accSet = new Set();
+
+  const get = (row, field) => {
+    const idx = colMap[field];
+    if (idx === undefined || idx === null) return null;
+    const v = row[idx];
+    return v !== null && v !== undefined ? String(v).trim().replace(/\xa0/g,' ') : null;
+  };
+
+  const overrideAccName = preset.accountName || null;
+  // For the fixed-account filter
+  const filterAccId = document.getElementById('importAccountFilter')?.value || '';
+  let filterAccName = null;
+  if (filterAccId) {
+    const fa = state.accounts.find(a => a.id === filterAccId);
+    if (fa) filterAccName = fa.name;
+  }
+
+  for (let i = headerIdx + 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || row.every(c => !c)) continue;
+
+    const rawDate = get(row, 'date');
+    if (!rawDate) continue;
+    const date = parseMWDate(rawDate);
+    if (!date) continue;
+
+    // Amount resolution: handle credit/debit columns or single amount column
+    let amount = 0;
+    if (colMap.amount !== undefined) {
+      amount = parseMWAmt(get(row, 'amount') || '0');
+    }
+    if (colMap.amount_credit !== undefined || colMap.amount_debit !== undefined) {
+      const cred = parseMWAmt(get(row, 'amount_credit') || '0');
+      const deb  = parseMWAmt(get(row, 'amount_debit')  || '0');
+      if (cred || deb) amount = Math.abs(cred) - Math.abs(deb);
+    }
+    // Handle type column (C/D or Crédito/Débito)
+    if (colMap.type_col !== undefined) {
+      const typeVal = (get(row, 'type_col') || '').toLowerCase();
+      const isDebit = /déb|deb|saíd|paid|out|d$/.test(typeVal);
+      const isCredit = /créd|cred|entra|rec|in$|c$/.test(typeVal);
+      if (isDebit && amount > 0) amount = -amount;
+      if (isCredit && amount < 0) amount = -amount;
+    }
+    // Source-level invert (e.g. Nubank)
+    if (preset.amountInvert) amount = -amount;
+
+    // Apply fixed account filter if set
+    const accRaw = get(row, 'account') || overrideAccName || 'Importação';
+    if (filterAccName && accRaw !== filterAccName) continue;
+
+    // Build account entry
+    if (!accSet.has(accRaw.toLowerCase())) {
+      accSet.add(accRaw.toLowerCase());
+      accounts.push({ name: accRaw, balance: 0, currency: 'BRL', transactions: [] });
+    }
+    const acc = accounts.find(a => a.name.toLowerCase() === accRaw.toLowerCase());
+
+    const cat      = get(row, 'category');
+    const payeeName = get(row, 'payee') || get(row, 'description') || null;
+    const desc     = get(row, 'description') || get(row, 'memo') || '';
+    const currency = get(row, 'currency') || acc?.currency || 'BRL';
+    const xfer     = get(row, 'transfer_account');
+    const tags     = get(row, 'tags');
+    const memo     = get(row, 'memo');
+
+    if (cat) categories.add(cat);
+    if (payeeName) payees.add(payeeName);
+    if (xfer) transferAccounts.add(xfer);
+
+    const tx = {
+      account_name:     accRaw,
+      transfer_account: xfer || null,
+      description:      desc,
+      payee_name:       payeeName,
+      category_path:    cat || null,
+      date,
+      time:             '12:00',
+      memo:             memo || null,
+      amount,
+      currency,
+      tags:             tags || null,
+      is_transfer:      !!xfer,
+      moneywiz_key:     `${accRaw}|${date}|${amount.toFixed(2)}|${desc}`,
+    };
+    transactions.push(tx);
+    if (acc) acc.transactions.push(tx);
+  }
+
+  // Compute running balance per account
+  accounts.forEach(a => { a.balance = a.transactions.reduce((s,t) => s + (t.amount||0), 0); });
+
+  return { accounts, categories, payees, transactions, transferAccounts };
+}
+
+/* ─── MoneyWiz structural parser (unchanged, proven working) ─── */
 function parseMoneyWizRows(rows) {
-  // MoneyWiz CSV structure:
-  //   Row 0: sep=,  (or header if xlsx)
-  //   Row N: header row (Nome, Saldo atual, Conta, Transferências, ...)
-  //   Account row: col[0]=AccountName, col[1]=balance, col[2]=CurrencyCode (e.g. BRL), rest blank
-  //   Txn row: col[0]='', col[2]=AccountName, col[3]=TransferTo, col[4]=Desc,
-  //            col[5]=Payee, col[6]=Category, col[7]=Date, col[8]=Time,
-  //            col[9]=Memo, col[10]=Amount, col[11]=Currency, col[13]=Tags, col[14]=Balance
-
   const accounts=[], categories=new Set(), payees=new Set(), transactions=[];
-  const transferAccounts=new Set(); // accounts mentioned only in Transferências column
+  const transferAccounts=new Set();
 
-  // Find header row
   let headerIdx = -1;
   for (let i = 0; i < Math.min(rows.length, 5); i++) {
     const r = rows[i];
@@ -6331,95 +6882,56 @@ function parseMoneyWizRows(rows) {
     if (r && r[1] && r[1]==='Saldo atual') { headerIdx = i; break; }
   }
   const startIdx = headerIdx >= 0 ? headerIdx + 1 : 2;
-
-  // Helper: clean non-breaking spaces and trim
   const clean = s => s ? String(s).replace(/\xa0/g,' ').replace(/\u00a0/g,' ').trim() : '';
   const isCurrency = s => /^[A-Z]{2,4}$/.test(s);
-
-  let currentAccount = null; // track current account context
+  let currentAccount = null;
 
   for (let i = startIdx; i < rows.length; i++) {
     const r = rows[i];
     if (!r || r.length < 3) continue;
+    const c0 = clean(r[0]), c2 = clean(r[2]), c7 = clean(r[7]);
 
-    const c0 = clean(r[0]);
-    const c2 = clean(r[2]);
-    const c7 = clean(r[7]); // Date column
-
-    // ── Account header row ──
-    // Pattern: col0 has account name, col2 has currency code (BRL/USD/EUR), no date
     if (c0 && !c7 && (isCurrency(c2) || (!c2 && !clean(r[3])))) {
       const currency = isCurrency(c2) ? c2 : 'BRL';
-      const balStr = clean(r[1]) || '0';
-      currentAccount = {
-        name: c0,
-        balance: parseMWAmt(balStr),
-        currency,
-        transactions: []
-      };
+      currentAccount = { name:c0, balance:parseMWAmt(clean(r[1])||'0'), currency, transactions:[] };
       accounts.push(currentAccount);
-    }
-    // ── Transaction row ──
-    // Pattern: col0 empty, col2 has account name, col7 has date with digits
-    else if (!c0 && c2 && c7 && /\d/.test(c7)) {
+    } else if (!c0 && c2 && c7 && /\d/.test(c7)) {
       const accName = c2;
-      // Find account in our list; if not found use currentAccount
       let acc = accounts.find(a => a.name === accName) || currentAccount;
       if (!acc) continue;
-
-      const cat  = clean(r[6]);
-      const pay  = clean(r[5]);
-      const desc = clean(r[4]);
-      const dt   = parseMWDate(c7);
-      const tm   = clean(r[8]) || '12:00';
+      const cat  = clean(r[6]), pay = clean(r[5]), desc = clean(r[4]);
+      const dt   = parseMWDate(c7), tm = clean(r[8]) || '12:00';
       const amt  = parseMWAmt(clean(r[10]));
       const xfer = clean(r[3]);
       const curr = clean(r[11]) || acc.currency || 'BRL';
       const tags = clean(r[13]);
-
       if (cat) categories.add(cat);
       if (pay) payees.add(pay);
       if (xfer) transferAccounts.add(xfer);
-
       const tx = {
-        account_name:    accName,
-        transfer_account: xfer || null,
-        description:     desc,
-        payee_name:      pay || null,
-        category_path:   cat || null,
-        date:            dt,
-        time:            tm,
-        memo:            clean(r[9]) || null,
-        amount:          amt,
-        currency:        curr,
-        tags:            tags || null,
-        running_balance: parseMWAmt(clean(r[14])),
-        is_transfer:     !!xfer,
+        account_name:    accName, transfer_account:xfer||null, description:desc,
+        payee_name:      pay||null, category_path:cat||null, date:dt, time:tm,
+        memo:            clean(r[9])||null, amount:amt, currency:curr, tags:tags||null,
+        running_balance: parseMWAmt(clean(r[14])), is_transfer:!!xfer,
         moneywiz_key:    `${accName}|${dt}|${amt.toFixed(2)}|${desc}`,
       };
       transactions.push(tx);
       acc.transactions.push(tx);
-      currentAccount = acc; // update context
+      currentAccount = acc;
     }
   }
-
   return { accounts, categories, payees, transactions, transferAccounts };
 }
+
+/* ─── Amount & date parsers ─── */
 function parseMWAmt(s) {
   if (!s) return 0;
   const str = String(s).replace(/\xa0/g,' ').trim();
-  // Detect negative: leading minus, trailing minus, or parentheses (accounting format)
   const isNeg = str.startsWith('-') || str.endsWith('-') || (str.startsWith('(') && str.endsWith(')'));
-  // Remove currency symbols, spaces, parentheses, thousands separators (dot in pt-BR)
-  // Then replace comma decimal separator with dot
   let clean = str.replace(/[()R$€£¥\s]/g,'').replace(/-/g,'');
-  // pt-BR: dots are thousands sep, comma is decimal → "1.234,56" → "1234.56"
-  // en-US / ISO: commas are thousands sep, dot is decimal → "1,234.56" → "1234.56"
   if (/,\d{2}$/.test(clean)) {
-    // Has comma before 2 digits at end → comma is decimal separator (pt-BR style)
     clean = clean.replace(/\./g,'').replace(',','.');
   } else {
-    // Dot is decimal or no decimal at all → just remove commas
     clean = clean.replace(/,/g,'');
   }
   const v = parseFloat(clean);
@@ -6429,34 +6941,20 @@ function parseMWAmt(s) {
 function parseMWDate(s) {
   if (!s) return null;
   const str = String(s).trim();
-  // Already ISO format YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0,10);
-  // DD/MM/YYYY (MoneyWiz pt-BR export)
   let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (m) {
     const [,d,mo,y] = m;
-    // Disambiguate: if first number > 12 it must be day (DD/MM/YYYY)
-    if (parseInt(d) > 12) return `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
-    // Default: assume DD/MM/YYYY (MoneyWiz pt-BR)
+    if (parseInt(d)>12) return `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
     return `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
   }
-  // MM/DD/YYYY (US format)
-  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-  if (m) {
-    const [,mo,d,y] = m;
-    const fullY = y.length === 2 ? '20'+y : y;
-    return `${fullY}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
-  }
-  // DD.MM.YYYY (European dot format)
   m = str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-  if (m) {
-    const [,d,mo,y] = m;
-    return `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
-  }
-  // Excel serial number (days since 1899-12-30)
+  if (m) { const[,d,mo,y]=m; return `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`; }
+  m = str.match(/^(\d{4})(\d{2})(\d{2})/); // YYYYMMDD (OFX)
+  if (m) { const[,y,mo,d]=m; return `${y}-${mo}-${d}`; }
   if (/^\d{4,6}$/.test(str)) {
     const serial = parseInt(str);
-    if (serial > 40000 && serial < 60000) { // sanity check: years ~2009-2064
+    if (serial > 40000 && serial < 60000) {
       const d = new Date((serial - 25569) * 86400 * 1000);
       return d.toISOString().slice(0,10);
     }
@@ -6465,8 +6963,8 @@ function parseMWDate(s) {
 }
 function inferAccType(name) {
   const n = name.toLowerCase();
-  if (/mastercard|visa |click|azul|pão|porto seguro/.test(n)) return 'cartao_credito';
-  if (/investimento|brasilprev|fgts|livret|financiere/.test(n)) return 'investimento';
+  if (/mastercard|visa |click|azul|pão|porto seguro|nubank credit/.test(n)) return 'cartao_credito';
+  if (/investimento|brasilprev|fgts|livret|financiere|xp|rico/.test(n)) return 'investimento';
   if (/dinheiro|espécie|cash/.test(n)) return 'dinheiro';
   if (/empréstimo|caução/.test(n)) return 'outros';
   return 'corrente';
@@ -6476,20 +6974,14 @@ function inferCatType(path) {
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   FIELD MAPPING — Tela de Equivalência
+   FIELD MAPPING — Entity Review Screen
 ══════════════════════════════════════════════════════════════════ */
-const fieldMap = { accounts:{}, transfers:{} }; // maps moneywiz name → fintrack id or 'new'
+const fieldMap = { accounts:{}, transfers:{} };
 
 function showFieldMapScreen(parsedData) {
   const d = parsedData;
-  const fms = document.getElementById('fieldMapScreen');
-  if (!fms) { analyzeAndStage(); return; }
-  fms.style.display = '';
-
-  // Reset field map state
   fieldMap.accounts = {}; fieldMap.transfers = {};
 
-  // Count transactions per entity
   const accTxCount={}, catTxCount={}, payTxCount={}, xferTxCount={};
   d.transactions.forEach(tx => {
     if(tx.account_name)     accTxCount[tx.account_name]      = (accTxCount[tx.account_name]||0)+1;
@@ -6498,20 +6990,19 @@ function showFieldMapScreen(parsedData) {
     if(tx.transfer_account) xferTxCount[tx.transfer_account] = (xferTxCount[tx.transfer_account]||0)+1;
   });
 
-  // Lookup maps for existing data
   const exAcc={}, exCat={}, exPay={};
   state.accounts.forEach(a => exAcc[a.name.toLowerCase()] = a);
   state.categories.forEach(c => exCat[c.name.toLowerCase()] = c);
   state.payees.forEach(p => exPay[p.name.toLowerCase()] = p);
 
-  const mkBadge = (exists, newLabel='Novo', exLabel='Existente') => exists
-    ? `<span class="map-badge-exists">${exLabel}</span>`
-    : `<span class="map-badge-new">${newLabel}</span>`;
+  const mkBadge = exists => exists
+    ? `<span class="map-badge-exists">Existente</span>`
+    : `<span class="map-badge-new">Novo</span>`;
 
   const accOptsList = '<option value="">— Criar automaticamente —</option>' +
     state.accounts.map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join('');
 
-  // ── TAB: CONTAS ──
+  // Accounts tab
   let newAccN=0, accHtml='';
   d.accounts.forEach(a => {
     const ex = exAcc[a.name.toLowerCase()];
@@ -6529,21 +7020,18 @@ function showFieldMapScreen(parsedData) {
       }</td></tr>`;
   });
   document.getElementById('fmAccountsBody').innerHTML = accHtml ||
-    '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Nenhuma conta encontrada no arquivo</td></tr>';
+    '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Nenhuma conta encontrada</td></tr>';
   document.getElementById('fmTabAccBadge').textContent = `(${d.accounts.length}, ${newAccN} nov.)`;
 
-  // ── TAB: CATEGORIAS ──
+  // Categories tab
   let newCatN=0, catHtml='';
-  const catsSorted = [...d.categories].sort();
-  catsSorted.forEach(path => {
+  [...d.categories].sort().forEach(path => {
     const parts = path.split('►').map(p=>p.trim());
     const leaf = parts[parts.length-1];
     const ex = exCat[leaf.toLowerCase()];
     const type = inferCatType(path);
     if(!ex) newCatN++;
-    const hierarchy = parts.length > 1
-      ? `<span style="color:var(--muted);font-size:.7rem">${parts.slice(0,-1).join(' › ')} › </span>`
-      : '';
+    const hierarchy = parts.length>1 ? `<span style="color:var(--muted);font-size:.7rem">${parts.slice(0,-1).join(' › ')} › </span>` : '';
     catHtml += `<tr>
       <td>${'&nbsp;'.repeat((parts.length-1)*3)}${hierarchy}<strong>${esc(leaf)}</strong></td>
       <td><span class="badge ${type==='receita'?'badge-green':'badge-red'}" style="font-size:.65rem">${type}</span></td>
@@ -6551,10 +7039,10 @@ function showFieldMapScreen(parsedData) {
       <td>${mkBadge(ex)}</td></tr>`;
   });
   document.getElementById('fmCategoriesBody').innerHTML = catHtml ||
-    '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Nenhuma categoria encontrada</td></tr>';
+    '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Nenhuma categoria</td></tr>';
   document.getElementById('fmTabCatBadge').textContent = `(${d.categories.size}, ${newCatN} nov.)`;
 
-  // ── TAB: BENEFICIÁRIOS ──
+  // Payees tab
   let newPayN=0, payHtml='';
   [...d.payees].sort().forEach(name => {
     const ex = exPay[name.toLowerCase()];
@@ -6568,7 +7056,7 @@ function showFieldMapScreen(parsedData) {
     '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:20px">Nenhum beneficiário</td></tr>';
   document.getElementById('fmTabPayBadge').textContent = `(${d.payees.size}, ${newPayN} nov.)`;
 
-  // ── TAB: TRANSFERÊNCIAS ──
+  // Transfers tab
   const xferSet = d.transferAccounts || new Set(d.transactions.filter(t=>t.transfer_account).map(t=>t.transfer_account));
   let newXferN=0, xferHtml='';
   [...xferSet].sort().forEach(xname => {
@@ -6576,28 +7064,24 @@ function showFieldMapScreen(parsedData) {
     const exInApp  = exAcc[xname.toLowerCase()];
     const ex = exInApp || exInFile;
     if(!ex) newXferN++;
-    const badge = ex
-      ? `<span class="map-badge-exists">Mapeada</span>`
-      : `<span class="map-badge-new">Não existe</span>`;
     xferHtml += `<tr>
       <td><strong>${esc(xname)}</strong></td>
       <td style="text-align:center">${xferTxCount[xname]||0}</td>
-      <td>${badge}</td>
+      <td>${ex ? `<span class="map-badge-exists">Mapeada</span>` : `<span class="map-badge-new">Não existe</span>`}</td>
       <td><select class="map-select" onchange="setFieldMap('transfer','${esc(xname)}',this.value)">
-        <option value="">— Ignorar transferências —</option>
+        <option value="">— Ignorar —</option>
         ${state.accounts.map(a=>`<option value="${a.id}"${exInApp&&exInApp.id===a.id?' selected':''}>${esc(a.name)}</option>`).join('')}
       </select></td></tr>`;
   });
   document.getElementById('fmTransfersBody').innerHTML = xferHtml ||
-    '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Nenhuma transferência entre contas</td></tr>';
+    '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Nenhuma transferência</td></tr>';
   document.getElementById('fmTabXferBadge').textContent = `(${xferSet.size}, ${newXferN} sem conta)`;
 
-  // Show summary warning if new items
   const totalNew = newAccN + newCatN + newPayN;
   const btn = document.getElementById('proceedImportBtn');
   if(btn) btn.textContent = totalNew > 0
-    ? `Continuar → (${totalNew} itens novos serão criados)`
-    : 'Continuar Importação →';
+    ? `Importar → (${totalNew} itens novos serão criados)`
+    : 'Importar →';
 }
 
 function showFieldMapTab(tab) {
@@ -6609,26 +7093,23 @@ function showFieldMapTab(tab) {
     p.classList.toggle('active', p.id === 'fmpanel-' + tab);
   });
 }
-
 function setFieldMap(type, mwName, fintrackId) {
   if (type === 'account')  fieldMap.accounts[mwName]  = fintrackId || 'new';
   if (type === 'transfer') fieldMap.transfers[mwName] = fintrackId || 'new';
 }
 
-function proceedFromFieldMap() {
-  // Hide field map, show import options, proceed to staging
-  const fms = document.getElementById('fieldMapScreen');
-  if(fms) fms.style.display = 'none';
-  const txOpts = document.getElementById('importTxOptions');
-  if(txOpts) txOpts.style.display = '';
-  analyzeAndStage();
+async function proceedFromFieldMap() {
+  document.getElementById('fieldMapScreen').style.display = 'none';
+  showImportProgress('Analisando...');
+  goToStep(3);
+  await analyzeAndStage();
 }
 
-/* ── Analyze & Stage ── */
+/* ─── Analyze & Stage ─── */
 async function analyzeAndStage() {
   const sec = importState.section, d = importState.parsedData;
   if (!d) return;
-  setImportProgress(40, 'Verificando existentes...');
+  setImportProgress(30, 'Verificando existentes...');
   showStagingArea(false);
   const s = { accounts:[], categories:[], payees:[], transactions:[] };
   importState.staging = s;
@@ -6641,7 +7122,7 @@ async function analyzeAndStage() {
     importLogMsg('info', `Contas: ${s.accounts.filter(x=>x.action==='insert').length} novas`);
   }
   if (sec === 'all' || sec === 'categories') {
-    setImportProgress(50, 'Categorias...');
+    setImportProgress(45, 'Categorias...');
     const ex = new Set(state.categories.map(c => c.name.toLowerCase()));
     const seen = new Set();
     for (const path of d.categories) {
@@ -6660,13 +7141,13 @@ async function analyzeAndStage() {
     setImportProgress(55, 'Beneficiários...');
     const ex = new Set(state.payees.map(p => p.name.toLowerCase()));
     for (const raw of d.payees) {
-      const name = raw.replace(/\xa0/g,' ').trim(); if (!name) continue;
+      const name = String(raw).replace(/\xa0/g,' ').trim(); if (!name) continue;
       s.payees.push({ name, action: ex.has(name.toLowerCase()) ? 'skip' : 'insert' });
     }
     importLogMsg('info', `Beneficiários: ${s.payees.filter(x=>x.action==='insert').length} novos`);
   }
   if (sec === 'all' || sec === 'transactions') {
-    setImportProgress(60, 'Transações...');
+    setImportProgress(65, 'Transações...');
     await stageTransactions(d.transactions, s.transactions);
   }
   setImportProgress(90, 'Montando visualização...');
@@ -6677,27 +7158,25 @@ async function analyzeAndStage() {
 
 async function stageTransactions(allTx, out) {
   const mode = document.querySelector('input[name="importMode"]:checked')?.value || 'new';
-  const accFilter = document.getElementById('importAccountFilter')?.value || '';
-  const cutoffs = {};
+  let exKeys = new Set(), cutoffs = {};
+
   if (mode === 'new') {
     for (const acc of state.accounts) {
       const { data } = await sb.from('transactions').select('date')
         .eq('account_id', acc.id).order('date',{ascending:false}).limit(1);
       if (data?.length) cutoffs[acc.name.toLowerCase()] = data[0].date;
     }
-  }
-  let exKeys = new Set();
-  if (mode === 'update') {
+  } else if (mode === 'update') {
     const { data } = await sb.from('transactions').select('moneywiz_key').not('moneywiz_key','is',null);
     (data||[]).forEach(r => exKeys.add(r.moneywiz_key));
   }
+
   for (const tx of allTx) {
-    if (accFilter && tx.account_name !== accFilter) continue;
     if (!tx.date) continue;
     let action = 'insert', reason = null;
     if (mode === 'new') {
-      const co = cutoffs[tx.account_name.toLowerCase()];
-      if (co && tx.date < co) { action = 'skip'; reason = `Antes de ${co}`; }
+      const co = cutoffs[tx.account_name?.toLowerCase()];
+      if (co && tx.date <= co) { action = 'skip'; reason = `Já existe após ${co}`; }
     } else if (mode === 'update') {
       if (exKeys.has(tx.moneywiz_key)) action = 'update';
     }
@@ -6709,7 +7188,7 @@ async function stageTransactions(allTx, out) {
   importLogMsg('info', `Transações: ${ins} novas · ${upd} att · ${skp} ignoradas`);
 }
 
-/* ── Staging UI ── */
+/* ─── Staging UI ─── */
 function renderStaging(s) {
   const tabC = document.getElementById('stagingTabs');
   const tabs = [];
@@ -6719,7 +7198,7 @@ function renderStaging(s) {
   if (s.transactions.length) tabs.push({id:'transactions', label:`💳 Trans. (${s.transactions.filter(x=>x.action!=='skip').length})`});
   if (!tabs.length) {
     document.getElementById('stagingContent').innerHTML =
-      '<div style="text-align:center;padding:40px;color:var(--muted)">Nenhum dado novo.</div>';
+      '<div style="text-align:center;padding:40px;color:var(--muted)">Nenhum dado novo para importar.</div>';
     tabC.innerHTML = ''; return;
   }
   tabC.innerHTML = tabs.map(t =>
@@ -6732,12 +7211,13 @@ function renderStaging(s) {
     `${totIns} para criar · ${totUpd} para atualizar · ${totSkp} ignorados`;
   showStagingTab(tabs[0].id);
 }
+
 function showStagingTab(id) {
   document.querySelectorAll('.staging-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('stab-' + id)?.classList.add('active');
   const data = importState.staging[id] || [];
   const cont = document.getElementById('stagingContent');
-  const MAX = 300;
+  const MAX = 400;
   const bdg = a => `<span class="staging-action-badge badge-${a}">${a==='insert'?'Criar':a==='update'?'Atualizar':'Ignorar'}</span>`;
   let html = '<div class="table-wrap"><table><thead><tr>';
   if (id === 'accounts') {
@@ -6753,23 +7233,29 @@ function showStagingTab(id) {
     data.slice(0,MAX).forEach(p =>
       html += `<tr class="staging-row-${p.action}"><td>${bdg(p.action)}</td><td>${esc(p.name)}</td></tr>`);
   } else {
-    html += '<th>Ação</th><th>Data</th><th>Conta</th><th>Descrição</th><th>Categoria</th><th>Valor</th></tr></thead><tbody>';
+    html += '<th>Ação</th><th>Data</th><th>Conta</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Razão</th></tr></thead><tbody>';
     data.slice(0,MAX).forEach(t =>
-      html += `<tr class="staging-row-${t.action}"><td>${bdg(t.action)}</td><td style="white-space:nowrap;font-size:.78rem;color:var(--muted)">${t.date||''}</td><td style="font-size:.78rem">${esc(t.account_name||'')}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.description||'')}</td><td style="font-size:.7rem;color:var(--muted)">${esc(t.category_path||'')}</td><td class="${(t.amount||0)>=0?'amount-pos':'amount-neg'}" style="font-weight:600;white-space:nowrap">${fmt(t.amount||0,t.currency||'BRL')}</td></tr>`);
-    if (data.length > MAX) html += `<tr><td colspan="6" style="text-align:center;padding:10px;color:var(--muted);font-size:.78rem">… mais ${data.length-MAX} registros (${MAX} de ${data.length})</td></tr>`;
+      html += `<tr class="staging-row-${t.action}"><td>${bdg(t.action)}</td>
+        <td style="white-space:nowrap;font-size:.78rem;color:var(--muted)">${t.date||''}</td>
+        <td style="font-size:.78rem">${esc(t.account_name||'')}</td>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(t.description||'')}">${esc(t.description||'')}</td>
+        <td style="font-size:.7rem;color:var(--muted);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.category_path||'')}</td>
+        <td class="${(t.amount||0)>=0?'amount-pos':'amount-neg'}" style="font-weight:600;white-space:nowrap">${fmt(t.amount||0,t.currency||'BRL')}</td>
+        <td style="font-size:.7rem;color:var(--muted)">${t.conflict_reason||''}</td>
+      </tr>`);
+    if (data.length > MAX) html += `<tr><td colspan="7" style="text-align:center;padding:10px;color:var(--muted);font-size:.78rem">… mais ${data.length-MAX} registros (${MAX} de ${data.length})</td></tr>`;
   }
   html += '</tbody></table></div>';
   cont.innerHTML = html;
 }
 
-/* ── Commit ── */
+/* ─── Commit ─── */
 async function commitImport() {
   const btn = document.getElementById('commitImportBtn');
   btn.disabled = true; btn.textContent = '⏳ Importando...';
   try {
     const s = importState.staging, sec = importState.section;
 
-    // 1. Accounts
     if (sec === 'all' || sec === 'accounts') {
       setImportProgress(10, 'Criando contas...');
       for (const acc of s.accounts.filter(a => a.action === 'insert')) {
@@ -6784,7 +7270,6 @@ async function commitImport() {
       await loadAccounts(); populateSelects();
     }
 
-    // 2. Categories (parents first, then children)
     if (sec === 'all' || sec === 'categories') {
       setImportProgress(25, 'Criando categorias...');
       const toC = s.categories.filter(c => c.action === 'insert');
@@ -6810,7 +7295,6 @@ async function commitImport() {
       await loadCategories();
     }
 
-    // 3. Payees in batches
     if (sec === 'all' || sec === 'payees') {
       setImportProgress(40, 'Criando beneficiários...');
       const toC = s.payees.filter(p => p.action === 'insert');
@@ -6823,13 +7307,11 @@ async function commitImport() {
       await loadPayees();
     }
 
-    // 4. Transactions
     if (sec === 'all' || sec === 'transactions') {
       setImportProgress(55, 'Importando transações...');
       await commitTransactions(s.transactions);
     }
 
-    // 5. Sync balances from MoneyWiz
     if ((sec === 'all' || sec === 'accounts') && importState.parsedData) {
       setImportProgress(90, 'Sincronizando saldos...');
       for (const pa of importState.parsedData.accounts) {
@@ -6843,12 +7325,7 @@ async function commitImport() {
 
     setImportProgress(100, '✓ Importação concluída!');
     toast('Importação concluída!', 'success');
-    showStagingArea(false);
-    document.getElementById('importProgress').style.display = 'none';
-    importState.fileLoaded = false; importState.parsedData = null;
-    document.getElementById('importFileInput').value = '';
-    document.getElementById('importDropTitle').textContent = 'Arraste o arquivo MoneyWiz (.csv ou .xlsx) ou clique para selecionar';
-    document.getElementById('importDropSub').textContent = 'Arquivo exportado do MoneyWiz (CSV ou Excel)';
+    cancelImport();
   } catch(err) {
     importLogMsg('err', '✗ ' + err.message); toast('Erro: ' + err.message, 'error'); console.error(err);
   } finally {
@@ -6857,10 +7334,7 @@ async function commitImport() {
 }
 
 async function commitTransactions(txList) {
-  // Reload all entity maps so that accounts/categories/payees created in this
-  // same import run are available for lookup (fixes "account not found → null" bug)
   await Promise.all([loadAccounts(), loadCategories(), loadPayees()]);
-
   const accMap = {}, catMap = {}, payMap = {};
   state.accounts.forEach(a  => accMap[a.name.toLowerCase()] = a);
   state.categories.forEach(c => catMap[c.name.toLowerCase()] = c);
@@ -6886,76 +7360,78 @@ async function commitTransactions(txList) {
     const { error } = await sb.from('transactions').update(rec).eq('moneywiz_key', tx.moneywiz_key);
     if (error) errors++; else updated++;
   }
-  if (skipped > 0) importLogMsg('warn', `⚠️ ${skipped} transações ignoradas — conta não encontrada (verifique mapeamento)`);
+  if (skipped > 0) importLogMsg('warn', `⚠️ ${skipped} ignoradas — conta não encontrada`);
   importLogMsg('ok', `✓ ${created} criadas · ${updated} atualizadas · ${errors} erros`);
 }
+
 function buildTxRecord(tx, accMap, catMap, payMap) {
   const acc = accMap[tx.account_name?.toLowerCase()];
   if (!acc) {
-    console.warn('[import] account not found for tx:', tx.account_name, tx.description, tx.date);
+    console.warn('[import] account not found:', tx.account_name, tx.date);
     return null;
   }
-  // Category: try leaf of path (supports both ► and > as separators)
   let cat = null;
   if (tx.category_path) {
     const separators = ['►', '>', '/', '\\'];
     let leaf = tx.category_path;
     for (const sep of separators) {
-      if (tx.category_path.includes(sep)) {
-        leaf = tx.category_path.split(sep).pop().trim();
-        break;
-      }
+      if (tx.category_path.includes(sep)) { leaf = tx.category_path.split(sep).pop().trim(); break; }
     }
     cat = catMap[leaf.toLowerCase()] || catMap[tx.category_path.toLowerCase()] || null;
   }
   const pay = tx.payee_name ? payMap[tx.payee_name.toLowerCase()] : null;
   return {
-    account_id:   acc.id,
-    description:  tx.description || '',
-    amount:       tx.amount || 0,
-    date:         tx.date,
-    category_id:  cat?.id || null,
-    payee_id:     pay?.id || null,
-    memo:         tx.memo || null,
-    is_transfer:  tx.is_transfer || false,
-    tags:         tx.tags ? (Array.isArray(tx.tags) ? tx.tags : [tx.tags]) : null,
+    account_id:  acc.id,
+    description: tx.description || '',
+    amount:      tx.amount || 0,
+    date:        tx.date,
+    category_id: cat?.id || null,
+    payee_id:    pay?.id || null,
+    memo:        tx.memo || null,
+    is_transfer: tx.is_transfer || false,
+    tags:        tx.tags ? (Array.isArray(tx.tags) ? tx.tags : [tx.tags]) : null,
     moneywiz_key: tx.moneywiz_key || null,
-    currency:     tx.currency || acc.currency || 'BRL',
+    currency:    tx.currency || acc.currency || 'BRL',
   };
 }
 
 function cancelImport() {
-  importState.staging = { accounts:[], categories:[], payees:[], transactions:[] };
-  importState.parsedData = null; importState.fileLoaded = false;
+  importState = {
+    section: importState.section, sourcePreset: importState.sourcePreset,
+    rawRows:[], headers:[], headerRowIdx:0, parsedData:null, fileLoaded:false,
+    colMap:{}, staging:{ accounts:[], categories:[], payees:[], transactions:[] },
+  };
   document.getElementById('importFileInput').value = '';
-  document.getElementById('importDropTitle').textContent = 'Arraste o arquivo MoneyWiz (.csv ou .xlsx) ou clique para selecionar';
-  document.getElementById('importDropSub').textContent = 'Arquivo exportado do MoneyWiz (CSV ou Excel)';
-  showStagingArea(false);
+  document.getElementById('importDropTitle').textContent = 'Arraste o arquivo ou clique para selecionar';
+  document.getElementById('importDropSub').textContent = 'Suporta CSV, XLSX, XLS — qualquer formato';
   document.getElementById('importProgress').style.display = 'none';
+  document.getElementById('importProgress').querySelector('#importLog').innerHTML = '';
+  showStagingArea(false);
+  goToStep(1);
   toast('Importação cancelada', 'info');
 }
 
-/* ── Progress / Log helpers ── */
+/* ─── Progress / Log helpers ─── */
 function showImportProgress(msg) {
-  const el = document.getElementById('importProgress'); if (el) el.style.display = '';
-  if (msg) document.getElementById('importProgressTitle').textContent = msg;
+  const el = document.getElementById('importProgress'); if(el) el.style.display='';
+  if(msg) document.getElementById('importProgressTitle').textContent = msg;
 }
 function setImportProgress(pct, msg) {
   const bar = document.getElementById('importProgressBar');
   const pEl = document.getElementById('importProgressPct');
   const tEl = document.getElementById('importProgressTitle');
-  if (bar) bar.style.width = pct + '%';
-  if (pEl) pEl.textContent = pct + '%';
-  if (msg && tEl) tEl.textContent = msg;
+  if(bar) bar.style.width = pct+'%';
+  if(pEl) pEl.textContent = pct+'%';
+  if(msg && tEl) tEl.textContent = msg;
 }
 function importLogMsg(type, msg) {
-  const el = document.getElementById('importLog'); if (!el) return;
+  const el = document.getElementById('importLog'); if(!el) return;
   const line = document.createElement('div');
   line.className = 'log-' + type; line.textContent = msg;
   el.appendChild(line); el.scrollTop = el.scrollHeight;
 }
 function showStagingArea(show) {
-  const el = document.getElementById('importStagingArea'); if (el) el.style.display = show ? '' : 'none';
+  const el = document.getElementById('importStagingArea'); if(el) el.style.display = show?'':'none';
 }
 
 /* ══════════════════════════════════════════════════════════════════
