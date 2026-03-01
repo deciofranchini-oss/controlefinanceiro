@@ -850,6 +850,10 @@ input[type="color"]{padding:4px;height:38px;cursor:pointer;}
 @media(max-width:768px){
   .topbar-logo-mobile { display: block!important; }
 }
+
+/* ─── CHART LEGEND INTERACTION ─── */
+canvas { cursor: default; }
+.chartjs-render-monitor { cursor: default; }
 </style>
 </head>
 <body>
@@ -1779,30 +1783,38 @@ async function initSupabase(){
 function tryAutoConnect(){
   const url=localStorage.getItem('sb_url'),key=localStorage.getItem('sb_key');
   if(url&&key){
-    // Pre-connect Supabase client silently
     document.getElementById('supabaseUrl').value=url;
     document.getElementById('supabaseKey').value=key;
     sb=supabase.createClient(url,key);
+    // sb pronto — bootApp será chamado pelo unlockApp após PIN correto
   }
-  // Always show PIN screen first — bootApp called after unlock
   initPinScreen();
 }
 
 let state={accounts:[],categories:[],payees:[],transactions:[],budgets:[],txPage:0,txPageSize:50,txTotal:0,txSortField:'date',txSortAsc:false,txFilter:{search:'',month:'',account:'',type:''},txView:'flat',currentPage:'dashboard',chartInstances:{}};
 
 async function bootApp(){
-  // Set logo everywhere
+  // Logos
   ['sidebarLogoImg','settingsLogoImg','topbarLogoImg'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.src=LOGO_URL;
   });
-  await Promise.all([loadAccounts(),loadCategories(),loadPayees()]);
-  populateSelects();loadDashboard();
+  // Carregar dados base
+  try {
+    await Promise.all([loadAccounts(),loadCategories(),loadPayees()]);
+  } catch(e) {
+    toast('Erro ao carregar dados: '+e.message,'error');
+    return;
+  }
+  populateSelects();
+  // Datas padrão
   const ym=new Date().toISOString().slice(0,7);
-  document.getElementById('txMonth').value=ym;
-  document.getElementById('reportMonth').value=ym;
-  document.getElementById('budgetMonth').value=ym;
-  document.getElementById('budgetMonthInput').value=ym;
+  const txMonthEl=document.getElementById('txMonth');if(txMonthEl)txMonthEl.value=ym;
+  const repEl=document.getElementById('reportMonth');if(repEl)repEl.value=ym;
+  const budEl=document.getElementById('budgetMonth');if(budEl)budEl.value=ym;
+  const budInEl=document.getElementById('budgetMonthInput');if(budInEl)budInEl.value=ym;
   state.txFilter.month=ym;
+  // Navegar para dashboard
+  navigate('dashboard');
 }
 
 const pageTitles={dashboard:'Dashboard',transactions:'Transações',accounts:'Contas',reports:'Relatórios',budgets:'Orçamentos',categories:'Categorias',payees:'Beneficiários',scheduled:'Programados',settings:'Configurações'};
@@ -2386,34 +2398,200 @@ async function loadDashboard(){
   await Promise.all([renderCashflowChart(),renderCategoryChart()]);
 }
 async function renderCashflowChart(){
-  const months=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);months.push({y:d.getFullYear(),m:String(d.getMonth()+1).padStart(2,'0')});}
-  const labels=months.map(({y,m})=>`${m}/${y}`),incomes=[],expenses=[];
-  for(const{y,m}of months){const{data}=await sb.from('transactions').select('amount,is_transfer').gte('date',`${y}-${m}-01`).lte('date',`${y}-${m}-31`);let inc=0,exp=0;(data||[]).filter(t=>!t.is_transfer).forEach(t=>{if(t.amount>0)inc+=t.amount;else exp+=Math.abs(t.amount);});incomes.push(inc);expenses.push(exp);}
-  renderChart('cashflowChart','bar',labels,[{label:'Receitas',data:incomes,backgroundColor:'rgba(42,122,74,.75)',borderRadius:5,borderSkipped:false},{label:'Despesas',data:expenses,backgroundColor:'rgba(192,57,43,.65)',borderRadius:5,borderSkipped:false}]);
+  const months=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date();d.setMonth(d.getMonth()-i);
+    months.push({y:d.getFullYear(),m:String(d.getMonth()+1).padStart(2,'0')});
+  }
+  const MONTH_NAMES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const labels=months.map(({y,m})=>{
+    const d=new Date(+y,+m-1,1);
+    return MONTH_NAMES[d.getMonth()]+'/'+String(y).slice(2);
+  });
+  const incomes=[],expenses=[],balances=[];
+  for(const{y,m}of months){
+    const{data}=await sb.from('transactions').select('amount,is_transfer').gte('date',`${y}-${m}-01`).lte('date',`${y}-${m}-31`);
+    let inc=0,exp=0;
+    (data||[]).filter(t=>!t.is_transfer).forEach(t=>{if(t.amount>0)inc+=t.amount;else exp+=Math.abs(t.amount);});
+    incomes.push(+inc.toFixed(2));
+    expenses.push(+exp.toFixed(2));
+    balances.push(+(inc-exp).toFixed(2));
+  }
+  renderChart('cashflowChart','bar',labels,[
+    {label:'Receitas',data:incomes,backgroundColor:'rgba(42,122,74,.8)',borderRadius:6,borderSkipped:false,order:2},
+    {label:'Despesas',data:expenses,backgroundColor:'rgba(192,57,43,.75)',borderRadius:6,borderSkipped:false,order:2},
+    {label:'Saldo',data:balances,type:'line',borderColor:'#1e5ba8',backgroundColor:'rgba(30,91,168,.12)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#1e5ba8',fill:true,tension:0.35,order:1},
+  ]);
 }
 async function renderCategoryChart(){
   const now=new Date(),y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0');
   const{data}=await sb.from('transactions').select('amount,categories(name,color)').gte('date',`${y}-${m}-01`).lte('date',`${y}-${m}-31`).lt('amount',0).not('category_id','is',null);
-  const catMap={};(data||[]).forEach(t=>{const n=t.categories?.name||'Outros';catMap[n]=(catMap[n]||0)+Math.abs(t.amount);});
-  const entries=Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,7);
-  renderChart('categoryChart','doughnut',entries.map(e=>e[0]),[{data:entries.map(e=>e[1]),backgroundColor:['#2a6049','#3d7a5e','#4e8f73','#1e5ba8','#b45309','#c0392b','#7c3aed'],borderWidth:2,borderColor:'#fff'}]);
+  const catMap={};
+  (data||[]).forEach(t=>{
+    const n=t.categories?.name||'Outros';
+    const c=t.categories?.color||'#94a3b8';
+    if(!catMap[n]) catMap[n]={total:0,color:c};
+    catMap[n].total+=Math.abs(t.amount);
+  });
+  const FALLBACK_COLORS=['#2a6049','#1e5ba8','#b45309','#c0392b','#7c3aed','#2a7a4a','#3d7a5e'];
+  const entries=Object.entries(catMap).sort((a,b)=>b[1].total-a[1].total).slice(0,8);
+  if(!entries.length){
+    const el=document.getElementById('categoryChart');
+    if(el){const ctx=el.getContext('2d');ctx.clearRect(0,0,el.width,el.height);ctx.fillStyle='#8c8278';ctx.textAlign='center';ctx.font='13px Outfit';ctx.fillText('Sem despesas no mês',el.width/2,el.height/2);}
+    return;
+  }
+  renderChart('categoryChart','doughnut',
+    entries.map(e=>e[0]),
+    [{data:entries.map(e=>e[1].total),backgroundColor:entries.map((e,i)=>e[1].color||FALLBACK_COLORS[i%FALLBACK_COLORS.length]),borderWidth:2,borderColor:'#fff',hoverOffset:6}]
+  );
 }
 async function loadReports(){
   const month=document.getElementById('reportMonth').value;if(!month)return;
   const[y,m]=month.split('-');
-  const{data}=await sb.from('transactions').select('amount,is_transfer,categories(name,color,type)').gte('date',`${y}-${m}-01`).lte('date',`${y}-${m}-31`).lt('amount',0).not('category_id','is',null);
-  const catMap={};(data||[]).forEach(t=>{if(t.is_transfer)return;const n=t.categories?.name||'Outros',c=t.categories?.color||'#94a3b8';if(!catMap[n])catMap[n]={total:0,color:c,count:0};catMap[n].total+=Math.abs(t.amount);catMap[n].count++;});
-  const entries=Object.entries(catMap).sort((a,b)=>b[1].total-a[1].total),grand=entries.reduce((s,e)=>s+e[1].total,0);
-  document.getElementById('reportCatBody').innerHTML=entries.map(([name,v])=>`<tr><td>${esc(name)}</td><td class="text-muted">${v.count}</td><td class="amount-neg">${fmt(-v.total)}</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;background:var(--bg2);border-radius:100px;height:5px"><div style="width:${(v.total/grand*100).toFixed(1)}%;height:100%;background:${v.color};border-radius:100px"></div></div><span style="font-size:.72rem;color:var(--muted);width:38px;text-align:right">${(v.total/grand*100).toFixed(1)}%</span></div></td></tr>`).join('');
-  renderChart('reportCatChart','doughnut',entries.map(e=>e[0]),[{data:entries.map(e=>e[1].total),backgroundColor:entries.map(e=>e[1].color),borderWidth:2,borderColor:'#fff'}]);
+  const{data,error}=await sb.from('transactions').select('amount,is_transfer,categories(name,color,type)').gte('date',`${y}-${m}-01`).lte('date',`${y}-${m}-31`).lt('amount',0).not('category_id','is',null);
+  if(error){toast(error.message,'error');return;}
+  const FALLBACK=['#2a6049','#1e5ba8','#b45309','#c0392b','#7c3aed','#2a7a4a','#3d7a5e','#4e8f73'];
+  const catMap={};
+  (data||[]).forEach(t=>{
+    if(t.is_transfer)return;
+    const n=t.categories?.name||'Outros',c=t.categories?.color||'#94a3b8';
+    if(!catMap[n])catMap[n]={total:0,color:c,count:0};
+    catMap[n].total+=Math.abs(t.amount);catMap[n].count++;
+  });
+  const entries=Object.entries(catMap).sort((a,b)=>b[1].total-a[1].total);
+  const grand=entries.reduce((s,e)=>s+e[1].total,0);
+  document.getElementById('reportCatBody').innerHTML=entries.length
+    ? entries.map(([name,v])=>`<tr>
+        <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${v.color};margin-right:6px"></span>${esc(name)}</td>
+        <td class="text-muted">${v.count}</td>
+        <td class="amount-neg">${fmt(-v.total)}</td>
+        <td><div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;background:var(--bg2);border-radius:100px;height:5px">
+            <div style="width:${grand>0?(v.total/grand*100).toFixed(1):0}%;height:100%;background:${v.color};border-radius:100px"></div>
+          </div>
+          <span style="font-size:.72rem;color:var(--muted);width:38px;text-align:right">${grand>0?(v.total/grand*100).toFixed(1):0}%</span>
+        </div></td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">Sem despesas categorizadas no mês</td></tr>';
+  // Gráfico por categoria
+  if(entries.length) {
+    renderChart('reportCatChart','doughnut',
+      entries.map(e=>e[0]),
+      [{data:entries.map(e=>e[1].total),backgroundColor:entries.map((e,i)=>e[1].color||FALLBACK[i%FALLBACK.length]),borderWidth:2,borderColor:'#fff',hoverOffset:6}]
+    );
+  }
+  // Gráfico por conta (saldo atual)
   const accE=state.accounts.filter(a=>a.balance>0).sort((a,b)=>b.balance-a.balance);
-  renderChart('reportAccountChart','doughnut',accE.map(e=>e.name),[{data:accE.map(e=>e.balance),backgroundColor:['#2a6049','#1e5ba8','#b45309','#c0392b','#7c3aed','#2a7a4a','#3d7a5e','#4e8f73'],borderWidth:2,borderColor:'#fff'}]);
+  if(accE.length) {
+    renderChart('reportAccountChart','doughnut',
+      accE.map(e=>e.name),
+      [{data:accE.map(e=>e.balance),backgroundColor:accE.map((a,i)=>a.color||FALLBACK[i%FALLBACK.length]),borderWidth:2,borderColor:'#fff',hoverOffset:6}]
+    );
+  }
 }
 
-function renderChart(id,type,labels,datasets){
-  if(state.chartInstances[id])state.chartInstances[id].destroy();
-  const ctx=document.getElementById(id)?.getContext('2d');if(!ctx)return;
-  state.chartInstances[id]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#8c8278',font:{family:'Outfit',size:11},padding:14,boxWidth:12}},tooltip:{backgroundColor:'#fff',titleColor:'#1a1714',bodyColor:'#3d3830',borderColor:'#e8e4de',borderWidth:1,padding:10,callbacks:{label:ctx=>` ${fmt(ctx.raw)}`}}},scales:type==='bar'?{x:{ticks:{color:'#8c8278',font:{size:10}},grid:{color:'#f0ede8'},border:{color:'#e8e4de'}},y:{ticks:{color:'#8c8278',font:{size:10},callback:v=>fmt(v)},grid:{color:'#f0ede8'},border:{color:'#e8e4de'}}}:undefined}});
+function renderChart(id, type, labels, datasets, extraOptions={}) {
+  if(state.chartInstances[id]) state.chartInstances[id].destroy();
+  const ctx = document.getElementById(id)?.getContext('2d');
+  if(!ctx) return;
+
+  const isDoughnut = type === 'doughnut' || type === 'pie';
+  const isBar = type === 'bar';
+
+  state.chartInstances[id] = new Chart(ctx, {
+    type,
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      animation: { duration: 400 },
+      plugins: {
+        legend: {
+          display: true,
+          position: isDoughnut ? 'bottom' : 'top',
+          align: 'center',
+          onClick(e, legendItem, legend) {
+            // Toggle visibility on click
+            const chart = legend.chart;
+            const idx = legendItem.index;
+            const dsIdx = legendItem.datasetIndex;
+            if(isDoughnut) {
+              // For doughnut: toggle individual arc
+              const meta = chart.getDatasetMeta(0);
+              const arc = meta.data[idx];
+              arc.hidden = !arc.hidden;
+              // Strike through label
+              legendItem.hidden = arc.hidden;
+            } else {
+              // For bar/line: toggle whole dataset
+              const meta = chart.getDatasetMeta(dsIdx);
+              meta.hidden = meta.hidden === null ? true : !meta.hidden;
+              legendItem.hidden = meta.hidden;
+            }
+            chart.update();
+          },
+          labels: {
+            color: '#3d3830',
+            font: { family: 'Outfit', size: 11.5, weight: '500' },
+            padding: 16,
+            boxWidth: isDoughnut ? 12 : 14,
+            boxHeight: isDoughnut ? 12 : 14,
+            borderRadius: isDoughnut ? 6 : 3,
+            usePointStyle: !isDoughnut,
+            pointStyle: isBar ? 'rect' : 'circle',
+            generateLabels(chart) {
+              if(isDoughnut) {
+                const ds = chart.data.datasets[0];
+                const meta = chart.getDatasetMeta(0);
+                return chart.data.labels.map((label, i) => {
+                  const arc = meta.data[i];
+                  const total = ds.data.reduce((s,v)=>s+(v||0),0);
+                  const pct = total > 0 ? ((ds.data[i]||0)/total*100).toFixed(1)+'%' : '';
+                  return {
+                    text: `${label}  ${pct}`,
+                    fillStyle: Array.isArray(ds.backgroundColor) ? ds.backgroundColor[i] : ds.backgroundColor,
+                    strokeStyle: '#fff',
+                    lineWidth: 2,
+                    hidden: arc ? arc.hidden : false,
+                    index: i,
+                    datasetIndex: 0,
+                  };
+                });
+              }
+              // Bar/line default
+              return Chart.defaults.plugins.legend.labels.generateLabels(chart);
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: '#fff',
+          titleColor: '#1a1714',
+          bodyColor: '#3d3830',
+          borderColor: '#e8e4de',
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 8,
+          callbacks: {
+            label(ctx) {
+              const val = fmt(ctx.raw);
+              if(isDoughnut) {
+                const total = ctx.dataset.data.reduce((s,v)=>s+(v||0),0);
+                const pct = total > 0 ? (ctx.raw/total*100).toFixed(1)+'%' : '';
+                return `  ${ctx.label}: ${val} (${pct})`;
+              }
+              return `  ${ctx.dataset.label}: ${val}`;
+            }
+          }
+        }
+      },
+      scales: isBar ? {
+        x: { ticks:{color:'#8c8278',font:{size:10.5}}, grid:{color:'#f0ede811'}, border:{color:'#e8e4de'} },
+        y: { ticks:{color:'#8c8278',font:{size:10.5},callback:v=>fmt(v)}, grid:{color:'#f0ede8'}, border:{color:'#e8e4de'} }
+      } : undefined,
+      ...extraOptions,
+    }
+  });
+  return state.chartInstances[id];
 }
 
 function populateSelects(){
@@ -4098,18 +4276,23 @@ function checkPin() {
   }
 }
 
-function unlockApp() {
+async function unlockApp() {
   _pinUnlocked = true;
   document.removeEventListener('keydown', onPinKeyboard);
   const pinScreen = document.getElementById('pinScreen');
   pinScreen.style.opacity = '0';
   pinScreen.style.transition = 'opacity .35s ease';
   setTimeout(() => { pinScreen.style.display = 'none'; pinScreen.style.opacity = ''; }, 350);
-  // Load app data if not yet loaded
-  if(sb && !state.accounts.length) {
-    bootApp();
+  // Carregar dados após PIN correto
+  if(sb) {
+    await bootApp();
+  } else {
+    // sb não inicializado — pedir configuração
+    setTimeout(() => {
+      document.getElementById('setupScreen').style.display = 'flex';
+    }, 400);
   }
-  // Start auto-lock timer
+  // Iniciar timer de auto-lock
   resetAutoLockTimer();
   document.addEventListener('click', resetAutoLockTimer, { passive: true });
   document.addEventListener('touchstart', resetAutoLockTimer, { passive: true });
