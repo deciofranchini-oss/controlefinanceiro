@@ -1450,6 +1450,7 @@ canvas { cursor: default; }
   <div class="sidebar-footer" style="display:flex;flex-direction:column;gap:6px">
     <button class="nav-item" onclick="navigate('import')"><span class="ni-icon">📥</span>Importar</button>
       <button class="nav-item" onclick="navigate('settings')"><span class="ni-icon">⚙️</span>Configurações</button>
+    <button class="nav-item" onclick="doLogout()" style="color:var(--red)"><span class="ni-icon">↩</span>Sair</button>
     <button class="config-btn" onclick="document.getElementById('setupScreen').style.display='flex'">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       Configurar Supabase
@@ -1458,7 +1459,7 @@ canvas { cursor: default; }
 </nav>
 
 <!-- MAIN -->
-<div class="main">
+<div class="main" id="mainApp">
   <header class="topbar">
     <div class="topbar-left">
       <button class="hamburger" onclick="openSidebar()" aria-label="Menu">
@@ -6548,7 +6549,14 @@ async function loadImportFile(file) {
     // Detect header row and go to Step 2
     detectHeaderRow();
     buildColMapperUI();
-    goToStep(2);
+
+    // For MoneyWiz, skip the mapping step and go directly to step 3
+    const preset = SOURCE_PRESETS[importState.sourcePreset] || SOURCE_PRESETS.generic;
+    if (preset.isMoneywiz) {
+      await proceedFromColMapper();
+    } else {
+      goToStep(2);
+    }
   } catch(err) {
     importLogMsg('err', '✗ ' + err.message); console.error(err);
   }
@@ -6726,8 +6734,9 @@ async function proceedFromColMapper() {
   const sec = importState.section;
   const colMap = importState.colMap;
 
-  // Validate required fields for transaction imports
-  if (sec === 'all' || sec === 'transactions') {
+  // Validate required fields for transaction imports (skip for MoneyWiz which uses structural parser)
+  const _preset = SOURCE_PRESETS[importState.sourcePreset] || SOURCE_PRESETS.generic;
+  if (!_preset.isMoneywiz && (sec === 'all' || sec === 'transactions')) {
     if (colMap.date === undefined) { toast('Mapeie a coluna "Data" antes de continuar.','warning'); return; }
     if (colMap.amount === undefined && colMap.amount_credit === undefined && colMap.amount_debit === undefined) {
       toast('Mapeie pelo menos uma coluna de "Valor" antes de continuar.','warning'); return;
@@ -7645,6 +7654,14 @@ async function sha256(str) {
 
 // ── Show / hide login screen ──
 function showLoginScreen() {
+  // Hide main app
+  const mainApp = document.getElementById('mainApp');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  if (mainApp) mainApp.style.display = 'none';
+  if (sidebar) sidebar.style.display = 'none';
+  if (sidebarOverlay) sidebarOverlay.style.display = 'none';
+
   const ls = document.getElementById('loginScreen');
   if (ls) {
     ls.style.display = 'flex';
@@ -7688,6 +7705,11 @@ function _clearRememberedCredentials() {
 function hideLoginScreen() {
   const ls = document.getElementById('loginScreen');
   if (ls) ls.style.display = 'none';
+  // Show main app
+  const mainApp = document.getElementById('mainApp');
+  const sidebar = document.getElementById('sidebar');
+  if (mainApp) mainApp.style.display = '';
+  if (sidebar) sidebar.style.display = '';
 }
 function toggleLoginPwd() {
   const inp = document.getElementById('loginPassword');
@@ -7863,6 +7885,15 @@ async function doLogout() {
   // Reset charts
   Object.values(state.chartInstances||{}).forEach(c => c?.destroy?.());
   state.chartInstances = {};
+  // Close any open modals/overlays before showing login
+  document.querySelectorAll('.modal-overlay, .modal-backdrop, [id$="Modal"]').forEach(el => {
+    el.style.display = 'none';
+  });
+  // Clear login form for security
+  const emailEl = document.getElementById('loginEmail');
+  const passEl = document.getElementById('loginPassword');
+  if (emailEl) emailEl.value = '';
+  if (passEl) passEl.value = '';
   showLoginScreen();
 }
 
