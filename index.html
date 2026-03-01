@@ -1090,33 +1090,31 @@ canvas { cursor: default; }
   display:none; background:var(--surface); border:1px solid var(--border);
   border-radius:var(--r); padding:20px; margin-bottom:12px;
 }
-.col-mapper-title {
-  font-size:.95rem; font-weight:700; color:var(--text1); margin-bottom:4px;
-}
-.col-mapper-sub {
-  font-size:.8rem; color:var(--muted); margin-bottom:16px;
-}
-.col-mapper-grid {
-  display:grid; grid-template-columns:1fr 1fr; gap:10px;
-  margin-bottom:16px;
-}
-@media(max-width:640px){ .col-mapper-grid { grid-template-columns:1fr; } }
-.col-mapper-row {
-  display:flex; align-items:center; gap:10px;
-  background:var(--bg2); border-radius:var(--r-sm); padding:10px 12px;
-}
-.col-mapper-label {
-  font-size:.78rem; font-weight:600; color:var(--text2); width:110px; flex-shrink:0;
-}
-.col-mapper-label span {
-  color:var(--red); font-size:.65rem; vertical-align:super;
-}
-.col-mapper-select {
-  flex:1; font-size:.8rem; padding:5px 8px;
-  border:1.5px solid var(--border); border-radius:var(--r-sm);
-  background:var(--surface); color:var(--text1); font-family:var(--font-sans);
-}
+.col-mapper-title { font-size:.95rem; font-weight:700; color:var(--text1); margin-bottom:4px; }
+.col-mapper-sub   { font-size:.8rem; color:var(--muted); margin-bottom:16px; }
+/* Section tabs inside mapper */
+.cmap-section-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; border-bottom:1.5px solid var(--border); padding-bottom:10px; }
+.cmap-section-tab { padding:6px 16px; border-radius:100px; font-size:.8rem; font-weight:600; border:1.5px solid var(--border); cursor:pointer; transition:all .15s; background:var(--surface); color:var(--muted); }
+.cmap-section-tab:hover { border-color:var(--accent); color:var(--accent); }
+.cmap-section-tab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+/* Field group card */
+.cmap-group { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:12px; overflow:hidden; }
+.cmap-group-header { display:flex; align-items:flex-start; gap:10px; padding:10px 14px; background:var(--surface2); border-bottom:1px solid var(--border); }
+.cmap-group-icon { font-size:1.1rem; flex-shrink:0; }
+.cmap-group-title { font-size:.82rem; font-weight:700; color:var(--text1); }
+.cmap-group-sub   { font-size:.72rem; color:var(--muted); margin-top:1px; }
+.cmap-group-body  { padding:12px 14px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:640px){ .cmap-group-body { grid-template-columns:1fr; } }
+/* Individual field row */
+.col-mapper-row { display:flex; flex-direction:column; gap:3px; background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-sm); padding:10px 12px; transition:border-color .15s; }
+.col-mapper-row.required-field { border-color:var(--accent); }
+.col-mapper-label { font-size:.75rem; font-weight:700; color:var(--text2); display:flex; align-items:center; gap:4px; }
+.col-mapper-label .req-star { color:var(--red); font-size:.7rem; }
+.col-mapper-hint  { font-size:.65rem; color:var(--muted); }
+.col-mapper-select { width:100%; font-size:.8rem; padding:5px 8px; border:1.5px solid var(--border); border-radius:var(--r-sm); background:var(--surface); color:var(--text1); font-family:var(--font-sans); margin-top:3px; }
 .col-mapper-select:focus { outline:none; border-color:var(--accent); }
+.col-mapper-select.mapped { border-color:var(--green); }
+.col-mapper-sample { font-size:.62rem; color:var(--muted); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 /* Sample preview table */
 .col-preview-wrap {
@@ -1889,22 +1887,22 @@ canvas { cursor: default; }
             <div class="import-sc-title">Importação Completa</div>
             <div class="import-sc-sub">Contas + Categorias + Beneficiários + Transações</div>
           </div>
-          <div class="import-section-card disabled" id="isc-accounts" onclick="selectImportSection('accounts')">
+          <div class="import-section-card" id="isc-accounts" onclick="selectImportSection('accounts')">
             <div class="import-sc-icon">🏦</div>
             <div class="import-sc-title">Só Contas</div>
             <div class="import-sc-sub">Criar contas do arquivo</div>
           </div>
-          <div class="import-section-card disabled" id="isc-categories" onclick="selectImportSection('categories')">
+          <div class="import-section-card" id="isc-categories" onclick="selectImportSection('categories')">
             <div class="import-sc-icon">🏷️</div>
             <div class="import-sc-title">Só Categorias</div>
             <div class="import-sc-sub">Criar categorias e subcategorias</div>
           </div>
-          <div class="import-section-card disabled" id="isc-payees" onclick="selectImportSection('payees')">
+          <div class="import-section-card" id="isc-payees" onclick="selectImportSection('payees')">
             <div class="import-sc-icon">👤</div>
             <div class="import-sc-title">Só Beneficiários</div>
             <div class="import-sc-sub">Importar beneficiários</div>
           </div>
-          <div class="import-section-card disabled" id="isc-transactions" onclick="selectImportSection('transactions')">
+          <div class="import-section-card" id="isc-transactions" onclick="selectImportSection('transactions')">
             <div class="import-sc-icon">💳</div>
             <div class="import-sc-title">Só Transações</div>
             <div class="import-sc-sub">Importar histórico</div>
@@ -1933,18 +1931,20 @@ canvas { cursor: default; }
         </div>
       </div>
 
-      <!-- ══ STEP 2: Column Template Mapper ══ -->
+      <!-- ══ STEP 2: Column Mapper (rebuilt) ══ -->
       <div class="col-mapper-screen" id="colMapperScreen">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px">
           <div>
-            <div class="col-mapper-title">🗂️ Mapeamento de Colunas</div>
-            <div class="col-mapper-sub">Diga ao FinTrack qual coluna do seu arquivo corresponde a cada campo. Os primeiros dados são mostrados abaixo como referência.</div>
+            <div class="col-mapper-title">🗂️ Configurar Importação</div>
+            <div class="col-mapper-sub" id="cmapSubtitle">Indique qual coluna do arquivo corresponde a cada campo.</div>
           </div>
           <button class="btn btn-ghost btn-sm" onclick="cancelImport()">✕ Cancelar</button>
         </div>
 
-        <!-- Raw file preview -->
-        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Prévia do arquivo <span id="colPreviewInfo" style="font-weight:400;text-transform:none"></span></div>
+        <!-- File preview table -->
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">
+          📋 Prévia do arquivo <span id="colPreviewInfo" style="font-weight:400;text-transform:none;color:var(--muted)"></span>
+        </div>
         <div class="col-preview-wrap">
           <table class="col-preview-table" id="colPreviewTable">
             <thead id="colPreviewHead"></thead>
@@ -1952,27 +1952,24 @@ canvas { cursor: default; }
           </table>
         </div>
 
-        <!-- Field → Column selectors -->
-        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 0 8px">Mapeamento de campos</div>
-        <div class="col-mapper-grid" id="colMapperGrid">
-          <!-- Rendered by JS -->
-        </div>
+        <!-- Dynamic field groups rendered by JS -->
+        <div id="colMapperGrid"></div>
 
-        <!-- Dedup + mode options -->
-        <div class="import-mode-bar" id="importModeBar">
+        <!-- Dedup options (only for transactions) -->
+        <div class="import-mode-bar" id="importModeBar" style="display:none">
           <span style="font-weight:700;color:var(--text2)">Duplicatas:</span>
           <label><input type="radio" name="importMode" value="new" checked> Apenas novas</label>
           <label><input type="radio" name="importMode" value="update"> Atualizar existentes</label>
           <label><input type="radio" name="importMode" value="all"> Re-importar todas</label>
           <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
-            <label style="font-size:.78rem;color:var(--muted)">Conta destino:</label>
-            <select id="importAccountFilter" style="font-size:.8rem;max-width:180px">
+            <label style="font-size:.78rem;color:var(--muted)">Conta destino padrão:</label>
+            <select id="importAccountFilter" style="font-size:.8rem;max-width:200px">
               <option value="">— Detectar automaticamente —</option>
             </select>
           </div>
         </div>
 
-        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
           <button class="btn btn-ghost" onclick="goToStep(1)">← Voltar</button>
           <button class="btn btn-primary" onclick="proceedFromColMapper()" id="applyColMapBtn">Analisar &amp; Prévia →</button>
         </div>
@@ -6464,6 +6461,8 @@ const FINTRACK_FIELDS = [
   { key:'amount_debit',     label:'Valor Débito',      required:false, hint:'Coluna separada de débito' },
   { key:'type_col',         label:'Tipo (C/D)',        required:false, hint:'Coluna indicando débito/crédito' },
   { key:'tags',             label:'Tags',              required:false, hint:'Etiquetas' },
+  { key:'parent_cat',       label:'Categoria Pai',     required:false, hint:'Categoria principal (quando há subcategorias)' },
+  { key:'balance',          label:'Saldo Inicial',     required:false, hint:'Saldo da conta na data de criação' },
 ];
 
 /* ─── Wizard navigation ─── */
@@ -6640,148 +6639,307 @@ function autoMatchColumns(headers, preset) {
   tryMatch('amount_debit',     ['débito','debit','saída','déb']);
   tryMatch('type_col',         ['tipo','type','naturez','d/c','dc']);
   tryMatch('tags',             ['tag','etiqueta','label']);
+  tryMatch('parent_cat',       ['categoria pai','parent','grupo','parent cat']);
+  tryMatch('balance',          ['saldo','balance','bal ']);
 
   return colMap;
 }
 
 /* ─── Build Column Mapper UI ─── */
 function buildColMapperUI() {
-  const preset = SOURCE_PRESETS[importState.sourcePreset] || SOURCE_PRESETS.generic;
-  const headers = importState.headers;
-  const rows = importState.rawRows;
+  const preset    = SOURCE_PRESETS[importState.sourcePreset] || SOURCE_PRESETS.generic;
+  const headers   = importState.headers;
+  const rows      = importState.rawRows;
   const headerIdx = importState.headerRowIdx;
+  const sec       = importState.section; // 'all'|'accounts'|'categories'|'payees'|'transactions'
 
-  // Auto-match
+  // Auto-match columns from preset hints
   importState.colMap = autoMatchColumns(headers, preset);
 
-  // Preview table (header + 5 data rows)
-  const previewRows = rows.slice(headerIdx, headerIdx + 6);
-  const colCount = Math.max(...previewRows.map(r => r ? r.length : 0));
+  // ── File preview table ────────────────────────────────────────────────
+  const previewRows = rows.slice(headerIdx, headerIdx + 7);
+  const colCount    = Math.max(...previewRows.map(r => r ? r.length : 0), 1);
   document.getElementById('colPreviewInfo').textContent =
-    `(${rows.length} linhas, ${headers.length} colunas — linha ${headerIdx+1} é o cabeçalho)`;
+    `${rows.length} linhas · ${headers.length} colunas detectadas · cabeçalho na linha ${headerIdx + 1}`;
 
-  let headHtml = '<tr>', bodyHtml = '';
+  let headHtml = '<tr>';
   for (let c = 0; c < colCount; c++) {
-    const h = headers[c] || `Col ${c+1}`;
-    const mapped = Object.values(importState.colMap).includes(c);
-    headHtml += `<th class="${mapped?'col-mapped':''}" id="previewTh-${c}">${esc(h)}</th>`;
+    headHtml += `<th id="previewTh-${c}">${esc(headers[c] || 'Col ' + (c+1))}</th>`;
   }
   headHtml += '</tr>';
+
+  let bodyHtml = '';
   previewRows.slice(1).forEach(r => {
-    if (!r || r.every(c => !c)) return;
+    if (!r || r.every(v => !v)) return;
     bodyHtml += '<tr>';
     for (let c = 0; c < colCount; c++) {
-      const v = r[c];
-      bodyHtml += `<td>${v !== null && v !== undefined ? esc(String(v).slice(0,60)) : '<span style="color:var(--muted)">—</span>'}</td>`;
+      const v = r ? r[c] : null;
+      bodyHtml += `<td>${(v !== null && v !== undefined && v !== '')
+        ? esc(String(v).slice(0, 50))
+        : '<span style="color:var(--muted);font-size:.7em">—</span>'}</td>`;
     }
     bodyHtml += '</tr>';
   });
   document.getElementById('colPreviewHead').innerHTML = headHtml;
   document.getElementById('colPreviewBody').innerHTML = bodyHtml;
 
-  // Column options for selects
-  const noneOpt = '<option value="">— Não usar —</option>';
-  const colOpts = headers.map((h,i) =>
-    `<option value="${i}">${esc(h || `Col ${i+1}`)}</option>`).join('');
+  // ── Helpers ───────────────────────────────────────────────────────────
+  const dataRows = rows.slice(headerIdx + 1, headerIdx + 7).filter(r => r && r.some(v => v));
 
-  // Render field selectors
-  const grid = document.getElementById('colMapperGrid');
-  grid.innerHTML = FINTRACK_FIELDS.map(f => {
-    const val = importState.colMap[f.key] !== undefined ? importState.colMap[f.key] : '';
-    const reqMark = f.required ? '<span>*</span>' : '';
-    return `<div class="col-mapper-row">
-      <div class="col-mapper-label">${f.label}${reqMark}<br>
-        <span style="font-size:.65rem;font-weight:400;color:var(--muted)">${f.hint}</span>
-      </div>
-      <select class="col-mapper-select" id="colsel-${f.key}"
-              onchange="onColSelChange('${f.key}',this.value)">
-        ${noneOpt}${colOpts.replace(`value="${val}"`, `value="${val}" selected`)}
-      </select>
-    </div>`;
-  }).join('');
+  function getSamples(colIdx) {
+    if (colIdx === undefined) return '';
+    const vals = dataRows.map(r => r && r[colIdx] != null ? String(r[colIdx]).trim() : '').filter(Boolean);
+    return vals.slice(0, 3).join('  ·  ');
+  }
 
-  // MoneyWiz info banner
-  if (preset.isMoneywiz) {
-    const existing = document.getElementById('mwInfoBanner');
-    if (!existing) {
-      const info = document.createElement('div');
-      info.id = 'mwInfoBanner';
-      info.style.cssText = 'background:var(--accent-lt);border:1px solid var(--accent);border-radius:var(--r-sm);padding:10px 14px;font-size:.8rem;color:var(--accent);margin-bottom:12px';
-      info.innerHTML = '💡 <strong>MoneyWiz detectado.</strong> O mapeamento está pré-configurado. Os campos foram detectados automaticamente — revise e ajuste se necessário.';
-      document.getElementById('colMapperGrid').before(info);
+  function makeSelOpts(fieldKey) {
+    const cur = importState.colMap[fieldKey];
+    let html = '<option value="">— Não mapeado —</option>';
+    for (let i = 0; i < headers.length; i++) {
+      const h = esc(headers[i] || `Col ${i + 1}`);
+      const sample = getSamples(i);
+      const label  = sample ? `${h}  (ex: ${sample.slice(0, 30)})` : h;
+      html += `<option value="${i}"${cur === i ? ' selected' : ''}>${label}</option>`;
     }
+    return html;
+  }
+
+  function makeField(key, label, hint, required = false, span2 = false) {
+    const isMapped = importState.colMap[key] !== undefined;
+    const sample   = isMapped ? getSamples(importState.colMap[key]) : '';
+    const reqStar  = required ? '<span class="req-star">*</span>' : '';
+    const spanStyle = span2 ? ' style="grid-column:1/-1"' : '';
+    return `<div class="col-mapper-row${required ? ' required-field' : ''}"${spanStyle}>
+      <div class="col-mapper-label">${esc(label)}${reqStar}</div>
+      ${hint ? `<div class="col-mapper-hint">${esc(hint)}</div>` : ''}
+      <select class="col-mapper-select${isMapped ? ' mapped' : ''}" id="colsel-${key}"
+              onchange="onColSelChange('${key}',this.value)">
+        ${makeSelOpts(key)}
+      </select>
+      <div class="col-mapper-sample" id="colsample-${key}">${sample ? '📎 ' + esc(sample) : ''}</div>
+    </div>`;
+  }
+
+  function makeGroup(icon, title, sub, fieldDefs) {
+    return `<div class="cmap-group">
+      <div class="cmap-group-header">
+        <div class="cmap-group-icon">${icon}</div>
+        <div>
+          <div class="cmap-group-title">${title}</div>
+          <div class="cmap-group-sub">${sub}</div>
+        </div>
+      </div>
+      <div class="cmap-group-body">${fieldDefs.join('')}</div>
+    </div>`;
+  }
+
+  // ── Section-specific subtitle & dedup bar ────────────────────────────
+  const secLabels = {
+    all: 'Importação completa — Contas + Categorias + Beneficiários + Transações',
+    accounts: 'Importar Contas',
+    categories: 'Importar Categorias',
+    payees: 'Importar Beneficiários',
+    transactions: 'Importar Transações'
+  };
+  document.getElementById('cmapSubtitle').textContent =
+    `${secLabels[sec] || sec} — Indique qual coluna do arquivo corresponde a cada campo.`;
+
+  const hasTransactions = (sec === 'all' || sec === 'transactions');
+  document.getElementById('importModeBar').style.display = hasTransactions ? '' : 'none';
+
+  // ── Build field groups based on selected section ──────────────────────
+  const grid = document.getElementById('colMapperGrid');
+  let html = '';
+
+  // ─ ONLY CATEGORIES ─
+  if (sec === 'categories') {
+    html += makeGroup('🏷️', 'Colunas para Categorias',
+      'Qual coluna do arquivo tem o nome da categoria?',
+      [
+        makeField('category',   'Nome da Categoria', 'Exs: Alimentação, Transporte, Saúde', true,  true),
+        makeField('parent_cat', 'Categoria Pai',      'Coluna com a categoria principal (quando há subcategorias)', false, true),
+      ]);
+
+  // ─ ONLY PAYEES ─
+  } else if (sec === 'payees') {
+    html += makeGroup('👤', 'Colunas para Beneficiários',
+      'Qual coluna do arquivo tem o nome do beneficiário ou fornecedor?',
+      [
+        makeField('payee', 'Nome do Beneficiário', 'Exs: Supermercado Extra, Amazon, Salário Empresa', true, true),
+      ]);
+
+  // ─ ONLY ACCOUNTS ─
+  } else if (sec === 'accounts') {
+    html += makeGroup('🏦', 'Colunas para Contas',
+      'Mapeie os dados das contas bancárias que serão criadas',
+      [
+        makeField('account',  'Nome da Conta',  'Exs: Nubank, Itaú Corrente, Cartão XP', true,  false),
+        makeField('currency', 'Moeda',           'Exs: BRL, USD, EUR',                   false, false),
+        makeField('balance',  'Saldo Inicial',   'Saldo da conta no início da importação', false, false),
+      ]);
+
+  // ─ TRANSACTIONS or ALL ─
+  } else {
+    // Mandatory transaction fields
+    html += makeGroup('💳', 'Dados Obrigatórios da Transação',
+      'Estes campos são indispensáveis para registrar cada transação',
+      [
+        makeField('date',   'Data',  'Exs: 01/01/2024, 2024-01-01, Jan 1 2024', true, false),
+        makeField('amount', 'Valor', 'Exs: -150,00 · 1234.56 · Negativo = débito, Positivo = crédito', true, false),
+        makeField('amount_credit', 'Valor Crédito (alternativo)', 'Use se seu arquivo tem colunas separadas para entrada e saída', false, false),
+        makeField('amount_debit',  'Valor Débito (alternativo)',  'Coluna separada para saídas/despesas', false, false),
+        makeField('type_col',      'Tipo C/D (alternativo)',      'Coluna que diz se é Crédito ou Débito', false, false),
+      ]);
+
+    // Transaction detail fields
+    html += makeGroup('📝', 'Detalhes da Transação',
+      'Informações complementares que enriquecem cada registro',
+      [
+        makeField('description', 'Descrição / Título', 'Nome ou motivo da transação',   false, false),
+        makeField('memo',        'Memo / Observações', 'Notas extras da transação',      false, false),
+      ]);
+
+    // Account assignment
+    html += makeGroup('🏦', 'Conta da Transação',
+      'Em qual conta cada transação foi realizada?',
+      [
+        makeField('account',          'Coluna com Nome da Conta',    'Qual conta bancária recebe esta transação — Ex: Nubank, Itaú', sec === 'all' ? false : false, false),
+        makeField('transfer_account', 'Coluna de Conta Transferência','Conta destino em transferências entre contas',                  false, false),
+        makeField('currency',         'Moeda',                        'BRL, USD, EUR... (deixe vazio para usar padrão)',               false, false),
+      ]);
+
+    // Category
+    html += makeGroup('🏷️', 'Categoria da Transação',
+      'Qual coluna indica a categoria (e subcategoria) de cada transação?',
+      [
+        makeField('category', 'Categoria', 'Exs: Alimentação · Saúde/Farmácia · Transporte/Uber', false, true),
+      ]);
+
+    // Payee
+    html += makeGroup('👤', 'Beneficiário da Transação',
+      'Qual coluna tem o nome de quem pagou ou recebeu?',
+      [
+        makeField('payee', 'Beneficiário / Fornecedor', 'Exs: Supermercado Extra, Salário ACME Ltda', false, true),
+      ]);
+  }
+
+  grid.innerHTML = html;
+
+  // Populate account filter dropdown (for transactions)
+  const accSel = document.getElementById('importAccountFilter');
+  if (accSel) {
+    const prev = accSel.value;
+    accSel.innerHTML = '<option value="">— Detectar automaticamente pela coluna acima —</option>';
+    (state.accounts || []).forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.id;
+      opt.textContent = a.name;
+      if (a.id === prev) opt.selected = true;
+      accSel.appendChild(opt);
+    });
   }
 
   updatePreviewHighlights();
 }
 
-function onColSelChange(field, val) {
-  if (val === '') delete importState.colMap[field];
-  else importState.colMap[field] = parseInt(val);
+function onColSelChange(key, val) {
+  if (val === '') delete importState.colMap[key];
+  else importState.colMap[key] = parseInt(val);
+
+  // Update sample preview text under the select
+  const sampleEl = document.getElementById(`colsample-${key}`);
+  if (sampleEl) {
+    const hi      = importState.headerRowIdx;
+    const dRows   = importState.rawRows.slice(hi + 1, hi + 7).filter(r => r && r.some(v => v));
+    const colIdx  = importState.colMap[key];
+    if (colIdx !== undefined) {
+      const vals = dRows.map(r => r && r[colIdx] != null ? String(r[colIdx]).trim() : '').filter(Boolean);
+      sampleEl.textContent = vals.length ? '📎 ' + vals.slice(0, 3).join('  ·  ') : '';
+    } else {
+      sampleEl.textContent = '';
+    }
+  }
+  const sel = document.getElementById(`colsel-${key}`);
+  if (sel) sel.classList.toggle('mapped', val !== '');
+
   updatePreviewHighlights();
 }
 
 function updatePreviewHighlights() {
-  const mappedCols = new Set(Object.values(importState.colMap));
+  const mapped = new Set(Object.values(importState.colMap));
   document.querySelectorAll('[id^="previewTh-"]').forEach(th => {
-    const idx = parseInt(th.id.replace('previewTh-',''));
-    th.classList.toggle('col-mapped', mappedCols.has(idx));
+    const idx = parseInt(th.id.replace('previewTh-', ''));
+    th.classList.toggle('col-mapped', mapped.has(idx));
   });
 }
 
-/* ─── Proceed from Column Mapper → Entity Review ─── */
+/* ─── Proceed from Column Mapper → parse & show entity review ─── */
 async function proceedFromColMapper() {
-  const sec = importState.section;
+  const sec    = importState.section;
   const colMap = importState.colMap;
+  const preset = SOURCE_PRESETS[importState.sourcePreset] || SOURCE_PRESETS.generic;
 
-  // Validate required fields for transaction imports (skip for MoneyWiz which uses structural parser)
-  const _preset = SOURCE_PRESETS[importState.sourcePreset] || SOURCE_PRESETS.generic;
-  if (!_preset.isMoneywiz && (sec === 'all' || sec === 'transactions')) {
-    if (colMap.date === undefined) { toast('Mapeie a coluna "Data" antes de continuar.','warning'); return; }
-    if (colMap.amount === undefined && colMap.amount_credit === undefined && colMap.amount_debit === undefined) {
-      toast('Mapeie pelo menos uma coluna de "Valor" antes de continuar.','warning'); return;
+  // Validate required fields per section
+  if (!preset.isMoneywiz) {
+    if (sec === 'all' || sec === 'transactions') {
+      if (colMap.date === undefined) {
+        toast('Mapeie a coluna "Data" antes de continuar.', 'warning'); return;
+      }
+      if (colMap.amount === undefined && colMap.amount_credit === undefined && colMap.amount_debit === undefined) {
+        toast('Mapeie ao menos uma coluna de "Valor" antes de continuar.', 'warning'); return;
+      }
+    }
+    if (sec === 'categories' && colMap.category === undefined) {
+      toast('Mapeie a coluna "Categoria" antes de continuar.', 'warning'); return;
+    }
+    if (sec === 'payees' && colMap.payee === undefined) {
+      toast('Mapeie a coluna "Beneficiário" antes de continuar.', 'warning'); return;
+    }
+    if (sec === 'accounts' && colMap.account === undefined) {
+      toast('Mapeie a coluna "Conta" antes de continuar.', 'warning'); return;
     }
   }
 
-  showImportProgress('Parseando transações...');
+  showImportProgress('Analisando dados do arquivo...');
   goToStep(3);
   document.getElementById('importStagingArea').style.display = 'none';
 
   try {
-    const preset = SOURCE_PRESETS[importState.sourcePreset] || SOURCE_PRESETS.generic;
     let parsedData;
-
     if (preset.isMoneywiz) {
-      // Use existing MoneyWiz structural parser
       parsedData = parseMoneyWizRows(importState.rawRows);
     } else {
-      // Generic column-based parser
-      parsedData = parseGenericRows(importState.rawRows, importState.headerRowIdx, importState.colMap, preset);
+      parsedData = parseGenericRows(importState.rawRows, importState.headerRowIdx, colMap, preset);
     }
 
     importState.parsedData = parsedData;
-    importLogMsg('ok', `✓ ${parsedData.accounts.length} contas · ${parsedData.categories.size} cats · ${parsedData.payees.size} beneficiários · ${parsedData.transactions.length} transações`);
-    setImportProgress(50, 'Preparando revisão de entidades...');
+    const accCnt  = parsedData.accounts.length;
+    const catCnt  = parsedData.categories instanceof Set ? parsedData.categories.size : Object.keys(parsedData.categories||{}).length;
+    const payCnt  = parsedData.payees instanceof Set ? parsedData.payees.size : (parsedData.payees||[]).length;
+    const txCnt   = parsedData.transactions.length;
+    importLogMsg('ok', `✓ ${accCnt} contas · ${catCnt} categorias · ${payCnt} beneficiários · ${txCnt} transações`);
+    setImportProgress(50, 'Preparando revisão...');
 
-    // Show entity review screen (step 2b) before staging
+    // Show entity review (fieldMapScreen) then user clicks "Continuar" to go to staging
     showFieldMapScreen(parsedData);
-    // Hide progress bar temporarily
     document.getElementById('importProgress').style.display = 'none';
-    // Show fieldmap screen
-    const fms = document.getElementById('fieldMapScreen');
-    if (fms) fms.style.display = '';
+    document.getElementById('fieldMapScreen').style.display = '';
     document.getElementById('importStagingArea').style.display = 'none';
-    // Update wizard step indicators but keep UI visible
-    document.querySelectorAll('.import-wizard-step').forEach((el,i) => {
-      el.classList.remove('active','done');
+
+    // Update wizard step badges
+    document.querySelectorAll('.import-wizard-step').forEach((el, i) => {
+      el.classList.remove('active', 'done');
       if (i < 1) el.classList.add('done');
       else if (i === 1) el.classList.add('active');
     });
 
   } catch(err) {
-    importLogMsg('err', '✗ ' + err.message); console.error(err);
+    importLogMsg('err', '✗ ' + err.message);
+    console.error(err);
+    goToStep(2); // Go back to mapper on error
   }
 }
+
 
 /* ─── Generic row parser ─── */
 function parseGenericRows(rows, headerIdx, colMap, preset) {
