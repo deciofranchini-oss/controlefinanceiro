@@ -4589,7 +4589,7 @@ async function loadDashboard(){
     const el = document.getElementById('accountBalancesList');
     const accs = state.accounts;
     const groups = state.groups || [];
-    const rowHtml = a => `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+    const rowHtml = a => `<div onclick="goToAccountTransactions('${a.id}')" style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;border-radius:4px;margin:0 -4px;padding-left:4px;padding-right:4px" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
       <div style="display:flex;align-items:center;gap:9px">${renderIconEl(a.icon,a.color,20)}<span style="font-size:.875rem;color:var(--text2)">${esc(a.name)}</span></div>
       <span class="${a.balance<0?'text-red':'text-accent'}" style="font-size:.875rem;font-weight:500">${fmt(a.balance,a.currency)}</span>
     </div>`;
