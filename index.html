@@ -3998,7 +3998,49 @@ async function loadDashboard(){
   const body=document.getElementById('recentTxBody');
   if(!recent?.length){body.innerHTML='<tr><td colspan="4" class="text-muted" style="text-align:center;padding:24px;font-size:.83rem">Sem transações</td></tr>';}
   else body.innerHTML=(recent||[]).map(t=>`<tr><td class="text-muted" style="white-space:nowrap">${fmtDate(t.date)}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.description||'—')}</td><td>${t.categories?`<span class="badge" style="background:${t.categories.color}18;color:${t.categories.color};border:1px solid ${t.categories.color}28">${esc(t.categories.name)}</span>`:'—'}</td><td class="${t.amount>=0?'amount-pos':'amount-neg'}" style="white-space:nowrap">${fmt(t.amount)}</td></tr>`).join('');
-  document.getElementById('accountBalancesList').innerHTML=state.accounts.slice(0,8).map(a=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:9px">${renderIconEl(a.icon,a.color,20)}<span style="font-size:.875rem;color:var(--text2)">${esc(a.name)}</span></div><span class="${a.balance<0?'text-red':'text-accent'}" style="font-size:.875rem;font-weight:500">${fmt(a.balance,a.currency)}</span></div>`).join('');
+  // Render account balances grouped by account group
+  (function renderAccountBalances() {
+    const el = document.getElementById('accountBalancesList');
+    const accs = state.accounts;
+    const groups = state.groups || [];
+    const rowHtml = a => `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:9px">${renderIconEl(a.icon,a.color,20)}<span style="font-size:.875rem;color:var(--text2)">${esc(a.name)}</span></div>
+      <span class="${a.balance<0?'text-red':'text-accent'}" style="font-size:.875rem;font-weight:500">${fmt(a.balance,a.currency)}</span>
+    </div>`;
+    if (!groups.length) {
+      // No groups: flat list
+      el.innerHTML = accs.map(rowHtml).join('');
+      return;
+    }
+    // Build grouped sections
+    const grouped = {};
+    accs.forEach(a => { const gid = a.group_id || '__none__'; if (!grouped[gid]) grouped[gid] = []; grouped[gid].push(a); });
+    let html = '';
+    // Known groups first (in order)
+    groups.forEach(g => {
+      const gAccs = grouped[g.id];
+      if (!gAccs || !gAccs.length) return;
+      const gTotal = gAccs.reduce((s,a) => s + (parseFloat(a.balance)||0), 0);
+      html += `<div style="margin-bottom:2px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 4px;margin-top:6px">
+          <span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">${g.emoji||'🗂️'} ${esc(g.name)}</span>
+          <span style="font-size:.75rem;font-weight:600;color:var(--muted)">${fmt(gTotal,'BRL')}</span>
+        </div>
+        <div style="padding-left:4px">${gAccs.map(rowHtml).join('')}</div>
+      </div>`;
+    });
+    // Ungrouped accounts last
+    const ungrouped = grouped['__none__'];
+    if (ungrouped && ungrouped.length) {
+      html += `<div style="margin-bottom:2px">
+        <div style="padding:8px 0 4px;margin-top:6px">
+          <span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Sem grupo</span>
+        </div>
+        <div style="padding-left:4px">${ungrouped.map(rowHtml).join('')}</div>
+      </div>`;
+    }
+    el.innerHTML = html || accs.map(rowHtml).join('');
+  })();
   await Promise.all([renderCashflowChart(),renderCategoryChart()]);
 }
 async function renderCashflowChart(){
