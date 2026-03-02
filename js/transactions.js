@@ -458,6 +458,8 @@ function _filterTxAccountOrigin(excludeCreditCards) {
     if (acct && acct.type === 'cartao_credito') sel.value = '';
   }
 }
+
+
 function setTxType(type){
   document.getElementById('txTypeField').value=type;
   // card_payment is visually shown as 'transfer' tab
@@ -465,9 +467,11 @@ function setTxType(type){
   document.querySelectorAll('#txModal .tab').forEach((t,i)=>t.classList.toggle('active',['expense','income','transfer'][i]===activeTab));
   const isTransfer = type==='transfer' || type==='card_payment';
   const isCardPayment = type==='card_payment';
+  const isPureTransfer = type==='transfer';
   document.getElementById('txTransferToGroup').style.display=isTransfer?'':'none';
   document.getElementById('txPayeeGroup').style.display=isTransfer?'none':'';
-  document.getElementById('txCategoryGroup').style.display=isCardPayment?'':'none';
+  // Show category for expense, income and card_payment; hide only for pure transfer
+  document.getElementById('txCategoryGroup').style.display=isPureTransfer?'none':'';
   // Show/hide card payment label
   const cpBadge = document.getElementById('txCardPaymentBadge');
   if(cpBadge) cpBadge.style.display = isCardPayment ? '' : 'none';
@@ -475,6 +479,8 @@ function setTxType(type){
   if(transferToLabel) transferToLabel.textContent = isCardPayment ? 'Cartão de Crédito (Destino) *' : 'Conta Destino *';
   // Filter source account: card_payment origin cannot be a credit card account
   _filterTxAccountOrigin(isCardPayment);
+  // Rebuild category picker filtered by transaction type
+  buildCatPicker();
 }
 async function saveTransaction(){
   const id=document.getElementById('txId').value,type=document.getElementById('txTypeField').value;
@@ -552,16 +558,23 @@ async function saveTransaction(){
         is_transfer: true,
         is_card_payment: data.is_card_payment,
         transfer_to_account_id: data.account_id,
-        linked_transfer_id: txResult.id,
         updated_at: new Date().toISOString(),
         family_id: famId(),
       };
-      const {data:pairedResult, error:pairedErr} = await sb.from('transactions').insert(pairedTx).select().single();
+      // Try inserting with linked_transfer_id (requires migration_v3 to have been run)
+      let pairedResult, pairedErr;
+      ({data:pairedResult, error:pairedErr} = await sb.from('transactions')
+        .insert({...pairedTx, linked_transfer_id: txResult.id}).select().single());
+      // If column doesn't exist yet, retry without it
+      if(pairedErr && pairedErr.message?.includes('linked_transfer_id')) {
+        ({data:pairedResult, error:pairedErr} = await sb.from('transactions')
+          .insert(pairedTx).select().single());
+      }
       if(pairedErr) {
         toast('Transferência salva, mas erro ao criar lançamento de entrada: ' + pairedErr.message, 'warning');
       } else if(pairedResult?.id) {
-        // Back-link origin row to paired row
-        await sb.from('transactions').update({linked_transfer_id: pairedResult.id}).eq('id', txResult.id);
+        // Back-link origin row to paired row (best-effort)
+        await sb.from('transactions').update({linked_transfer_id: pairedResult.id}).eq('id', txResult.id).then(()=>{}).catch(()=>{});
       }
     }
   }

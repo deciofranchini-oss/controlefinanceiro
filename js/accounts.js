@@ -19,19 +19,15 @@ async function recalcAccountBalances() {
   if (!state.accounts.length) return;
   // Fetch all transaction amounts per account
   const { data: sums } = await famQ(
-    sb.from('transactions').select('account_id, amount, is_transfer, transfer_to_account_id')
+    sb.from('transactions').select('account_id, amount')
   );
 
-  // Build debit map (transactions debiting each account)
+  // Each transfer now has TWO rows: debit (negative) on origin and credit (positive) on destination.
+  // Simply sum all amounts per account_id — no manual credit adjustment needed.
   const txMap = {};
   (sums || []).forEach(t => {
     if (t.account_id) {
       txMap[t.account_id] = (txMap[t.account_id] || 0) + (parseFloat(t.amount) || 0);
-    }
-    // Credit destination account for transfers
-    if (t.is_transfer && t.transfer_to_account_id) {
-      const credit = Math.abs(parseFloat(t.amount) || 0);
-      txMap[t.transfer_to_account_id] = (txMap[t.transfer_to_account_id] || 0) + credit;
     }
   });
 
