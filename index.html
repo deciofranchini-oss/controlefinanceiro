@@ -299,7 +299,7 @@
         <select id="txMonth" onchange="filterTransactions()" style="max-width:175px"></select>
         <select id="txAccount" onchange="filterTransactions()" style="max-width:170px"><option value="">Todas as contas</option></select>
         <select id="txType" onchange="filterTransactions()" style="max-width:140px">
-          <option value="">Todos os tipos</option><option value="income">Receitas</option><option value="expense">Despesas</option><option value="transfer">Transferências</option>
+          <option value="">Todos os tipos</option><option value="income">Receitas</option><option value="expense">Despesas</option><option value="transfer">Transferências</option><option value="card_payment">💳 Pgto. Cartão</option>
         </select>
         <div class="view-toggle">
           <button class="view-btn active" id="viewBtnFlat" onclick="setTxView('flat')" title="Lista simples">☰ Lista</button>
@@ -310,11 +310,7 @@
       <div class="card" id="txFlatCard">
         <div class="card-header">
           <span class="card-title" id="txCount">Transações</span>
-          <div style="display:flex;gap:6px;align-items:center">
-            <span id="txAccountBalanceBadge" class="badge badge-muted" style="display:none"></span>
-            <span id="txTotalIncome" class="badge badge-green"></span>
-            <span id="txTotalExpense" class="badge badge-red"></span>
-          </div>
+          <div style="display:flex;gap:5px"><span id="txTotalIncome" class="badge badge-green"></span><span id="txTotalExpense" class="badge badge-red"></span></div>
         </div>
         <div class="table-wrap">
           <table>
@@ -629,6 +625,8 @@
           <option value="">Todos os tipos</option>
           <option value="expense">Despesas</option>
           <option value="income">Receitas</option>
+          <option value="transfer">Transferências</option>
+          <option value="card_payment">💳 Pgto. Cartão</option>
         </select>
       </div>
 
@@ -1460,7 +1458,10 @@
         <button class="tab active" onclick="setScType('expense')">Despesa</button>
         <button class="tab" onclick="setScType('income')">Receita</button>
         <button class="tab" onclick="setScType('transfer')">Transferência</button>
-        <button class="tab" onclick="setScType('cc_payment')">Pagamento Cartão</button>
+        <button class="tab" onclick="setScType('card_payment')">💳 Pgto.Cartão</button>
+      </div>
+      <div id="scCardPaymentBadge" style="display:none;margin-bottom:10px;padding:8px 12px;background:var(--blue-lt,#eff6ff);border:1px solid #bfdbfe;border-radius:var(--r-sm);font-size:.82rem;color:#1d4ed8">
+        💳 <strong>Pagamento de Cartão de Crédito</strong> — debita a conta origem e credita o cartão. Permite categorizar como pagamento de cartão.
       </div>
       <input type="hidden" id="scTypeField" value="expense">
 
@@ -1468,8 +1469,8 @@
         <!-- Basic info -->
         <div class="form-group full"><label>Descrição *</label><input type="text" id="scDesc" placeholder="Ex: Aluguel, Salário..."></div>
         <div class="form-group"><label>Valor *</label><div class="amt-wrap"><button type="button" class="amt-sign-btn" id="scAmountSignBtn" onclick="toggleAmtSign('scAmount')" aria-label="Alternar sinal">+</button><input type="text" id="scAmount" inputmode="numeric" placeholder="0,00" pattern="[0-9.,]*" autocomplete="off"></div></div>
-        <div class="form-group"><label>Conta *</label><select id="scAccountId"></select></div>
-        <div class="form-group" id="scTransferToGroup" style="display:none"><label>Conta Destino *</label><select id="scTransferTo"></select></div>
+        <div class="form-group"><label>Conta Origem *</label><select id="scAccountId"></select></div>
+        <div class="form-group" id="scTransferToGroup" style="display:none"><label>Conta Destino *</label><select id="scTransferToAccountId"></select></div>
         <div class="form-group" id="scPayeeGroup" style="position:relative">
           <label>Beneficiário / Fonte</label>
           <input type="hidden" id="scPayeeId">
@@ -1722,7 +1723,10 @@
         <button class="tab active" onclick="setTxType('expense')">Despesa</button>
         <button class="tab" onclick="setTxType('income')">Receita</button>
         <button class="tab" onclick="setTxType('transfer')">Transferência</button>
-        <button class="tab" onclick="setTxType('cc_payment')">Pagamento Cartão</button>
+        <button class="tab" onclick="setTxType('card_payment')">💳 Pgto.Cartão</button>
+      </div>
+      <div id="txCardPaymentBadge" style="display:none;margin-bottom:10px;padding:8px 12px;background:var(--blue-lt,#eff6ff);border:1px solid #bfdbfe;border-radius:var(--r-sm);font-size:.82rem;color:#1d4ed8">
+        💳 <strong>Pagamento de Cartão de Crédito</strong> — debita a conta corrente e credita o cartão. Permite categorizar como "Pgto. Cartão".
       </div>
       <input type="hidden" id="txId"><input type="hidden" id="txTypeField" value="expense">
       <div class="form-grid">
@@ -1826,7 +1830,7 @@
             </div>
           </div>
         </div>
-        <div class="form-group"><label>Saldo Inicial</label><div class="amt-wrap"><button type="button" class="amt-sign-btn" id="accountBalanceSignBtn" onclick="toggleAmtSign('accountBalance')" aria-label="Alternar sinal">+</button><input type="text" id="accountBalance" inputmode="numeric" placeholder="0,00" pattern="[0-9.,]*" autocomplete="off"></div></div>
+        <div class="form-group"><label id="accountBalanceLabel">Saldo Inicial</label><div class="amt-wrap"><button type="button" class="amt-sign-btn" id="accountBalanceSignBtn" onclick="toggleAmtSign('accountBalance')" aria-label="Alternar sinal">+</button><input type="text" id="accountBalance" inputmode="numeric" placeholder="0,00" pattern="[0-9.,]*" autocomplete="off"></div><div style="font-size:.72rem;color:var(--muted);margin-top:4px">Este é o saldo de abertura. O saldo atual é calculado automaticamente com base nas transações.</div></div>
         <div class="form-group full">
           <label>Ícone</label>
           <div class="icon-picker" id="accountIconPicker">
