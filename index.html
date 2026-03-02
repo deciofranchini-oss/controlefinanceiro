@@ -1809,7 +1809,7 @@ canvas { cursor: default; }
 
     <!-- PAYEES -->
     <div class="page" id="page-payees">
-      <div class="section-header mb-6"><span class="section-title">Beneficiários & Fontes</span><button class="btn btn-primary" onclick="openPayeeModal()">+ Novo</button></div>
+      <div class="section-header mb-6"><span class="section-title">Beneficiários & Fontes</span><div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="openPayeeClipboardImport()">📋 Importar da Área de Transferência</button><button class="btn btn-primary" onclick="openPayeeModal()">+ Novo</button></div></div>
       <div class="filters">
         <div class="search-wrap">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -3114,6 +3114,58 @@ canvas { cursor: default; }
   </div>
 </div>
 
+<div class="modal-overlay" id="payeeClipboardModal">
+  <div class="modal" style="max-width:560px"><div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title">📋 Importar Beneficiários da Área de Transferência</span>
+      <button class="modal-close" onclick="closeModal('payeeClipboardModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:12px">
+        Cole abaixo uma lista de nomes — um por linha, separados por vírgula, ponto-e-vírgula, ou Tab. Duplicatas existentes serão ignoradas automaticamente.
+      </p>
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+        <button class="btn btn-ghost btn-sm" onclick="pasteFromClipboard()" style="gap:5px">📋 Colar da Área de Transferência</button>
+        <span style="font-size:.75rem;color:var(--muted)">ou cole diretamente no campo abaixo</span>
+      </div>
+      <textarea id="payeeClipboardText" rows="8"
+        placeholder="Supermercado Extra&#10;Amazon&#10;Netflix&#10;Salário Empresa XPTO&#10;..."
+        oninput="parsePayeeClipboard()"
+        style="width:100%;resize:vertical;font-size:.85rem;font-family:var(--font-mono,monospace);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px;background:var(--bg2);color:var(--text);box-sizing:border-box"></textarea>
+
+      <div style="display:flex;gap:10px;align-items:center;margin:10px 0 6px">
+        <label style="font-size:.82rem;color:var(--text2);font-weight:600">Tipo padrão:</label>
+        <select id="payeeClipboardType" style="font-size:.82rem" onchange="parsePayeeClipboard()">
+          <option value="beneficiario">Beneficiário</option>
+          <option value="fonte_pagadora">Fonte Pagadora</option>
+          <option value="ambos">Ambos</option>
+        </select>
+        <span style="margin-left:auto;font-size:.78rem;color:var(--muted)" id="payeeClipboardCount"></span>
+      </div>
+
+      <!-- Preview list -->
+      <div id="payeeClipboardPreview" style="display:none;max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--bg2)">
+        <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+          <thead>
+            <tr style="position:sticky;top:0;background:var(--bg2);z-index:1">
+              <th style="padding:7px 12px;text-align:left;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border)">Nome</th>
+              <th style="padding:7px 8px;text-align:center;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border);width:90px">Status</th>
+              <th style="padding:7px 8px;text-align:center;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border);width:30px">
+                <input type="checkbox" id="payeeClipboardSelectAll" onchange="payeeClipboardToggleAll(this.checked)" title="Selecionar todos">
+              </th>
+            </tr>
+          </thead>
+          <tbody id="payeeClipboardPreviewBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('payeeClipboardModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmPayeeClipboardImport()" id="payeeClipboardImportBtn" disabled>Importar →</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="budgetModal">
   <div class="modal" style="max-width:400px"><div class="modal-handle"></div>
     <div class="modal-header"><span class="modal-title">Novo Orçamento</span><button class="modal-close" onclick="closeModal('budgetModal')">✕</button></div>
@@ -3731,6 +3783,170 @@ async function savePayee(){
   if(err){toast(err.message,'error');return;}toast('Salvo!','success');closeModal('payeeModal');await loadPayees();populateSelects();renderPayees();
 }
 async function deletePayee(id){if(!confirm('Excluir?'))return;const{error}=await sb.from('payees').delete().eq('id',id);if(error){toast(error.message,'error');return;}toast('Removido','success');await loadPayees();renderPayees();}
+
+/* ─── Payee Clipboard Import ─── */
+let _payeeClipboardItems = []; // { name, exists, selected }
+
+function openPayeeClipboardImport() {
+  _payeeClipboardItems = [];
+  document.getElementById('payeeClipboardText').value = '';
+  document.getElementById('payeeClipboardPreview').style.display = 'none';
+  document.getElementById('payeeClipboardPreviewBody').innerHTML = '';
+  document.getElementById('payeeClipboardCount').textContent = '';
+  document.getElementById('payeeClipboardImportBtn').disabled = true;
+  const sa = document.getElementById('payeeClipboardSelectAll');
+  if (sa) sa.checked = true;
+  openModal('payeeClipboardModal');
+}
+
+async function pasteFromClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('payeeClipboardText').value = text;
+    parsePayeeClipboard();
+  } catch(e) {
+    toast('Não foi possível acessar a área de transferência. Cole manualmente no campo.', 'warning');
+  }
+}
+
+function parsePayeeClipboard() {
+  const raw = document.getElementById('payeeClipboardText').value;
+  if (!raw.trim()) {
+    document.getElementById('payeeClipboardPreview').style.display = 'none';
+    document.getElementById('payeeClipboardCount').textContent = '';
+    document.getElementById('payeeClipboardImportBtn').disabled = true;
+    return;
+  }
+
+  // Split by newline, semicolon, comma (if whole line looks like a list), or tab
+  let names = [];
+  const lines = raw.split(/\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    // If a line has tabs, split by tab (spreadsheet paste)
+    if (trimmed.includes('\t')) {
+      names.push(...trimmed.split('\t').map(s => s.trim()).filter(Boolean));
+    }
+    // If a line has semicolons, split by semicolons
+    else if (trimmed.includes(';')) {
+      names.push(...trimmed.split(';').map(s => s.trim()).filter(Boolean));
+    }
+    // If a line has commas but doesn't look like a sentence (few words), split by comma
+    else if (trimmed.includes(',') && trimmed.split(',').every(p => p.trim().split(' ').length <= 5)) {
+      names.push(...trimmed.split(',').map(s => s.trim()).filter(Boolean));
+    }
+    // Otherwise the whole line is one name
+    else {
+      names.push(trimmed);
+    }
+  }
+
+  // Deduplicate within input
+  const seen = new Set();
+  names = names.filter(n => { const k = n.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
+
+  // Check which already exist in state.payees
+  const existingNames = new Set((state.payees||[]).map(p => p.name.toLowerCase()));
+
+  _payeeClipboardItems = names.map(name => ({
+    name,
+    exists: existingNames.has(name.toLowerCase()),
+    selected: !existingNames.has(name.toLowerCase()), // pre-select only new ones
+  }));
+
+  renderPayeeClipboardPreview();
+}
+
+function renderPayeeClipboardPreview() {
+  const items = _payeeClipboardItems;
+  const preview = document.getElementById('payeeClipboardPreview');
+  const body    = document.getElementById('payeeClipboardPreviewBody');
+  const countEl = document.getElementById('payeeClipboardCount');
+  const btn     = document.getElementById('payeeClipboardImportBtn');
+  const sa      = document.getElementById('payeeClipboardSelectAll');
+
+  if (!items.length) {
+    preview.style.display = 'none';
+    countEl.textContent = '';
+    btn.disabled = true;
+    return;
+  }
+
+  const newCount  = items.filter(i => !i.exists).length;
+  const skipCount = items.filter(i => i.exists).length;
+  const selCount  = items.filter(i => i.selected).length;
+  countEl.textContent = `${items.length} nomes · ${newCount} novos · ${skipCount} já existem`;
+
+  body.innerHTML = items.map((item, idx) => `
+    <tr style="border-bottom:1px solid var(--border);${item.exists?'opacity:.55':''}">
+      <td style="padding:6px 12px;color:var(--text)">${esc(item.name)}</td>
+      <td style="padding:6px 8px;text-align:center">
+        ${item.exists
+          ? '<span style="font-size:.72rem;font-weight:600;color:var(--muted);background:var(--bg3);padding:2px 7px;border-radius:20px">Existente</span>'
+          : '<span style="font-size:.72rem;font-weight:600;color:var(--green);background:var(--green-lt);padding:2px 7px;border-radius:20px">Novo</span>'
+        }
+      </td>
+      <td style="padding:6px 8px;text-align:center">
+        <input type="checkbox" ${item.selected?'checked':''} onchange="payeeClipboardToggleItem(${idx},this.checked)">
+      </td>
+    </tr>`).join('');
+
+  preview.style.display = '';
+  btn.disabled = selCount === 0;
+  btn.textContent = selCount > 0 ? `Importar ${selCount} →` : 'Importar →';
+  if (sa) sa.checked = items.every(i => i.selected);
+}
+
+function payeeClipboardToggleItem(idx, checked) {
+  _payeeClipboardItems[idx].selected = checked;
+  renderPayeeClipboardPreview();
+}
+
+function payeeClipboardToggleAll(checked) {
+  _payeeClipboardItems.forEach(i => i.selected = checked);
+  renderPayeeClipboardPreview();
+}
+
+async function confirmPayeeClipboardImport() {
+  const toImport = _payeeClipboardItems.filter(i => i.selected);
+  if (!toImport.length) { toast('Nenhum item selecionado', 'warning'); return; }
+
+  const btn = document.getElementById('payeeClipboardImportBtn');
+  btn.disabled = true; btn.textContent = '⏳ Importando...';
+
+  const type = document.getElementById('payeeClipboardType').value || 'beneficiario';
+
+  try {
+    const batch = toImport.map(i => ({ name: i.name, type }));
+    // Insert in batches of 100
+    let created = 0, errors = 0;
+    for (let i = 0; i < batch.length; i += 100) {
+      const { error } = await sb.from('payees').insert(batch.slice(i, i + 100));
+      if (error) {
+        // Try one-by-one to skip individual conflicts
+        for (const row of batch.slice(i, i + 100)) {
+          const { error: e2 } = await sb.from('payees').insert(row);
+          if (e2) errors++;
+          else created++;
+        }
+      } else {
+        created += batch.slice(i, i + 100).length;
+      }
+    }
+
+    await loadPayees();
+    populateSelects();
+    renderPayees();
+    closeModal('payeeClipboardModal');
+    toast(`✓ ${created} beneficiário${created !== 1 ? 's' : ''} importado${created !== 1 ? 's' : ''}${errors ? ` · ${errors} erro(s)` : ''}`, errors ? 'warning' : 'success');
+  } catch(e) {
+    toast('Erro: ' + e.message, 'error');
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = `Importar ${toImport.length} →`;
+  }
+}
 
 async function loadTransactions(){
   const f=state.txFilter;
