@@ -3344,7 +3344,7 @@ function goToAccountTransactions(accountId){
   state.txFilter.account=accountId;
   state.txFilter.month='';
   state.txPage=0;
-  const el=document.getElementById('txAccountFilter');if(el)el.value=accountId;
+  const el=document.getElementById('txAccount');if(el)el.value=accountId;
   const monthEl=document.getElementById('txMonth');if(monthEl)monthEl.value='';
   navigate('transactions');
 }
