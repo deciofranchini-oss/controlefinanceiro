@@ -421,7 +421,10 @@ function loadSettings() {
   const tl = document.getElementById('topbarLogoImg');
   const pt = document.getElementById('pageTitle');
   if(tl && pt) { tl.style.display='none'; pt.style.display=''; }
+  // Admin-only logo section
+  if(typeof initLogoSettings==='function') initLogoSettings();
 }
+
 
 
 /* ══════════════════════════════════════════════════════════════════

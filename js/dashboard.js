@@ -85,6 +85,7 @@ async function loadDashboard(){
 
   // Recent transactions table (supports status filter)
   await loadDashboardRecent();
+  await loadDashboardAutoRunSummary();
 
   // Render account balances grouped by account group
   (function renderAccountBalances() {
@@ -192,3 +193,29 @@ async function renderCategoryChart(){
 /* ═══════════════════════════════════════════════════════════════
    REPORTS — state, filters, data, export
 ═══════════════════════════════════════════════════════════════ */
+
+
+// Daily summary: how many scheduled auto-registrations ran today
+async function loadDashboardAutoRunSummary(){
+  const el = document.getElementById('dashAutoRunSummary');
+  if(!el || !sb) return;
+  try{
+    const today = new Date().toISOString().slice(0,10);
+    const q = famQ(sb.from('scheduled_run_logs').select('id',{count:'exact', head:true}))
+      .eq('scheduled_date', today);
+    const { count, error } = await q;
+    if(error) throw error;
+    const n = count || 0;
+    if(n>0){
+      el.style.display='';
+      el.textContent = `📌 Hoje: ${n} programada${n!==1?'s':''} auto-registrada${n!==1?'s':''}`;
+      const isAdmin = (typeof currentUser!=='undefined') && (currentUser?.role==='admin' || currentUser?.can_admin);
+      if(!isAdmin){ el.style.cursor='default'; el.onclick=null; }
+    } else {
+      el.style.display='none';
+    }
+  }catch(e){
+    // table may not exist; hide silently
+    el.style.display='none';
+  }
+}

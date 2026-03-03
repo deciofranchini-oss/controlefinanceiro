@@ -839,11 +839,17 @@ function initTxMobileUX(){
     const t=ev.touches[0];
     const dx=t.clientX-startX; const dy=t.clientY-startY;
     if(Math.abs(dy) > Math.abs(dx)) return; // vertical scroll wins
-    if(dx<0) return; // only swipe right
-    // Light translate for feedback
+
+    // Allow both directions: right = confirm, left = back to pending
+    const clamped = Math.max(-90, Math.min(dx, 90));
     targetEl.style.transition='none';
-    targetEl.style.transform=`translateX(${Math.min(dx,90)}px)`;
-    targetEl.style.background='var(--green-lt,#dcfce7)';
+    targetEl.style.transform=`translateX(${clamped}px)`;
+
+    if(clamped > 0){
+      targetEl.style.background='var(--green-lt,#dcfce7)';
+    } else if(clamped < 0){
+      targetEl.style.background='var(--amber-lt,#fffbeb)';
+    }
   }, {passive:true});
 
   document.addEventListener('touchend', async (ev)=>{
@@ -851,6 +857,7 @@ function initTxMobileUX(){
     const id = targetEl.getAttribute('data-tx-id');
     const dx = (targetEl.style.transform||'').match(/translateX\(([-0-9.]+)px\)/);
     const moved = dx ? parseFloat(dx[1]) : 0;
+
     // Reset visuals with animation
     targetEl.style.transition='transform 180ms ease, background 180ms ease';
     targetEl.style.transform='translateX(0px)';
@@ -860,20 +867,26 @@ function initTxMobileUX(){
     const el=targetEl; targetEl=null;
 
     if(!id) return;
-    if(moved < 60) return;
+    if(Math.abs(moved) < 60) return;
 
-    // Only if pending -> confirm
     const isPending = el.classList.contains('tx-pending');
-    if(!isPending) return;
-
-    // Animate confirmation pulse
-    el.classList.add('tx-confirm-anim');
-    setTimeout(()=>el.classList.remove('tx-confirm-anim'), 650);
 
     try {
-      await setTransactionStatus(id, 'confirmed');
+      if(moved > 0) {
+        // Swipe right: pending -> confirmed
+        if(!isPending) return;
+        el.classList.add('tx-confirm-anim');
+        setTimeout(()=>el.classList.remove('tx-confirm-anim'), 650);
+        await setTransactionStatus(id, 'confirmed');
+      } else {
+        // Swipe left: confirmed -> pending
+        if(isPending) return;
+        el.classList.add('tx-pending-anim');
+        setTimeout(()=>el.classList.remove('tx-pending-anim'), 650);
+        await setTransactionStatus(id, 'pending');
+      }
     } catch(e) {
-      toast('Erro ao confirmar: '+e.message,'error');
+      toast('Erro ao atualizar status: '+e.message,'error');
     }
   }, {passive:true});
 
