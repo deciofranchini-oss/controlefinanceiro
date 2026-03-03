@@ -33,7 +33,7 @@ function showLoginScreen() {
     ls.style.display = 'flex';
     // Fix logo: use same LOGO_URL used throughout the app
     const img = document.getElementById('loginLogoImg');
-    if (img) img.src = LOGO_URL;
+    if (typeof setAppLogo==='function') setAppLogo(getAppSetting ? (getAppSetting('app_logo_url','')||APP_LOGO_URL) : APP_LOGO_URL); else if (img) img.src = (APP_LOGO_URL||DEFAULT_LOGO_URL);
     // Load remembered credentials
     const saved = _loadRememberedCredentials();
     if (saved) {

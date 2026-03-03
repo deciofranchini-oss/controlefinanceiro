@@ -7,6 +7,10 @@ async function loadAppSettings() {
     if (error) throw error;
     _appSettingsCache = {};
     (data || []).forEach(row => { _appSettingsCache[row.key] = row.value; });
+    // Apply logo override (if any)
+    const logo = _appSettingsCache['app_logo_url'] || localStorage.getItem('app_logo_url');
+    if (logo && typeof setAppLogo === 'function') setAppLogo(logo);
+
     // Hydrate EmailJS config
     EMAILJS_CONFIG.serviceId  = _appSettingsCache['ej_service']  || localStorage.getItem('ej_service')  || '';
     EMAILJS_CONFIG.templateId = _appSettingsCache['ej_template'] || localStorage.getItem('ej_template') || '';
@@ -424,3 +428,62 @@ function loadSettings() {
    IMPORT ENGINE v3 — Rebuilt from scratch
    Supports: MoneyWiz, Nubank, Inter, Itaú, XP, Generic CSV/XLSX
 ══════════════════════════════════════════════════════════════════ */
+
+
+function initLogoSettings() {
+  // Admin-only section: show/hide
+  const isAdmin = (currentUser?.role==='admin' || currentUser?.can_admin);
+  const sec = document.getElementById('logoSettingsSection');
+  if(sec) sec.style.display = isAdmin ? '' : 'none';
+  if(!isAdmin) return;
+
+  const urlEl = document.getElementById('appLogoUrl');
+  const fileEl = document.getElementById('appLogoFile');
+  const previewEl = document.getElementById('appLogoPreview');
+
+  const cur = getAppSetting('app_logo_url','');
+  if(urlEl && cur) urlEl.value = cur;
+  if(previewEl && cur) previewEl.src = cur;
+
+  if(fileEl) {
+    fileEl.onchange = async () => {
+      const f = fileEl.files && fileEl.files[0];
+      if(!f) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataUrl = reader.result;
+        if(urlEl) urlEl.value = dataUrl;
+        if(previewEl) previewEl.src = dataUrl;
+      };
+      reader.readAsDataURL(f);
+    };
+  }
+}
+
+async function saveAppLogo() {
+  const isAdmin = (currentUser?.role==='admin' || currentUser?.can_admin);
+  if(!isAdmin) { toast('Apenas admin pode alterar o logotipo','warning'); return; }
+
+  const urlEl = document.getElementById('appLogoUrl');
+  const val = (urlEl?.value || '').trim();
+  if(!val) { toast('Informe uma URL ou selecione um arquivo','warning'); return; }
+
+  await saveAppSetting('app_logo_url', val);
+  if(typeof setAppLogo === 'function') setAppLogo(val);
+  const previewEl = document.getElementById('appLogoPreview');
+  if(previewEl) previewEl.src = val;
+  toast('Logotipo atualizado','success');
+}
+
+async function resetAppLogo() {
+  const isAdmin = (currentUser?.role==='admin' || currentUser?.can_admin);
+  if(!isAdmin) { toast('Apenas admin pode alterar o logotipo','warning'); return; }
+
+  await saveAppSetting('app_logo_url', '');
+  if(typeof setAppLogo === 'function') setAppLogo('');
+  const urlEl = document.getElementById('appLogoUrl');
+  const previewEl = document.getElementById('appLogoPreview');
+  if(urlEl) urlEl.value = '';
+  if(previewEl) previewEl.src = APP_APP_LOGO_URL || DEFAULT_APP_LOGO_URL;
+  toast('Logotipo restaurado','success');
+}
