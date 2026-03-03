@@ -1,3 +1,23 @@
+function applyEmbeddedLogo(){
+  try{
+    const uri = window.APP_LOGO_DATA_URI;
+    if(!uri) return;
+    const ids = ['topbarLogoImg','sidebarLogoImg','loginLogoImg','splashLogo'];
+    ids.forEach(id=>{
+      const el = document.getElementById(id);
+      if(el && el.tagName==='IMG') el.src = uri;
+    });
+    // Any other logo images marked with data-logo
+    document.querySelectorAll('img[data-app-logo="1"]').forEach(img=>{ img.src = uri; });
+  }catch(e){}
+}
+function hideSplash(){
+  const sp = document.getElementById('splashScreen');
+  if(!sp) return;
+  sp.classList.add('hide');
+  setTimeout(()=>{ try{ sp.remove(); }catch(e){} }, 350);
+}
+
 function openSidebar(){
   document.getElementById('sidebar').classList.add('open');
   document.getElementById('sidebarOverlay').classList.add('open');
@@ -21,8 +41,8 @@ function closeSidebar(){
 
 let sb=null;
 // Supabase connection defaults (loaded from js/config.js if present)
-const DEFAULT_SB_URL = (window.SUPABASE_URL || 'https://wkiytjwuztnytygpxooe.supabase.co').trim();
-const DEFAULT_SB_KEY = (window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndraXl0and1enRueXR5Z3B4b29lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODc3NzUsImV4cCI6MjA4Nzg2Mzc3NX0.Z3fyYRDobzarCEdqkobTjQQd1J9HAUR2CCdnBbLC0QA').trim();
+const DEFAULT_SB_URL = (window.SUPABASE_URL || '').trim();
+const DEFAULT_SB_KEY = (window.SUPABASE_ANON_KEY || '').trim();
 
 // ─────────────────────────────────────────────
 // Background helpers (PWA)
@@ -74,7 +94,6 @@ async function initSupabase(){
 }
 async function tryAutoConnect(){
   let url=localStorage.getItem('sb_url'),key=localStorage.getItem('sb_key');
-  if((!url || !key) && DEFAULT_SB_URL && DEFAULT_SB_KEY){ url = DEFAULT_SB_URL; key = DEFAULT_SB_KEY; }
   // If not configured on this device, fall back to bundled config (js/config.js)
   if((!url || !key) && DEFAULT_SB_URL && DEFAULT_SB_KEY){ url = DEFAULT_SB_URL; key = DEFAULT_SB_KEY; }
 
@@ -171,12 +190,50 @@ async function bootApp(){
   const budInEl=document.getElementById('budgetMonthInput');if(budInEl)budInEl.value=ym;
   state.txFilter.month=ym;
   // Navegar para dashboard
-  navigate('dashboard');
+  \1
+    document.dispatchEvent(new Event('ff:ready'));
   initEmailJSStatus();
   updateUserUI();
 }
 
 const pageTitles={dashboard:'Dashboard',transactions:'Transações',accounts:'Contas',reports:'Relatórios',budgets:'Orçamentos',categories:'Categorias',payees:'Beneficiários',scheduled:'Programados',import:'Importar / Backup',settings:'Configurações'};
+// ── Compact mode (mobile-friendly transaction rows) ───────────────
+function _getCompactModeFlag(){
+  try{
+    const pref = (typeof getUserPreference==='function') ? getUserPreference('transactions','compact_view') : null;
+    if(pref===true || pref==='true') return true;
+  }catch(e){}
+  return localStorage.getItem('tx_compact_view')==='1';
+}
+
+function applyCompactMode(isCompact){
+  document.body.classList.toggle('tx-compact', !!isCompact);
+  const btn = document.getElementById('compactToggleBtn');
+  if(btn) btn.classList.toggle('is-active', !!isCompact);
+  const chk = document.getElementById('txCompactToggle');
+  if(chk) chk.checked = !!isCompact;
+}
+
+async function setCompactMode(isCompact){
+  localStorage.setItem('tx_compact_view', isCompact ? '1' : '0');
+  try{ if(typeof setUserPreference==='function') await setUserPreference('transactions','compact_view', !!isCompact); }catch(e){}
+  applyCompactMode(isCompact);
+  try{
+    if(state.currentPage==='transactions') renderTransactions();
+    if(state.currentPage==='dashboard' && typeof loadDashboardRecent==='function') loadDashboardRecent();
+  }catch(e){}
+}
+
+function toggleCompactMode(){
+  const next = !_getCompactModeFlag();
+  setCompactMode(next);
+  toast(next ? 'Modo compacto ativado' : 'Modo compacto desativado','success');
+}
+
+function initCompactModeOnStart(){
+  applyCompactMode(_getCompactModeFlag());
+}
+
 function togglePrivacy(){
   state.privacyMode=!state.privacyMode;
   const btn=document.getElementById('privacyToggleBtn');
@@ -238,5 +295,3 @@ if('serviceWorker' in navigator){
   });
 }
 
-
-// Expose for inline handlers

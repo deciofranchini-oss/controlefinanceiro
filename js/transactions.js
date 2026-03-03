@@ -289,53 +289,39 @@ function populateTxMonthFilter() {
 }
 function sortTx(field){if(state.txSortField===field)state.txSortAsc=!state.txSortAsc;else{state.txSortField=field;state.txSortAsc=false;}loadTransactions();}
 
-function txRowMobile(t){
-  const st = (t.status||'confirmed');
-  const isPending = st==='pending';
+function txRow(t, flat){
+  const isPending = (t.status||'confirmed')==='pending';
   const amt = fmt(t.amount);
   const amtClass = t.amount<0 ? 'neg' : 'pos';
   const dateStr = fmtDate(t.date);
-  const timeStr = t.time ? String(t.time).slice(0,5) : '';
-  const acc = t.accounts?.name || t.account_name || '';
-  const cat = t.categories ? (t.categories.parent_id ? `${t.categories.parent_name||''} / ${t.categories.name||''}` : (t.categories.name||'')) : (t.category_name||'');
+  const attach = (t.attachment_url || t.attachment_name)
+    ? `<span class="tx-clip" title="Possui anexo">📎</span>`
+    : '';
   const payee = t.payees?.name || t.payee_name || '';
-  const attach = (t.attachment_url || t.attachment_name) ? `<span class="tx-attach" title="Possui anexo">📎</span>` : '';
-  const badge = isPending ? `<span class="pill pill-amber">⏳ Pendente</span>` : `<span class="pill pill-green">✅ Confirmada</span>`;
+  const category = t.categories?.name || t.category_name || '';
+  const categoryIcon = t.categories?.icon || '';
 
   return `
-    <tr class="tx-row-clickable ${isPending?'tx-pending':''}" data-tx-id="${esc(t.id)}" onclick="openTxDetail('${esc(t.id)}')">
-      <td colspan="7" class="tx-mobile-cell">
-        <div class="tx-mobile-card">
-          <div class="tx-mobile-top">
-            <div class="tx-mobile-date">${dateStr}${timeStr?` <span class="tx-time">${timeStr}</span>`:''}</div>
-            <div class="tx-mobile-amt ${amtClass}">${amt}</div>
-          </div>
-          <div class="tx-mobile-mid">
-            <div class="tx-mobile-desc">${esc(t.description||'—')} ${attach}</div>
-            <div class="tx-mobile-badges">${badge}</div>
-          </div>
-          <div class="tx-mobile-meta">
-            ${acc?`<div class="tx-mobile-chip" title="Conta">🏦 ${esc(acc)}</div>`:''}
-            ${cat?`<div class="tx-mobile-chip" title="Categoria">🏷️ ${esc(cat)}</div>`:''}
-            ${payee?`<div class="tx-mobile-chip" title="Parte">👤 ${esc(payee)}</div>`:''}
-          </div>
+    <tr class="tx-row" onpointerdown="this.classList.add('tx-press')" onpointerup="this.classList.remove('tx-press')" onpointercancel="this.classList.remove('tx-press')"  ${isPending?'tx-pending':''}" data-id="${esc(t.id)}">
+      <td class="tx-col-date">${dateStr}</td>
+      <td class="tx-col-main">
+        <div class="tx-main-line">
+          ${attach}
+          <span class="tx-desc">${esc(t.description||'—')}</span>
+        </div>
+        <div class="tx-payee">${esc(payee||'')}</div>
+        <div class="tx-category">${categoryIcon?`<span class="tx-cat-ico">${categoryIcon}</span>`:''}${esc(category||'')}</div>
+      </td>
+      <td class="tx-col-value amount-cell">
+        <div class="tx-amount ${amtClass}">${amt}</div>
+        <div class="tx-actions">
+          <button class="tx-action-btn" onclick="openTxDetail('${esc(t.id)}')">⋯</button>
         </div>
       </td>
     </tr>
   `;
 }
 
-function txRow(t, showAccount=true) {
-  return `<tr class="tx-row-clickable ${(t.status||'confirmed')==='pending' ? 'tx-pending' : ''}" data-tx-id="${t.id}" onclick="openTxDetail('${t.id}')" style="cursor:pointer" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
-    <td class="text-muted" style="white-space:nowrap">${fmtDate(t.date)}${(t.status||'confirmed')==='pending' ? ' <span class="badge" style="margin-left:6px;background:var(--yellow-lt,#fef9c3);color:#92400e;border:1px solid #fcd34d">Pendente</span>' : ''}</td>
-    ${showAccount ? `<td><span class="badge badge-muted">${esc(t.accounts?.name||'—')}</span></td>` : ''}
-    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.description||'—')} ${t.attachment_url||t.attachment_name ? `<span title="Possui anexo" style="margin-left:6px">📎</span>`:''} ${t.attachment_url ? `<span title="Possui anexo" style="margin-left:6px">📎</span>` : ``}</td>
-    <td class="text-muted">${esc(t.payees?.name||'—')}</td>
-    <td>${t.categories?`<span class="badge" style="background:${t.categories.color}18;color:${t.categories.color};border:1px solid ${t.categories.color}30">${esc(t.categories.name)}</span>`:'—'}</td>
-    <td class="${t.amount>=0?'amount-pos':'amount-neg'}" style="white-space:nowrap">${fmt(t.amount)}</td>
-    <td onclick="event.stopPropagation()"><div style="display:flex;gap:4px"><button class="btn-icon" title="Editar" onclick="editTransaction('${t.id}')">✏️</button><button class="btn-icon" title="Duplicar" onclick="duplicateTransaction('${t.id}')">📋</button><button class="btn-icon" title="Excluir" onclick="deleteTransaction('${t.id}')">🗑️</button></div></td>
-  </tr>`;
-}
 
 function setTxView(v) {
   state.txView = v;
@@ -344,6 +330,33 @@ function setTxView(v) {
   document.getElementById('txFlatCard').style.display = v==='flat' ? '' : 'none';
   document.getElementById('txGroupContainer').style.display = v==='group' ? '' : 'none';
   renderTransactions();
+}
+
+
+// ── Last category suggestion per Payee (expense/income) ───────────────
+function getPayeeLastCategoryMap(){
+  try{ return JSON.parse(localStorage.getItem('payee_last_category')||'{}') || {}; }catch(e){ return {}; }
+}
+function setPayeeLastCategory(payeeId, kind, categoryId){
+  if(!payeeId || !categoryId) return;
+  const map = getPayeeLastCategoryMap();
+  map[payeeId] = map[payeeId] || {};
+  map[payeeId][kind] = categoryId;
+  try{ localStorage.setItem('payee_last_category', JSON.stringify(map)); }catch(e){}
+}
+function suggestCategoryForPayee(payeeId, kind){
+  const map = getPayeeLastCategoryMap();
+  const catId = map?.[payeeId]?.[kind];
+  if(!catId) return null;
+  const sel = document.getElementById('txCategorySelect') || document.getElementById('categorySelect') || document.getElementById('txCategory');
+  if(sel && sel.value !== catId){
+    // Only auto-set if user hasn't chosen anything yet or it's empty/default
+    if(!sel.value || sel.value===''){
+      sel.value = catId;
+      try{ sel.dispatchEvent(new Event('change')); }catch(e){}
+    }
+  }
+  return catId || null;
 }
 
 function renderTransactions(){
@@ -365,9 +378,7 @@ function renderTransactions(){
   const pending = txs.filter(t => (t.status||'confirmed')==='pending');
   const confirmed = txs.filter(t => (t.status||'confirmed')!=='pending');
   const sep = (pending.length && confirmed.length) ? `<tr><td colspan="7" style="padding:6px 10px;background:var(--bg2);color:var(--muted);font-size:.72rem;font-weight:700">CONFIRMADAS</td></tr>` : '';
-  const isMobile = window.innerWidth <= 720;
-  const rowFn = isMobile ? txRowMobile : (t=>txRow(t,true));
-  body.innerHTML = pending.map(rowFn).join('') + sep + confirmed.map(rowFn).join('');
+  body.innerHTML = pending.map(t => txRow(t, true)).join('') + sep + confirmed.map(t => txRow(t, true)).join('');
   const total=state.txTotal, page=state.txPage, ps=state.txPageSize;
   document.getElementById('txPagination').innerHTML=`<span>${page*ps+1}–${Math.min((page+1)*ps,total)} de ${total}</span><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" ${page===0?'disabled':''} onclick="changePage(-1)">‹ Anterior</button><button class="btn btn-ghost btn-sm" ${(page+1)*ps>=total?'disabled':''} onclick="changePage(1)">Próxima ›</button></div>`;
 

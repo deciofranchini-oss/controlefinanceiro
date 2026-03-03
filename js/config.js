@@ -1,23 +1,6 @@
-// Family FinTrack - Supabase configuration (auto-connect)
-// Public anon key (safe to expose). Keep RLS enabled.
-
-(function() {
-  const URL = "https://wkiytjwuztnytygpxooe.supabase.co";
-  const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndraXl0and1enRueXR5Z3B4b29lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODc3NzUsImV4cCI6MjA4Nzg2Mzc3NX0.Z3fyYRDobzarCEdqkobTjQQd1J9HAUR2CCdnBbLC0QA";
-
-  // Newer config keys (some modules read these)
-  window.SUPABASE_URL = URL;
-  window.SUPABASE_ANON_KEY = KEY;
-
-  // Legacy keys used by app.js boot logic
-  try {
-    if (!localStorage.getItem('sb_url')) localStorage.setItem('sb_url', URL);
-    if (!localStorage.getItem('sb_key')) localStorage.setItem('sb_key', KEY);
-  } catch(e) {}
-
-  // Optional: also keep compatibility with previous naming
-  try {
-    if (!localStorage.getItem('SUPABASE_URL')) localStorage.setItem('SUPABASE_URL', URL);
-    if (!localStorage.getItem('SUPABASE_ANON_KEY')) localStorage.setItem('SUPABASE_ANON_KEY', KEY);
-  } catch(e) {}
-})();
+// Family FinTrack - Supabase connection bundle
+// Fill these constants to avoid having to configure Supabase on each new device.
+// WARNING: This is an anon/public key. It is expected to be exposed in the client.
+// Keep RLS enabled and NEVER put service_role keys here.
+window.SUPABASE_URL = window.SUPABASE_URL || "https://wkiytjwuztnytygpxooe.supabase.co";
+window.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndraXl0and1enRueXR5Z3B4b29lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODc3NzUsImV4cCI6MjA4Nzg2Mzc3NX0.Z3fyYRDobzarCEdqkobTjQQd1J9HAUR2CCdnBbLC0QA";
