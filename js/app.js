@@ -205,6 +205,7 @@ function navigate(page){
   else if(page==='scheduled')loadScheduled();
   else if(page==='import')initImportPage();
   else if(page==='settings')loadSettings();
+  else if(page==='audit')loadAuditLogs();
 }
 // Handle SW messages (e.g., deep links from notifications)
 if('serviceWorker' in navigator){
