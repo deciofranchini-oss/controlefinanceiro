@@ -278,7 +278,16 @@
       </div>
       <div class="grid-2">
         <div class="card">
-          <div class="card-header"><span class="card-title">Últimas Transações</span><button class="btn btn-ghost btn-sm" onclick="navigate('transactions')">Ver todas</button></div>
+          <div class="card-header" style="gap:8px;flex-wrap:wrap">
+  <span class="card-title">Últimas Transações</span>
+  <span id="dashPendingBadge" class="badge" style="background:var(--amber-lt,#fffbeb);color:var(--amber,#b45309);border:1px solid rgba(180,83,9,.18);display:none;white-space:nowrap">⏳ 0 pendentes</span>
+  <select id="dashRecentStatus" onchange="loadDashboardRecent()" style="font-size:.75rem;padding:3px 8px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);color:var(--text2);max-width:170px">
+    <option value="">Todos</option>
+    <option value="confirmed">✅ Confirmadas</option>
+    <option value="pending">⏳ Pendentes</option>
+  </select>
+  <button class="btn btn-ghost btn-sm" onclick="navigate('transactions')">Ver todas</button>
+</div>
           <div class="table-wrap"><table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th></tr></thead><tbody id="recentTxBody"><tr><td colspan="4" class="text-muted" style="text-align:center;padding:24px;font-size:.83rem">Carregando...</td></tr></tbody></table></div>
         </div>
         <div class="card"><div class="card-header"><span class="card-title">Saldo por Conta</span></div><div id="accountBalancesList"></div></div>
@@ -300,6 +309,11 @@
         <select id="txAccount" onchange="filterTransactions()" style="max-width:170px"><option value="">Todas as contas</option></select>
         <select id="txType" onchange="filterTransactions()" style="max-width:140px">
           <option value="">Todos os tipos</option><option value="income">Receitas</option><option value="expense">Despesas</option><option value="transfer">Transferências</option><option value="card_payment">💳 Pgto. Cartão</option>
+        </select>
+        <select id="txStatusFilter" onchange="filterTransactions()" style="max-width:160px">
+          <option value="">Todos os status</option>
+          <option value="pending">⏳ Pendentes</option>
+          <option value="confirmed">✅ Confirmadas</option>
         </select>
         <div class="view-toggle">
           <button class="view-btn active" id="viewBtnFlat" onclick="setTxView('flat')" title="Lista simples">☰ Lista</button>
