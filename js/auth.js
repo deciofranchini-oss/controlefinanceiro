@@ -240,6 +240,18 @@ function applyPermissions() {
     const importNav = document.querySelector('.nav-item[onclick="navigate(\'import\')"]');
     if (importNav) importNav.style.display='none';
   }
+
+// Hide admin-only screens for non-admin
+if (!(p.role==='admin' || p.can_admin)) {
+  const settingsNav = document.querySelector('.nav-item[onclick="navigate(\'settings\')"]');
+  if (settingsNav) settingsNav.style.display='none';
+  const auditNav = document.getElementById('auditNav');
+  if (auditNav) auditNav.style.display='none';
+} else {
+  const auditNav = document.getElementById('auditNav');
+  if (auditNav) auditNav.style.display='';
+}
+
 }
 
 // ── Logout ──

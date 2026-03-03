@@ -20,6 +20,38 @@ function closeSidebar(){
 }
 
 let sb=null;
+
+// ─────────────────────────────────────────────
+// Background helpers (PWA)
+// ─────────────────────────────────────────────
+let _dailyAutoTimer = null;
+
+async function registerServiceWorkerSafe(){
+  try{
+    if(!('serviceWorker' in navigator)) return;
+    // GitHub Pages friendly path: sw.js at site root
+    await navigator.serviceWorker.register('./sw.js', { scope: './' });
+  }catch(e){
+    console.warn('[sw]', e.message);
+  }
+}
+
+function scheduleDailyAutoRegister(){
+  try{
+    if(_dailyAutoTimer) clearTimeout(_dailyAutoTimer);
+    const now = new Date();
+    const next = new Date(now);
+    next.setHours(24,0,5,0); // 00:00:05 next day
+    const ms = next.getTime() - now.getTime();
+    _dailyAutoTimer = setTimeout(async ()=>{
+      try{
+        if(typeof runScheduledAutoRegister === 'function') await runScheduledAutoRegister();
+      }catch(e){ console.warn('[daily autorun]', e.message); }
+      scheduleDailyAutoRegister(); // re-arm
+    }, Math.max(5000, ms));
+  }catch(e){}
+}
+
 async function initSupabase(){
   const url=document.getElementById('supabaseUrl').value.trim();
   const key=document.getElementById('supabaseKey').value.trim();
@@ -92,6 +124,7 @@ function setAppLogo(url){
 let state={accounts:[],groups:[],categories:[],payees:[],transactions:[],budgets:[],txPage:0,txPageSize:50,txTotal:0,txSortField:'date',txSortAsc:false,txFilter:{search:'',month:'',account:'',type:'',status:''},txView:'flat',currentPage:'dashboard',chartInstances:{},privacyMode:false};
 
 async function bootApp(){
+  registerServiceWorkerSafe();
   // Logos (can be overridden by app_settings)
   setAppLogo(APP_LOGO_URL);
 
@@ -149,7 +182,7 @@ function togglePrivacy(){
 
 function navigate(page){
   // Guard: settings is admin-only
-  if(page==='settings' && !(currentUser?.role==='admin' || currentUser?.can_admin)) {
+  if((page==='settings' || page==='audit') && !(currentUser?.role==='admin' || currentUser?.can_admin)) {
     toast('Acesso restrito: apenas admin pode acessar Configurações.','warning');
     return;
   }
@@ -173,3 +206,19 @@ function navigate(page){
   else if(page==='import')initImportPage();
   else if(page==='settings')loadSettings();
 }
+// Handle SW messages (e.g., deep links from notifications)
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.addEventListener('message', (ev)=>{
+    const msg = ev.data || {};
+    if(msg.type==='NAVIGATE' && msg.page){
+      try{
+        navigate(msg.page);
+        if(msg.page==='transactions' && msg.filter?.status){
+          const sel = document.getElementById('txStatusFilter');
+          if(sel){ sel.value = msg.filter.status; state.txFilter = state.txFilter || {}; state.txFilter.status = sel.value; loadTransactions(); }
+        }
+      }catch(e){}
+    }
+  });
+}
+

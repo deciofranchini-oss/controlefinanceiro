@@ -289,7 +289,7 @@ function populateTxMonthFilter() {
 }
 function sortTx(field){if(state.txSortField===field)state.txSortAsc=!state.txSortAsc;else{state.txSortField=field;state.txSortAsc=false;}loadTransactions();}
 function txRow(t, showAccount=true) {
-  return `<tr class="tx-row-clickable ${(t.status||'confirmed')==='pending' ? 'tx-pending' : ''}" onclick="openTxDetail('${t.id}')" style="cursor:pointer" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
+  return `<tr class="tx-row-clickable ${(t.status||'confirmed')==='pending' ? 'tx-pending' : ''}" data-tx-id="${t.id}" onclick="openTxDetail('${t.id}')" style="cursor:pointer" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
     <td class="text-muted" style="white-space:nowrap">${fmtDate(t.date)}${(t.status||'confirmed')==='pending' ? ' <span class="badge" style="margin-left:6px;background:var(--yellow-lt,#fef9c3);color:#92400e;border:1px solid #fcd34d">Pendente</span>' : ''}</td>
     ${showAccount ? `<td><span class="badge badge-muted">${esc(t.accounts?.name||'—')}</span></td>` : ''}
     <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.description||'—')}</td>
@@ -331,6 +331,8 @@ function renderTransactions(){
   body.innerHTML = pending.map(t => txRow(t, true)).join('') + sep + confirmed.map(t => txRow(t, true)).join('');
   const total=state.txTotal, page=state.txPage, ps=state.txPageSize;
   document.getElementById('txPagination').innerHTML=`<span>${page*ps+1}–${Math.min((page+1)*ps,total)} de ${total}</span><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" ${page===0?'disabled':''} onclick="changePage(-1)">‹ Anterior</button><button class="btn btn-ghost btn-sm" ${(page+1)*ps>=total?'disabled':''} onclick="changePage(1)">Próxima ›</button></div>`;
+
+  try{ initTxMobileUX(); }catch(e){}
 }
 
 function renderTransactionsGrouped(txs) {
@@ -808,4 +810,93 @@ async function toggleTxDetailStatus() {
     toast('Erro: ' + e.message, 'error');
     console.error(e);
   }
+}
+
+
+// ─────────────────────────────────────────────
+// Mobile UX: swipe to confirm + compact view
+// ─────────────────────────────────────────────
+let _txSwipeBound = false;
+function initTxMobileUX(){
+  // Bind once using event delegation
+  if(_txSwipeBound) return;
+  _txSwipeBound = true;
+  let startX=0, startY=0, targetEl=null, tracking=false;
+
+  document.addEventListener('touchstart', (ev)=>{
+    const row = ev.target.closest?.('.tx-row-clickable');
+    if(!row) return;
+    // Only enable swipe on small screens
+    if(window.innerWidth>720) return;
+    tracking=true;
+    targetEl=row;
+    const t=ev.touches[0];
+    startX=t.clientX; startY=t.clientY;
+  }, {passive:true});
+
+  document.addEventListener('touchmove', (ev)=>{
+    if(!tracking||!targetEl) return;
+    const t=ev.touches[0];
+    const dx=t.clientX-startX; const dy=t.clientY-startY;
+    if(Math.abs(dy) > Math.abs(dx)) return; // vertical scroll wins
+    if(dx<0) return; // only swipe right
+    // Light translate for feedback
+    targetEl.style.transition='none';
+    targetEl.style.transform=`translateX(${Math.min(dx,90)}px)`;
+    targetEl.style.background='var(--green-lt,#dcfce7)';
+  }, {passive:true});
+
+  document.addEventListener('touchend', async (ev)=>{
+    if(!tracking||!targetEl) return;
+    const id = targetEl.getAttribute('data-tx-id');
+    const dx = (targetEl.style.transform||'').match(/translateX\(([-0-9.]+)px\)/);
+    const moved = dx ? parseFloat(dx[1]) : 0;
+    // Reset visuals with animation
+    targetEl.style.transition='transform 180ms ease, background 180ms ease';
+    targetEl.style.transform='translateX(0px)';
+    targetEl.style.background='';
+
+    tracking=false;
+    const el=targetEl; targetEl=null;
+
+    if(!id) return;
+    if(moved < 60) return;
+
+    // Only if pending -> confirm
+    const isPending = el.classList.contains('tx-pending');
+    if(!isPending) return;
+
+    // Animate confirmation pulse
+    el.classList.add('tx-confirm-anim');
+    setTimeout(()=>el.classList.remove('tx-confirm-anim'), 650);
+
+    try {
+      await setTransactionStatus(id, 'confirmed');
+    } catch(e) {
+      toast('Erro ao confirmar: '+e.message,'error');
+    }
+  }, {passive:true});
+
+  // Compact view: apply class based on preference
+  applyTxCompactPreference();
+}
+
+function applyTxCompactPreference(){
+  try{
+    const pref = (typeof getUserPreference==='function') ? getUserPreference('transactions','compact_view') : null;
+    const isCompact = pref === true || pref === 'true' || localStorage.getItem('tx_compact_view')==='1';
+    document.body.classList.toggle('tx-compact', !!isCompact);
+  }catch(e){}
+}
+
+// Toggle status helper used by detail view + swipe
+async function setTransactionStatus(txId, status){
+  if(!sb) throw new Error('Sem conexão');
+  const { error } = await sb.from('transactions').update({ status, updated_at: new Date().toISOString() }).eq('id', txId);
+  if(error) throw error;
+  // Refresh views
+  await loadAccounts();
+  if(state.currentPage==='transactions') await loadTransactions();
+  if(state.currentPage==='dashboard') await loadDashboard();
+  toast(status==='confirmed' ? '✅ Confirmada' : '⏳ Marcada como pendente', 'success');
 }

@@ -708,11 +708,13 @@ async function runScheduledAutoRegister() {
     const today = new Date();
     const toDate = new Date(today.getTime() + daysAhead*86400000);
     const toStr = toDate.toISOString().slice(0,10);
+    const todayStr = today.toISOString().slice(0,10);
 
     // Ensure scheduled loaded
     if(!state.scheduled || !state.scheduled.length) return 0;
 
     let created = 0;
+    const createdItems = [];
     for(const sc of state.scheduled) {
       if(sc.status !== 'active' || !sc.auto_register) continue;
       const occDates = generateOccurrences(sc, 500);
@@ -747,6 +749,19 @@ async function runScheduledAutoRegister() {
 
         if(isScTransfer) await _createPairedTransferLeg(txData, sc, actualDate, sc.memo);
 
+        createdItems.push({ scheduled_id: sc.id, description: sc.description, date: actualDate, amount: finalAmount, status: txStatus, tx_id: txData.id, notify_email: sc.notify_email, notify_email_addr: sc.notify_email_addr });
+
+        // Optional email notification via EmailJS
+        try{
+          const cfg2 = getAutoCheckConfig ? getAutoCheckConfig() : null;
+          const method = cfg2?.method || 'browser';
+          const emailTo = sc.notify_email ? (sc.notify_email_addr || cfg2?.emailDefault || currentUser?.email) : null;
+          if(method==='email' && emailTo && typeof sendScheduledNotification==='function') {
+            await sendScheduledNotification(sc, actualDate, finalAmount, emailTo);
+          }
+        }catch(e){ console.warn('[auto_register notify]', e.message); }
+
+
         // mark occurrence
         const { error: occErr } = await sb.from('scheduled_occurrences').insert({
           scheduled_id: sc.id,
@@ -759,9 +774,36 @@ async function runScheduledAutoRegister() {
         if(occErr) console.warn('[auto_register occ]', occErr.message);
 
         created++;
+
+        // If this scheduled is one-time, remove it from scheduled list after execution on its due date
+        try{
+          if((sc.frequency==='once' || sc.frequency==='single' || !sc.frequency) && d===todayStr){
+            await sb.from('scheduled_transactions').delete().eq('id', sc.id);
+          }
+        }catch(e){ console.warn('[auto_register delete]', e.message); }
+
       }
     }
     if(created) {
+      // Persist audit logs (best-effort)
+      try{
+        for(const it of createdItems){
+          await insertScheduledRunLog({
+            family_id: famId(),
+            scheduled_id: it.scheduled_id,
+            scheduled_date: it.date,
+            transaction_id: it.tx_id,
+            status: it.status,
+            amount: it.amount,
+            description: it.description,
+            created_at: new Date().toISOString(),
+          });
+        }
+      }catch(e){}
+
+      // Browser notification summary
+      try{ await showAutoRegisterNotification(createdItems); }catch(e){}
+
       await loadScheduled(); // refresh occurrences
       await loadAccounts();  // refresh balances (pending excluded now)
       if(state.currentPage==='transactions') loadTransactions();
@@ -772,5 +814,46 @@ async function runScheduledAutoRegister() {
   } catch(e) {
     console.warn('runScheduledAutoRegister error', e);
     return 0;
+  }
+}
+
+
+// ─────────────────────────────────────────────
+// Auto-run logs (admin audit)
+// ─────────────────────────────────────────────
+async function insertScheduledRunLog(entry){
+  try{
+    if(!sb) return;
+    // Best-effort (table may not exist yet)
+    await sb.from('scheduled_run_logs').insert(entry);
+  }catch(e){
+    // ignore if table missing
+    console.warn('[scheduled_run_logs]', e.message);
+  }
+}
+
+
+async function showAutoRegisterNotification(items){
+  if(!items || !items.length) return;
+  const title = `FinTrack: ${items.length} programada(s) registrada(s) ✅`;
+  const body  = items.slice(0,3).map(i=>`• ${i.description} (${fmt(i.amount)})`).join('\n') + (items.length>3?`\n… +${items.length-3} outras`:'');
+  // Try Service Worker notification first (best on mobile/PWA)
+  try{
+    if('serviceWorker' in navigator){
+      const reg = await navigator.serviceWorker.getRegistration();
+      if(reg && reg.showNotification){
+        await reg.showNotification(title, { body, tag:'fintrack-autoreg', renotify:false });
+        return;
+      }
+    }
+  }catch(e){}
+  // Fallback to Notification API (in-page)
+  if(!('Notification' in window)) return;
+  if(Notification.permission === 'default'){
+    // Do not force prompt; keep user-driven via settings
+    return;
+  }
+  if(Notification.permission === 'granted'){
+    try{ new Notification(title, { body }); }catch(e){}
   }
 }

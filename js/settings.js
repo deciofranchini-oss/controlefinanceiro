@@ -487,3 +487,69 @@ async function resetAppLogo() {
   if(previewEl) previewEl.src = APP_APP_LOGO_URL || DEFAULT_APP_LOGO_URL;
   toast('Logotipo restaurado','success');
 }
+
+
+// ─────────────────────────────────────────────
+// User Preferences (per screen)
+// ─────────────────────────────────────────────
+function _prefKey(screen, key){
+  const uid = currentUser?.id || 'local';
+  return `pref_${uid}_${screen}_${key}`;
+}
+
+function getUserPreference(screen, key){
+  try{
+    const raw = localStorage.getItem(_prefKey(screen,key));
+    if(raw===null || raw===undefined) return null;
+    return raw==='true' ? true : raw==='false' ? false : raw;
+  }catch(e){ return null; }
+}
+
+async function setUserPreference(screen, key, value){
+  try{ localStorage.setItem(_prefKey(screen,key), String(value)); }catch(e){}
+  // Best-effort persistence in DB (optional)
+  try{
+    if(!sb || !currentUser?.id) return;
+    const prefs = {};
+    prefs[key]=value;
+    await sb.from('user_preferences').insert({
+      user_id: currentUser.id,
+      screen,
+      preferences: prefs,
+      created_at: new Date().toISOString()
+    });
+  }catch(e){
+    // ignore if table missing / RLS blocks
+  }
+}
+
+function loadTxCompactPreference(){
+  const el = document.getElementById('txCompactToggle');
+  if(!el) return;
+  const pref = getUserPreference('transactions','compact_view');
+  const isCompact = pref===true || pref==='true' || localStorage.getItem('tx_compact_view')==='1';
+  el.checked = !!isCompact;
+  const knob = document.getElementById('txCompactKnob');
+  if(knob){
+    knob.style.background = isCompact ? 'var(--accent)' : '#ccc';
+    document.getElementById('txCompactStyle')?.remove();
+    const st = document.createElement('style');
+    st.id='txCompactStyle';
+    st.textContent = `#txCompactKnob::before{transform:translateX(${isCompact?20:0}px)}`;
+    document.head.appendChild(st);
+  }
+  document.body.classList.toggle('tx-compact', !!isCompact);
+}
+
+async function saveTxCompactPreference(){
+  const el = document.getElementById('txCompactToggle');
+  const isCompact = !!el?.checked;
+  localStorage.setItem('tx_compact_view', isCompact ? '1':'0');
+  await setUserPreference('transactions','compact_view', isCompact);
+  loadTxCompactPreference();
+  // Re-render if on transactions/dashboard
+  try{
+    if(state.currentPage==='transactions') renderTransactions();
+    if(state.currentPage==='dashboard') loadDashboardRecent();
+  }catch(e){}
+}
