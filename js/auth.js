@@ -213,7 +213,9 @@ function updateUserUI() {
   }
 
   // Show admin sections
-  if (currentUser.role === 'admin') {
+  const isAdmin = (currentUser.role === 'admin' || currentUser.can_admin === true);
+
+  if (isAdmin) {
     document.getElementById('userMgmtSection')?.style && (document.getElementById('userMgmtSection').style.display = '');
     const sub = document.getElementById('userMgmtSub');
     if (sub) sub.textContent = 'Controle de acesso · Perfil: Admin';
@@ -223,14 +225,14 @@ function updateUserUI() {
   // Admin-only nav items
   const auditNav = document.getElementById('auditNav');
   const settingsNav = document.getElementById('settingsNav');
-  if (auditNav) auditNav.style.display = (currentUser.role === 'admin') ? '' : 'none';
-  if (settingsNav) settingsNav.style.display = (currentUser.role === 'admin') ? '' : 'none';
+  if (auditNav) auditNav.style.display = (isAdmin) ? '' : 'none';
+  if (settingsNav) settingsNav.style.display = (isAdmin) ? '' : 'none';
 
   // Topbar icon shortcuts
   const topAuditBtn = document.getElementById('topAuditBtn');
   const topSettingsBtn = document.getElementById('topSettingsBtn');
-  if (topAuditBtn) topAuditBtn.style.display = (currentUser.role === 'admin') ? '' : 'none';
-  if (topSettingsBtn) topSettingsBtn.style.display = (currentUser.role === 'admin') ? '' : 'none';
+  if (topAuditBtn) topAuditBtn.style.display = (isAdmin) ? '' : 'none';
+  if (topSettingsBtn) topSettingsBtn.style.display = (isAdmin) ? '' : 'none';
 
   // Apply permission restrictions
   applyPermissions();
