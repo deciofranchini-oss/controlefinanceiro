@@ -1,3 +1,18 @@
+function buildLogoUrlWithVersion(url){
+  if(!url) return url;
+  let v = null;
+  try{ v = window.APP_SETTINGS && window.APP_SETTINGS.app_logo_version; }catch(e){}
+  if(!v){
+    try{ v = localStorage.getItem('app_logo_version'); }catch(e){}
+  }
+  if(!v) return url;
+  const hasQ = url.includes('?');
+  const sep = hasQ ? '&' : '?';
+  // If already has v=, replace it
+  if(url.match(/([?&])v=\d+/)) return url.replace(/([?&])v=\d+/, `$1v=${v}`);
+  return `${url}${sep}v=${v}`;
+}
+
 function openSidebar(){
   document.getElementById('sidebar').classList.add('open');
   document.getElementById('sidebarOverlay').classList.add('open');
@@ -144,6 +159,13 @@ async function bootApp(){
 
   // Carregar dados base
   try {
+    // Ask Service Worker to invalidate previous logo cache and pre-cache the new versioned URL
+    try{ if(navigator.serviceWorker && navigator.serviceWorker.controller){
+      const prev = localStorage.getItem('app_logo_prev_url') || '';
+      localStorage.setItem('app_logo_prev_url', versionedUrl || '');
+      navigator.serviceWorker.controller.postMessage({type:'INVALIDATE_LOGO', prevUrl: prev, newUrl: versionedUrl});
+    } }catch(e){}
+
     await Promise.all([loadAccounts(),loadCategories(),loadPayees(),loadAppSettings(),loadScheduled().catch(()=>{})]);
   } catch(e) {
     toast('Erro ao carregar dados: '+e.message,'error');
@@ -274,3 +296,17 @@ if('serviceWorker' in navigator){
   });
 }
 
+
+
+// 🔹 Apply external sidebar logo (from ui-config.js)
+document.addEventListener("DOMContentLoaded", function(){
+  try {
+    const logo = document.getElementById("sidebarLogo");
+    if(logo && window.UI_CONFIG && window.UI_CONFIG.SIDEBAR_LOGO_URL){
+      logo.src = window.UI_CONFIG.SIDEBAR_LOGO_URL;
+      logo.style.display = "block";
+    }
+  } catch(e){
+    console.warn("Sidebar logo load error:", e);
+  }
+});

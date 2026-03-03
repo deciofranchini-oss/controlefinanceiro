@@ -539,6 +539,8 @@ async function saveAppLogo() {
 if(!finalUrl){ toast('URL do logotipo inválida. Tente novamente.','error'); return; }
 await saveAppSetting('app_logo_url', finalUrl);
 if(typeof setAppLogo === 'function') setAppLogo(finalUrl);
+    // Ask Service Worker to cache the new logo URL for faster cross-device load
+    try{ if(navigator.serviceWorker && navigator.serviceWorker.controller){ navigator.serviceWorker.controller.postMessage({type:'CACHE_URL', url: finalUrl}); } }catch(e){}
 
     const previewEl = document.getElementById('appLogoPreview');
     if(previewEl) previewEl.src = finalUrl;
