@@ -355,14 +355,13 @@ function renderTransactionsGrouped(txs) {
     const g = groups[k];
     const acct = state.accounts.find(a => a.id === k) || {};
     const col = acct.color || 'var(--accent)';
-    const initialBal = parseFloat(acct.initial_balance) || 0;
-    const bal = initialBal + (g.balance || 0);
+    const bal = g.balance;
     return `<div onclick="document.getElementById('txGroup-${k}').scrollIntoView({behavior:'smooth',block:'start'})"
       style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;transition:box-shadow .15s;font-size:.8rem"
       onmouseover="this.style.boxShadow='var(--shadow)'" onmouseout="this.style.boxShadow=''">
       ${renderIconEl(acct.icon, acct.color, 20)}
       <span style="font-weight:600;color:var(--text)">${esc(g.account?.name||'Sem conta')}</span>
-      <span class="${bal>=0?'amount-pos':'amount-neg'}" style="font-weight:600;font-size:.85rem">${fmt(bal, acct.currency || 'BRL')}</span>
+      <span class="${bal>=0?'amount-pos':'amount-neg'}" style="font-weight:600;font-size:.85rem">${fmt(bal)}</span>
     </div>`;
   }).join('');
 
@@ -382,7 +381,7 @@ function renderTransactionsGrouped(txs) {
           ${g.income ? `<span class="badge badge-green" style="font-size:.75rem">+${fmt(g.income)}</span>` : ''}
           ${g.expense ? `<span class="badge badge-red" style="font-size:.75rem">${fmt(g.expense)}</span>` : ''}
           <span class="badge" style="font-size:.78rem;font-weight:700;background:${g.balance>=0?'var(--green-lt)':'var(--red-lt)'};color:${g.balance>=0?'var(--green)':'var(--red)'}">
-            ${( (parseFloat((state.accounts.find(a=>a.id===k)||{}).initial_balance)||0) + g.balance) >=0 ? '=':''} ${fmt((parseFloat((state.accounts.find(a=>a.id===k)||{}).initial_balance)||0) + g.balance), ((state.accounts.find(a=>a.id===k)||{}).currency || 'BRL'))}
+            ${g.balance>=0?'=':''} ${fmt(g.balance)}
           </span>
           <span style="font-size:.7rem;color:var(--muted)">${g.txs.length} lanç.</span>
         </div>
