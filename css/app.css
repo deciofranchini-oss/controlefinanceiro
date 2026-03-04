@@ -17,8 +17,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{font-size:15px;-webkit-text-size-adjust:100%;}
-body{
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;font-family:var(--font-sans);background:var(--bg);color:var(--text);height:100vh;height:100dvh;display:flex;overflow:hidden;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);height:100vh;height:100dvh;display:flex;overflow:hidden;-webkit-font-smoothing:antialiased;}
 
 /* SIDEBAR */
 .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:200;transition:transform .28s cubic-bezier(.4,0,.2,1);}
@@ -1340,68 +1339,3 @@ body.tx-compact .tx-table .badge{
 body.tx-compact #txCompactKnob{ background:var(--accent) !important; }
 body.tx-compact #txCompactKnob::before{ transform:translateX(20px); }
 #compactToggleBtn.is-active{ color:var(--accent) !important; }
-
-
-/* iPhone transaction sizing */
-@media (max-width: 430px){
-  .tx-table, .tx-table td, .tx-table th{ font-size: 0.82rem; }
-  .tx-table td{ padding: 8px 8px; }
-  .tx-amount{ font-size: 0.86rem; }
-  .tx-desc{ font-size: 0.82rem; }
-  .tx-meta{ font-size: 0.74rem; }
-}
-
-
-/* Beneficiary below description */
-.tx-payee{ display:block; }
-/* Slightly tighter vertical spacing */
-.tx-row{ padding-top:8px; padding-bottom:8px; }
-
-
-/* ─────────────────────────────────────────────────────────────
-   Apple Finance typography + iOS Wallet-like amount alignment
-   ───────────────────────────────────────────────────────────── */
-:root{
-  --sf: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-body{ font-family: var(--sf); text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
-.section-title{ font-weight: 800; letter-spacing: -0.02em; }
-.tx-desc{ font-weight: 650; letter-spacing: -0.01em; }
-.tx-payee{ font-weight: 500; letter-spacing: -0.01em; }
-
-/* Right-align values with tabular numbers (Wallet vibe) */
-.tx-amount, .tx-mobile-amt{
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "ss01" 1;
-  text-align: right;
-  min-width: 92px;
-  letter-spacing: -0.01em;
-}
-.tx-amount.pos{ color: var(--green); }
-.tx-amount.neg{ color: var(--red); }
-
-/* Make amount column visually "anchored" to the right edge */
-.tx-table td.amount-cell{ text-align:right; }
-
-
-/* Transaction detail open animation */
-.modal-backdrop{ opacity: 0; transition: opacity .18s ease; }
-.modal-backdrop.show{ opacity: 1; }
-.modal{
-  transform: translateY(12px) scale(.985);
-  opacity: 0;
-  transition: transform .18s ease, opacity .18s ease;
-  will-change: transform, opacity;
-}
-.modal.show{
-  transform: translateY(0) scale(1);
-  opacity: 1;
-}
-
-
-/* Reports mobile scroll fix */
-#page-reports{ overflow-y:auto; padding-bottom:140px; }
-@media (max-width: 720px){
-  #page-reports .grid-2{ display:grid; grid-template-columns: 1fr !important; gap: 12px; }
-  #page-reports canvas{ max-width:100%; height:auto; }
-}

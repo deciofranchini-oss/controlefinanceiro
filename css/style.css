@@ -17,8 +17,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{font-size:15px;-webkit-text-size-adjust:100%;}
-body{
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;font-family:var(--font-sans);background:var(--bg);color:var(--text);height:100vh;height:100dvh;display:flex;overflow:hidden;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);height:100vh;height:100dvh;display:flex;overflow:hidden;-webkit-font-smoothing:antialiased;}
 
 /* SIDEBAR */
 .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:200;transition:transform .28s cubic-bezier(.4,0,.2,1);}
