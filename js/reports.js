@@ -1,7 +1,3 @@
-function lastDayOfMonth(year, month){
-  return new Date(year, month, 0).getDate();
-}
-
 let rptState = { view:'regular', txData:[] };
 let rptTxSortField = 'date', rptTxSortAsc = false;
 
@@ -24,7 +20,7 @@ function getRptDateRange() {
     to   = new Date(now.getFullYear(),q*3+3,0).toISOString().slice(0,10);
   } else if(p === 'year') {
     from = `${now.getFullYear()}-01-01`;
-    to   = `${now.getFullYear()}-12-${String(lastDayOfMonth(y, m)).padStart(2,'0')}`;
+    to   = `${now.getFullYear()}-12-31`;
   } else { // last12
     const d = new Date(); d.setMonth(d.getMonth()-11); d.setDate(1);
     from = d.toISOString().slice(0,10);
@@ -76,7 +72,7 @@ function loadCurrentReport() {
 }
 
 /* ── Fetch filtered transactions ── */
-async async function fetchRptTransactions() {
+async function fetchRptTransactions() {
   const {from, to} = getRptDateRange();
   const accId  = document.getElementById('rptAccount')?.value   || '';
   const typeV  = document.getElementById('rptType')?.value      || '';
@@ -99,34 +95,7 @@ async async function fetchRptTransactions() {
 }
 
 /* ═══ VIEW: ANÁLISE ═══ */
-
-// Build tooltip lines showing category composition for a bar (top categories + others)
-function _rptTopCompositionLines(catMap, total) {
-  if(!catMap) return [];
-  const entries = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
-  if(!entries.length) return [];
-  const max = 6;
-  const top = entries.slice(0, max);
-  const rest = entries.slice(max);
-  const lines = top.map(([name,val]) => {
-    const pct = total>0 ? (val/total*100).toFixed(1)+'%' : '';
-    return `• ${name}: ${fmt(val)}${pct?` (${pct})`:''}`;
-  });
-  if(rest.length) {
-    const restVal = rest.reduce((s,[,v])=>s+v,0);
-    const pct = total>0 ? (restVal/total*100).toFixed(1)+'%' : '';
-    lines.push(`• Outros: ${fmt(restVal)}${pct?` (${pct})`:''}`);
-  }
-  return lines;
-}
-
-async async function loadReports() {
-  if(!window.Chart){
-    const el=document.getElementById('reportsError');
-    if(el) el.textContent='Chart.js não carregou. Verifique conexão/cache.';
-    return;
-  }
-
+async function loadReports() {
   const {from, to} = getRptDateRange();
   const txs  = await fetchRptTransactions();
   rptState.txData = txs;
@@ -150,57 +119,7 @@ async async function loadReports() {
 
   const FB = ['#2a6049','#1e5ba8','#b45309','#c0392b','#7c3aed','#2a7a4a','#d97706','#6b7280','#3d7a5e','#4e8f73'];
 
-function _isStr(v){ return typeof v === 'string'; }
-function _safeColorAny(v, fb){
-  const fallback = fb || '#6b7280';
-  if(_isStr(v) && v.trim()) return v;
-  if(v && typeof v === 'number') return fallback;
-  if(v && typeof v === 'object'){
-    const cand = v.value || v.hex || v.color;
-    if(_isStr(cand) && cand.trim()) return cand;
-  }
-  return fallback;
-}
-function sanitizeDatasets(data){
-  try{
-    if(!data || !Array.isArray(data.datasets)) return data;
-    data.datasets.forEach((ds, i)=>{
-      if(!ds || typeof ds !== 'object') return;
-      const fb = (Array.isArray(FB) && FB.length) ? FB[i%FB.length] : '#6b7280';
-      const keys = ['backgroundColor','borderColor','hoverBackgroundColor','hoverBorderColor','pointBackgroundColor','pointBorderColor','pointHoverBackgroundColor','pointHoverBorderColor'];
-      keys.forEach(k=>{
-        const v = ds[k];
-        if(Array.isArray(v)) ds[k] = v.map(x=>_safeColorAny(x, fb));
-        else if(v !== undefined) ds[k] = _safeColorAny(v, fb);
-      });
-    });
-  }catch(e){}
-  return data;
-}
-function plainClone(obj){
-  try{ return JSON.parse(JSON.stringify(obj)); }catch(e){ return obj; }
-}
-function sanitizeChartConfig(type, data, options){
-  const cleanData = sanitizeDatasets(data);
-  const cleanOptions = plainClone(options || {});
-  return { type, data: cleanData, options: cleanOptions };
-}
-
-
-
-  
-function safeColor(c, fallback){
-  const fb = fallback || '#6b7280';
-  if(typeof c === 'string' && c.trim()) return c;
-  // Allow {value:'#fff'} or {hex:'#fff'} shapes
-  if(c && typeof c === 'object'){
-    const v = c.value || c.hex || c.color;
-    if(typeof v === 'string' && v.trim()) return v;
-  }
-  return fb;
-}
-
-/* Despesas por categoria */
+  /* Despesas por categoria */
   const expMap = {};
   exps.forEach(t=>{
     const n=t.categories?.name||'Sem categoria', c=t.categories?.color||'#94a3b8';
@@ -211,7 +130,7 @@ function safeColor(c, fallback){
   if(expEntries.length)
     renderChart('reportCatChart','doughnut',expEntries.map(e=>e[0]),
       [{data:expEntries.map(e=>e[1].total),
-        backgroundColor: expEntries.map((e,i)=>safeColor(e[1].color, FB[i%FB.length])),
+        backgroundColor:expEntries.map((e,i)=>e[1].color||FB[i%FB.length]),
         borderWidth:2,borderColor:'#fff',hoverOffset:8}]);
 
   /* Receitas por categoria */
@@ -225,7 +144,7 @@ function safeColor(c, fallback){
   if(incEntries.length)
     renderChart('reportIncomeChart','doughnut',incEntries.map(e=>e[0]),
       [{data:incEntries.map(e=>e[1].total),
-        backgroundColor: incEntries.map((e,i)=>safeColor(e[1].color, FB[i%FB.length])),
+        backgroundColor:incEntries.map((e,i)=>e[1].color||FB[i%FB.length]),
         borderWidth:2,borderColor:'#fff',hoverOffset:8}]);
 
   /* Por conta */
@@ -236,40 +155,11 @@ function safeColor(c, fallback){
     if(t.amount<0) accMap[n].exp+=Math.abs(t.amount); else accMap[n].inc+=t.amount;
   });
   const accE = Object.entries(accMap).sort((a,b)=>(b[1].exp+b[1].inc)-(a[1].exp+a[1].inc));
-// Category composition per account for bar tooltips
-const _accComp = {};
-txs.forEach(t => {
-  const acc = t.accounts?.name || '—';
-  const tp  = t.amount < 0 ? 'Despesas' : 'Receitas';
-  const cat = t.categories?.name || 'Sem categoria';
-  const val = t.amount < 0 ? Math.abs(t.amount) : t.amount;
-  if(!_accComp[acc]) _accComp[acc] = { Despesas:{}, Receitas:{} };
-  _accComp[acc][tp][cat] = (_accComp[acc][tp][cat] || 0) + val;
-});
-
-
   if(accE.length)
     renderChart('reportAccountChart','bar',accE.map(e=>e[0]),[
       {label:'Despesas',data:accE.map(e=>+e[1].exp.toFixed(2)),backgroundColor:'rgba(192,57,43,.8)',borderRadius:5,borderSkipped:false},
       {label:'Receitas',data:accE.map(e=>+e[1].inc.toFixed(2)),backgroundColor:'rgba(42,122,74,.8)',borderRadius:5,borderSkipped:false},
-    ], {
-      plugins: {
-        tooltip: {
-          callbacks: {
-            afterBody(items) {
-              const it = items?.[0];
-              if(!it) return [];
-              const accLabel = it.label;
-              const dsLabel  = it.dataset?.label;
-              const val = Math.abs(Number(it.raw||0));
-              const catMap = _accComp[accLabel]?.[dsLabel];
-              const lines = _rptTopCompositionLines(catMap, val);
-              return lines.length ? ['','Composição por categoria:', ...lines] : [];
-            }
-          }
-        }
-      }
-    });
+    ]);
 
   /* Evolução */
   await renderTrendChart(from, to);
@@ -319,84 +209,21 @@ async function renderTrendChart(from, to) {
       if(t.amount<0) wkMap[w].exp+=Math.abs(t.amount); else wkMap[w].inc+=t.amount;
     });
     const wks=Object.entries(wkMap);
-    
-if(wks.length) {
-  // Category composition per week bucket (for bar tooltips)
-  const _wkComp = {};
-  rptState.txData.forEach(t=>{
-    const d=new Date(t.date+'T12:00');
-    const w='Sem '+Math.ceil(d.getDate()/7);
-    const tp=t.amount<0?'Despesas':'Receitas';
-    const cat=t.categories?.name||'Sem categoria';
-    const val=t.amount<0?Math.abs(t.amount):t.amount;
-    if(!_wkComp[w]) _wkComp[w]={Despesas:{},Receitas:{}};
-    _wkComp[w][tp][cat]=(_wkComp[w][tp][cat]||0)+val;
-  });
-
-  renderChart('reportTrendChart','bar',wks.map(w=>w[0]),[
-    {label:'Receitas',data:wks.map(w=>+w[1].inc.toFixed(2)),backgroundColor:'rgba(42,122,74,.8)',borderRadius:5,borderSkipped:false},
-    {label:'Despesas',data:wks.map(w=>+w[1].exp.toFixed(2)),backgroundColor:'rgba(192,57,43,.75)',borderRadius:5,borderSkipped:false},
-  ], {
-    plugins: {
-      tooltip: {
-        callbacks: {
-          afterBody(items) {
-            const it = items?.[0]; if(!it) return [];
-            const bucket = it.label;
-            const dsLabel = it.dataset?.label;
-            const val = Math.abs(Number(it.raw||0));
-            const catMap = _wkComp[bucket]?.[dsLabel];
-            const lines = _rptTopCompositionLines(catMap, val);
-            return lines.length ? ['','Composição por categoria:', ...lines] : [];
-          }
-        }
-      }
-    }
-  });
-}
-return;
-
+    if(wks.length) renderChart('reportTrendChart','bar',wks.map(w=>w[0]),[
+      {label:'Receitas',data:wks.map(w=>+w[1].inc.toFixed(2)),backgroundColor:'rgba(42,122,74,.8)',borderRadius:5,borderSkipped:false},
+      {label:'Despesas',data:wks.map(w=>+w[1].exp.toFixed(2)),backgroundColor:'rgba(192,57,43,.75)',borderRadius:5,borderSkipped:false},
+    ]);
+    return;
   }
   rptState.txData.forEach(t=>{
     const m=months.find(x=>x.key===t.date.slice(0,7)); if(!m) return;
     if(t.amount<0) m.exp+=Math.abs(t.amount); else m.inc+=t.amount;
   });
-  
-  // Category composition per month label (for bar tooltips)
-  const _moComp = {};
-  months.forEach(m => { _moComp[m.label] = { Despesas:{}, Receitas:{} }; });
-  rptState.txData.forEach(t=>{
-    const key = t.date.slice(0,7);
-    const m = months.find(x=>x.key===key); if(!m) return;
-    const lab = m.label;
-    const tp = t.amount<0?'Despesas':'Receitas';
-    const cat = t.categories?.name || 'Sem categoria';
-    const val = t.amount<0?Math.abs(t.amount):t.amount;
-    _moComp[lab][tp][cat] = (_moComp[lab][tp][cat]||0)+val;
-  });
-
   renderChart('reportTrendChart','bar',months.map(m=>m.label),[
     {label:'Receitas',data:months.map(m=>+m.inc.toFixed(2)),backgroundColor:'rgba(42,122,74,.8)',borderRadius:5,borderSkipped:false},
     {label:'Despesas',data:months.map(m=>+m.exp.toFixed(2)),backgroundColor:'rgba(192,57,43,.75)',borderRadius:5,borderSkipped:false},
-  ], {
-    plugins: {
-      tooltip: {
-        callbacks: {
-          afterBody(items) {
-            const it = items?.[0]; if(!it) return [];
-            const lab = it.label;
-            const dsLabel = it.dataset?.label;
-            const val = Math.abs(Number(it.raw||0));
-            const catMap = _moComp[lab]?.[dsLabel];
-            const lines = _rptTopCompositionLines(catMap, val);
-            return lines.length ? ['','Composição por categoria:', ...lines] : [];
-          }
-        }
-      }
-    }
-  });
+  ]);
 }
-
 
 /* ═══ VIEW: TRANSAÇÕES ═══ */
 async function loadReportTx() {
@@ -487,7 +314,7 @@ async function exportReportPDF() {
     doc.setFillColor(42,96,73); doc.rect(0,0,W,30,'F');
     doc.setTextColor(255,255,255);
     doc.setFontSize(15); doc.setFont('helvetica','bold');
-    doc.text("Family FinTrack — Relatório", 14, 12);
+    doc.text("J.F. Family FinTrack — Relatório", 14, 12);
     doc.setFontSize(9); doc.setFont('helvetica','normal');
     doc.text('Período: ' + fmtDate(from) + ' a ' + fmtDate(to), 14, 21);
     doc.text('Gerado: ' + new Date().toLocaleString('pt-BR'), W-14, 21, {align:'right'});
@@ -550,7 +377,7 @@ async function exportReportPDF() {
     const pages=doc.internal.getNumberOfPages();
     for(let i=1;i<=pages;i++){
       doc.setPage(i);doc.setFontSize(8);doc.setTextColor(150);
-      doc.text(`Family FinTrack  ·  Página ${i}/${pages}`,W/2,doc.internal.pageSize.getHeight()-8,{align:'center'});
+      doc.text(`JF Family FinTrack  ·  Página ${i}/${pages}`,W/2,doc.internal.pageSize.getHeight()-8,{align:'center'});
     }
 
     doc.save(`FinTrack_${from}_${to}.pdf`);
@@ -614,7 +441,7 @@ function printReport() {
   area.innerHTML=`
     <div style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto">
       <div style="background:#2a6049;color:#fff;padding:20px 24px;border-radius:8px 8px 0 0;margin-bottom:0">
-        <div style="font-size:20px;font-weight:700">Family FinTrack — Relatório</div>
+        <div style="font-size:20px;font-weight:700">JF Family FinTrack — Relatório</div>
         <div style="font-size:13px;opacity:.85;margin-top:4px">Período: ${fmtDate(from)} a ${fmtDate(to)}  ·  Gerado: ${new Date().toLocaleString('pt-BR')}</div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px;background:#f5f5f5">
@@ -697,7 +524,7 @@ async function sendReportByEmail() {
     doc.setFillColor(42, 96, 73); doc.rect(0, 0, W, 30, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(15); doc.setFont('helvetica', 'bold');
-    doc.text('Family FinTrack — Relatório', 14, 12);
+    doc.text('J.F. Family FinTrack — Relatório', 14, 12);
     doc.setFontSize(9); doc.setFont('helvetica', 'normal');
     doc.text('Período: ' + fmtDate(from) + ' a ' + fmtDate(to), 14, 21);
     doc.text('Gerado: ' + new Date().toLocaleString('pt-BR'), W - 14, 21, { align: 'right' });
@@ -780,7 +607,7 @@ async function sendReportByEmail() {
     const pages = doc.internal.getNumberOfPages();
     for (let p = 1; p <= pages; p++) {
       doc.setPage(p); doc.setFontSize(8); doc.setTextColor(150);
-      doc.text(`Family FinTrack  ·  Página ${p}/${pages}`,
+      doc.text(`JF Family FinTrack  ·  Página ${p}/${pages}`,
         W / 2, doc.internal.pageSize.getHeight() - 8, { align: 'center' });
     }
 
@@ -824,7 +651,7 @@ async function sendReportByEmail() {
       recipient:      toAddr,
       dest_email:     toAddr,
       reply_to:       toAddr,
-      from_name:      'Family FinTrack',
+      from_name:      'J.F. Family FinTrack',
       subject:        subject,
       message:        userMessage,
       report_period:  `${fmtDate(from)} a ${fmtDate(to)}`,
@@ -885,22 +712,6 @@ async function sendReportByEmail() {
   }
 }
 
-
-// Deep merge helper for chart options (keeps defaults while allowing scoped overrides)
-function _deepMerge(target, source) {
-  if(!source) return target;
-  for(const k of Object.keys(source)) {
-    const sv = source[k];
-    const tv = target[k];
-    if(sv && typeof sv === 'object' && !Array.isArray(sv) && tv && typeof tv === 'object' && !Array.isArray(tv)) {
-      target[k] = _deepMerge({...tv}, sv);
-    } else {
-      target[k] = sv;
-    }
-  }
-  return target;
-}
-
 function renderChart(id, type, labels, datasets, extraOptions={}) {
   if(state.chartInstances[id]) state.chartInstances[id].destroy();
   const ctx = document.getElementById(id)?.getContext('2d');
@@ -909,8 +720,7 @@ function renderChart(id, type, labels, datasets, extraOptions={}) {
   const isDoughnut = type === 'doughnut' || type === 'pie';
   const isBar = type === 'bar';
 
-  try{
-    state.chartInstances[id] = new Chart(ctx, {
+  state.chartInstances[id] = new Chart(ctx, {
     type,
     data: { labels, datasets },
     options: {
@@ -1000,20 +810,9 @@ function renderChart(id, type, labels, datasets, extraOptions={}) {
         x: { ticks:{color:'#8c8278',font:{size:10.5}}, grid:{color:'#f0ede811'}, border:{color:'#e8e4de'} },
         y: { ticks:{color:'#8c8278',font:{size:10.5},callback:v=>fmt(v)}, grid:{color:'#f0ede8'}, border:{color:'#e8e4de'} }
       } : undefined,
-      /* merged options */
+      ...extraOptions,
     }
   });
-  }catch(e){
-    console.error('Report chart render error', e);
-    const el=document.getElementById('reportsError');
-    if(el) el.textContent = 'Erro ao renderizar gráficos: '+(e && e.message ? e.message : e);
-    return;
-  }
-  // Merge extra options without losing defaults
-  if(extraOptions && Object.keys(extraOptions).length) {
-    state.chartInstances[id].options = _deepMerge(state.chartInstances[id].options || {}, extraOptions);
-    state.chartInstances[id].update();
-  }
   return state.chartInstances[id];
 }
 
