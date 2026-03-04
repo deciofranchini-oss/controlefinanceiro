@@ -1,3 +1,81 @@
+// ===== Global error capture (Safari-friendly) =====
+window.__FT_DEBUG__ = window.__FT_DEBUG__ || { errors: [] };
+(function(){
+  function showDebug(msg){
+    try{
+      const o = document.getElementById('debugOverlay');
+      const t = document.getElementById('debugOverlayText');
+      if(o && t){
+        window.__FT_DEBUG__.errors.push(msg);
+        t.textContent = window.__FT_DEBUG__.errors.join("\n\n---\n\n");
+        o.style.display='block';
+        const closeBtn = document.getElementById('debugOverlayClose');
+        const copyBtn = document.getElementById('debugOverlayCopy');
+        if(closeBtn && !closeBtn.__bound){
+          closeBtn.__bound=true;
+          closeBtn.addEventListener('click', ()=>{ o.style.display='none'; });
+        }
+        if(copyBtn && !copyBtn.__bound){
+          copyBtn.__bound=true;
+          copyBtn.addEventListener('click', async ()=>{
+            try{
+              await navigator.clipboard.writeText(t.textContent);
+              copyBtn.textContent='Copiado!';
+              setTimeout(()=>copyBtn.textContent='Copiar', 1200);
+            }catch(e){}
+          });
+        }
+      }
+    }catch(e){}
+  }
+  window.addEventListener('error', function(ev){
+    const msg = '[window.error] ' + (ev.message || 'Unknown error') + '\n' + (ev.filename||'') + ':' + (ev.lineno||'') + ':' + (ev.colno||'') + '\n' + (ev.error && ev.error.stack ? ev.error.stack : '');
+    console.error(msg);
+    showDebug(msg);
+  });
+  window.addEventListener('unhandledrejection', function(ev){
+    const r = ev.reason;
+    const msg = '[unhandledrejection] ' + (r && r.message ? r.message : String(r)) + '\n' + (r && r.stack ? r.stack : '');
+    console.error(msg);
+    showDebug(msg);
+  });
+  window.__ftLogError = function(label, err){
+    const msg = '[' + label + '] ' + (err && err.message ? err.message : String(err)) + '\n' + (err && err.stack ? err.stack : '');
+    console.error(msg);
+    showDebug(msg);
+  };
+})();
+// =================================================
+
+function applyConfiguredLogo(){
+  try{
+    // Priority 1: admin-configured logo saved in localStorage (synced by settings panel / Supabase)
+    let url = null;
+    try{ url = localStorage.getItem('app_logo_url'); }catch(e){}
+    // Priority 2: external ui-config.js fallback
+    if(!url){
+      try{ url = window.UI_CONFIG && window.UI_CONFIG.SIDEBAR_LOGO_URL; }catch(e){}
+    }
+    if(url && typeof setAppLogo === 'function'){
+      setAppLogo(url);
+    }else{
+      // If no URL, hide all logo imgs to avoid showing stale assets
+      document.querySelectorAll('img[data-app-logo="1"]').forEach(img=>{ img.style.display='none'; });
+    }
+  }catch(e){}
+}
+
+function applySidebarLogoFromConfig(){
+  try{
+    const url = window.UI_CONFIG && window.UI_CONFIG.SIDEBAR_LOGO_URL;
+    if(!url) return;
+    const el = document.getElementById('sidebarLogoImg') || document.getElementById('sidebarLogo');
+    if(el && el.tagName === 'IMG'){
+      el.src = url;
+    }
+  }catch(e){}
+}
+
 function openSidebar(){
   document.getElementById('sidebar').classList.add('open');
   document.getElementById('sidebarOverlay').classList.add('open');
