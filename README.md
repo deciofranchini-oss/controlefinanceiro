@@ -1,4 +1,4 @@
-# J.F. Family FinTrack
+# Family FinTrack
 
 Personal finance PWA built with vanilla JS + Supabase.
 
